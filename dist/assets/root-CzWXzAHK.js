@@ -1,0 +1,1 @@
+import{j as a,N as e,O as l}from"./index-BbyT9DIH.js";const r=[{path:"/",label:"纯文本"},{path:"/scroll-container",label:"滚动容器"},{path:"/selection",label:"选择"}],c=()=>a.jsxs("div",{className:"root",children:[a.jsx("aside",{className:"sidebar",children:r.map(s=>a.jsx(e,{className:({isActive:t})=>t?"active":"",to:s.path,children:s.label},s.path))}),a.jsx(l,{})]});export{c as default};
