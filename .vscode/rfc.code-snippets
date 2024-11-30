@@ -1,0 +1,24 @@
+{
+  "react-template": {
+    "prefix": "rfc",
+    "body": [
+      "import clsx from 'clsx'",
+      "import type { FC } from 'react'",
+      "",
+      "export interface ${1:$TM_FILENAME_BASE}Props {}",
+      "",
+      "const ${1:$TM_FILENAME_BASE}: FC<${1:$TM_FILENAME_BASE}Props> = (props) => {",
+      "  const { children } = props",
+      "  return (",
+      "    <div className={clsx('')}>",
+      "      {children}",
+      "    </div>",
+      "  )",
+      "}",
+      "",
+      "export default ${1:$TM_FILENAME_BASE}",
+      ""
+    ],
+    "description": "Create React component"
+  }
+}
