@@ -1,4 +1,4 @@
-import type { FC } from 'react'
+import { type FC, Suspense } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 
 const menus = [
@@ -34,7 +34,9 @@ const Root: FC = () => {
           )
         })}
       </aside>
-      <Outlet />
+      <Suspense fallback="loading...">
+        <Outlet />
+      </Suspense>
     </div>
   )
 }

@@ -1,7 +1,10 @@
 import { useControllableValue } from 'ahooks'
-import { isValidElement, type Key, type ReactNode, useRef } from 'react'
+import { isValidElement, type Key, type ReactNode, useCallback, useRef } from 'react'
 
-import { type Middleware, type MiddlewareResult } from '../../core/hooks/useTablePipeline'
+import {
+  type Middleware,
+  type MiddlewareContext,
+} from '../../core/hooks/useTablePipeline'
 import { type AnyObject, type ColumnType } from '../../types'
 import SelectionCell from './cell'
 import SelectionTitle from './title'
@@ -13,7 +16,9 @@ const SELECTION_COLUMN_KEY = 'Table.SELECTION_COLUMN'
  * 为 Table 实现多选、单选功能，不传入 options 则是禁用插件
  */
 export function selection<T>(options?: TableRowSelection<T>): Middleware<T> {
-  return (ctx) => {
+  type Context = Required<MiddlewareContext<T>>
+  return function useSelection(ctx) {
+    const { columns: rawColumns } = ctx
     const rowKey = ctx.rowKey as string
     const dataSource = (ctx.dataSource ?? []) as AnyObject[]
 
@@ -27,9 +32,17 @@ export function selection<T>(options?: TableRowSelection<T>): Middleware<T> {
       defaultValue: [],
     })
 
-    // 禁用插件时，为了不违反 react hook 规则，所有 hook 需要写在上方
+    const rowClassName: Context['rowClassName'] = useCallback(
+      (record) => {
+        const key = (record as AnyObject)[rowKey]
+        const checked = selectedRowKeys.includes(key)
+        return checked ? 'virtual-table-row-selected' : ''
+      },
+      [rowKey, selectedRowKeys],
+    )
+
     if (options == null) {
-      return
+      return ctx
     }
 
     const {
@@ -115,105 +128,103 @@ export function selection<T>(options?: TableRowSelection<T>): Middleware<T> {
       setSelectedRowKeys([], [], { type: 'none' })
     }
 
-    return {
-      rowClassName(record) {
-        const key = (record as AnyObject)[rowKey]
-        const checked = selectedRowKeys.includes(key)
-        return checked ? 'virtual-table-row-selected' : ''
-      },
-      onUpdateColumns(columns) {
-        const renderRadio = type === 'radio'
-        const hideHead = renderRadio || hideSelectAll
+    const mergeColumns = () => {
+      const renderRadio = type === 'radio'
+      const hideHead = renderRadio || hideSelectAll
 
-        const onCreateTitle = () => {
-          let title: ReactNode = (
-            <SelectionTitle
-              checked={isSelectedAll}
-              indeterminate={indeterminate}
-              selections={selections}
-              onClear={onClearAll}
-              onSelectAll={onSelectAll}
-              onSelectInvert={onSelectInvert}
-              allKeys={allKeys}
-              disabled={allDisabled}
-              onChange={() => {
-                if (isSelectedAll) {
-                  onClearAll()
-                } else {
-                  onSelectAll()
-                }
-              }}
-            />
-          )
-          if (isValidElement(columnTitle)) {
-            title = columnTitle
-          } else if (typeof columnTitle === 'function') {
-            title = columnTitle(title)
-          }
-          return title
-        }
-
-        const column: ColumnType<T> = {
-          title: hideHead ? undefined : onCreateTitle(),
-          width: columnWidth ?? 32,
-          // eslint-disable-next-line no-nested-ternary
-          fixed: fixed === false ? undefined : fixed === 'left' ? 'left' : 'right',
-          key: SELECTION_COLUMN_KEY,
-          render(_value, record, index) {
-            const key = (record as AnyObject)[rowKey]
-            const checked = selectedRowKeys.includes(key)
-            const extraProps = selectionPropsList[index]
-
-            const updateCache = () => {
-              if (preserveSelectedRowKeys) {
-                cache.current.set(key, record)
+      const onCreateTitle = () => {
+        let title: ReactNode = (
+          <SelectionTitle
+            checked={isSelectedAll}
+            indeterminate={indeterminate}
+            selections={selections}
+            onClear={onClearAll}
+            onSelectAll={onSelectAll}
+            onSelectInvert={onSelectInvert}
+            allKeys={allKeys}
+            disabled={allDisabled}
+            onChange={() => {
+              if (isSelectedAll) {
+                onClearAll()
+              } else {
+                onSelectAll()
               }
-            }
+            }}
+          />
+        )
+        if (isValidElement(columnTitle)) {
+          title = columnTitle
+        } else if (typeof columnTitle === 'function') {
+          title = columnTitle(title)
+        }
+        return title
+      }
 
-            return (
-              <SelectionCell
-                {...extraProps}
-                index={index}
-                isRadio={renderRadio}
-                checked={checked}
-                record={record}
-                renderCell={renderCell}
-                onRadioChange={(e) => {
-                  updateCache()
-                  const keys = [key]
+      const column: ColumnType<T> = {
+        title: hideHead ? undefined : onCreateTitle(),
+        width: columnWidth ?? 32,
+        // eslint-disable-next-line no-nested-ternary
+        fixed: fixed === false ? undefined : fixed === 'left' ? 'left' : 'right',
+        key: SELECTION_COLUMN_KEY,
+        render(_value, record, index) {
+          const key = (record as AnyObject)[rowKey]
+          const checked = selectedRowKeys.includes(key)
+          const extraProps = selectionPropsList[index]
+
+          const updateCache = () => {
+            if (preserveSelectedRowKeys) {
+              cache.current.set(key, record)
+            }
+          }
+
+          return (
+            <SelectionCell
+              {...extraProps}
+              index={index}
+              isRadio={renderRadio}
+              checked={checked}
+              record={record}
+              renderCell={renderCell}
+              onRadioChange={(e) => {
+                updateCache()
+                const keys = [key]
+                const rows = getRowsByKeys(keys)
+                // @ts-expect-error rows 并不是安全的 T[] 类型，因为有 preserveSelectedRowKeys 功能存在，在此处只能忽略类型错误
+                onSelect?.(record, e.target.checked, rows, e)
+                setSelectedRowKeys(keys, rows, { type: 'single' })
+              }}
+              onCheckboxChange={(e) => {
+                updateCache()
+                if (checked) {
+                  const keys = shakeDeadKeys(selectedRowKeys.filter((x) => x !== key))
                   const rows = getRowsByKeys(keys)
                   // @ts-expect-error rows 并不是安全的 T[] 类型，因为有 preserveSelectedRowKeys 功能存在，在此处只能忽略类型错误
                   onSelect?.(record, e.target.checked, rows, e)
                   setSelectedRowKeys(keys, rows, { type: 'single' })
-                }}
-                onCheckboxChange={(e) => {
-                  updateCache()
-                  if (checked) {
-                    const keys = shakeDeadKeys(selectedRowKeys.filter((x) => x !== key))
-                    const rows = getRowsByKeys(keys)
-                    // @ts-expect-error rows 并不是安全的 T[] 类型，因为有 preserveSelectedRowKeys 功能存在，在此处只能忽略类型错误
-                    onSelect?.(record, e.target.checked, rows, e)
-                    setSelectedRowKeys(keys, rows, { type: 'single' })
-                  } else {
-                    const keys = shakeDeadKeys([...selectedRowKeys, key])
-                    const rows = getRowsByKeys(keys)
-                    // @ts-expect-error rows 并不是安全的 T[] 类型，因为有 preserveSelectedRowKeys 功能存在，在此处只能忽略类型错误
-                    onSelect?.(record, e.target.checked, rows, e)
-                    setSelectedRowKeys(keys, rows, { type: 'single' })
-                  }
-                }}
-              />
-            )
-          },
-          onCell,
-          onHeaderCell() {
-            return { className: 'virtual-table-selection-column' }
-          },
-        }
+                } else {
+                  const keys = shakeDeadKeys([...selectedRowKeys, key])
+                  const rows = getRowsByKeys(keys)
+                  // @ts-expect-error rows 并不是安全的 T[] 类型，因为有 preserveSelectedRowKeys 功能存在，在此处只能忽略类型错误
+                  onSelect?.(record, e.target.checked, rows, e)
+                  setSelectedRowKeys(keys, rows, { type: 'single' })
+                }
+              }}
+            />
+          )
+        },
+        onCell,
+        onHeaderCell() {
+          return { className: 'virtual-table-selection-column' }
+        },
+      }
+      return [column, ...rawColumns]
+    }
 
-        return [column, ...columns]
-      },
-    } satisfies MiddlewareResult<T>
+    return {
+      ...ctx,
+      rowClassName,
+      columns: mergeColumns(),
+    } satisfies MiddlewareContext<T>
   }
 }
 

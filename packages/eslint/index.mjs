@@ -108,6 +108,7 @@ export default function eslintConfig(...overrides) {
         '@eslint-react/naming-convention-use-state': 'off',
         'import/prefer-default-export': 'off',
         'react-refresh/only-export-components': 'off',
+        '@eslint-react/hooks-extra/ensure-use-memo-has-non-empty-deps': 'off',
       },
     },
     eslintPluginPrettierRecommended,

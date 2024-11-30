@@ -176,12 +176,7 @@ const SelectionDemo: FC = () => {
 
   return (
     <div style={{ padding: '0 12px' }}>
-      <h2>滚动容器</h2>
-      <h3>VirtualTable 会自行查找最近的滚动容器并实现虚拟列表</h3>
-      <p style={{ marginBottom: 12 }}>
-        Cell 中全部渲染组件，渲染压力提升，此时渲染不及时，容易白屏。Column
-        数量也会影响性能
-      </p>
+      <h2>选择</h2>
       <div style={{ display: 'inline-flex', alignItems: 'center', margin: '0 0 8px 0' }}>
         <Switch value={isRadio} onChange={setIsRadio} />
         &nbsp;单选模式

@@ -1,5 +1,4 @@
-import { useMemoizedFn } from 'ahooks'
-import { useRef } from 'react'
+import { useCallback, useRef } from 'react'
 
 export interface RowRect {
   index: number
@@ -70,10 +69,10 @@ export function useRowRectManager(options: UseRowRectManagerOptions) {
   }
 
   // DOM 渲染结束后，进行高度测量，再修改 rowHeightList
-  const updateRowHeight = useMemoizedFn((index: number, height: number) => {
+  const updateRowHeight = useCallback((index: number, height: number) => {
     rowHeightList.current[index] = height
     updateRectList()
-  })
+  }, [])
 
   const sum = (startIndex: number, endIndex?: number) => {
     return rowHeightList.current.slice(startIndex, endIndex).reduce((a, b) => a + b, 0)
@@ -83,6 +82,6 @@ export function useRowRectManager(options: UseRowRectManagerOptions) {
     rowHeightList,
     updateRowHeight,
     sum,
-    rects: useMemoizedFn(() => rectList.current),
+    rects: useCallback(() => rectList.current, []),
   }
 }
