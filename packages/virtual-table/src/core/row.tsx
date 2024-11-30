@@ -20,20 +20,24 @@ export interface RowProps<T> extends NativeProps {
   rowIndex: number
   rowData: T
   columns: ColumnType<T>[]
+  onRow?: (record: T, index: number) => Omit<NativeProps, 'children' | 'ref'>
 }
 
 function Row<T>(props: RowProps<T>) {
-  const { className, children, rowIndex, rowData, columns, ...rest } = props
+  const { className, children, rowIndex, rowData, columns, onRow, ...rest } = props
 
   const { updateRowHeight } = useTableShared()
 
   const lastFixedLeftColumnIndex = findLastIndex(columns, (x) => x.fixed === 'left')
   const lastFixedRightColumnIndex = columns.findIndex((x) => x.fixed === 'right')
 
+  const { className: extraClassName, ...extraProps } = onRow?.(rowData, rowIndex) ?? {}
+
   return (
     <tr
       {...rest}
-      className={clsx(className, 'virtual-table-row')}
+      {...extraProps}
+      className={clsx('virtual-table-row', className, extraClassName)}
       ref={(node) => {
         if (node == null) return
         updateRowHeight(rowIndex, node.offsetHeight)

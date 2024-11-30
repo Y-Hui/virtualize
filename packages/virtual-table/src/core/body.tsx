@@ -1,15 +1,15 @@
 import clsx from 'classnames'
 
 import { type AnyObject, type NecessaryProps } from '../types'
-import Row from './row'
+import Row, { type RowProps } from './row'
 
-export interface TableBodyProps<T> extends NecessaryProps<T> {
+export interface TableBodyProps<T> extends NecessaryProps<T>, Pick<RowProps<T>, 'onRow'> {
   startIndex: number
   rowClassName?: (record: T, index: number) => string
 }
 
 function TableBody<T>(props: TableBodyProps<T>) {
-  const { dataSource, columns, rowKey, startIndex, rowClassName } = props
+  const { dataSource, columns, rowKey, startIndex, rowClassName, onRow } = props
 
   return (
     <tbody>
@@ -22,6 +22,7 @@ function TableBody<T>(props: TableBodyProps<T>) {
             rowIndex={rowIndex + startIndex}
             rowData={e}
             columns={columns}
+            onRow={onRow}
           />
         )
       })}

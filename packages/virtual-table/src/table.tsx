@@ -19,7 +19,13 @@ export interface VirtualTableProps<T>
     'estimatedRowHeight' | 'stickyHeader' | 'pipeline'
   > {
   size?: SizeType
+
+  // TODO:
   bordered?: boolean
+
+  // TODO:
+  loading?: boolean
+
   /** 预计每行高度 */
   estimatedRowHeight?: number
   sticky?: boolean | { offsetHeader: number }
@@ -51,6 +57,8 @@ function VirtualTable<T>(
     estimatedRowHeight: rowHeight,
     sticky,
     rowSelection,
+    loading,
+    bordered,
     ...rest
   } = props
 

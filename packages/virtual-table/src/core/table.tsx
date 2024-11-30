@@ -42,7 +42,6 @@ export interface VirtualTableCoreProps<T>
     Omit<TableBodyProps<T>, 'startIndex'> {
   rootClassName?: string
   rootStyle?: CSSProperties
-  loading?: boolean
 
   /** 开启表头 sticky，设置为 true 则默认 top 为 0，为 number 则是偏移量 */
   stickyHeader?: number | boolean
@@ -63,7 +62,6 @@ function VirtualTableCore<T>(
     className,
     style,
     columns: rawColumns,
-    loading,
     dataSource: rawData,
     rowKey: rawRowKey = 'key',
     estimatedRowHeight,
@@ -71,6 +69,7 @@ function VirtualTableCore<T>(
     stickyHeader,
     pipeline = TablePipeline.defaultPipeline as TablePipeline<T>,
     rowClassName: rawRowClassName,
+    onRow,
     ...rest
   } = props
 
@@ -186,6 +185,7 @@ function VirtualTableCore<T>(
               dataSource={dataSlice}
               startIndex={startIndex}
               rowClassName={rowClassName}
+              onRow={onRow}
             />
           </table>
         </TableRoot>
