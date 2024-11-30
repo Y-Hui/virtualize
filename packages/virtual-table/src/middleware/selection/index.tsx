@@ -130,9 +130,18 @@ export function selection<T>(options?: TableRowSelection<T>): Middleware<T> {
 
     const mergeColumns = () => {
       const renderRadio = type === 'radio'
-      const hideHead = renderRadio || hideSelectAll
 
       const onCreateTitle = () => {
+        if (renderRadio) {
+          if (isValidElement(columnTitle)) {
+            return columnTitle
+          }
+          if (typeof columnTitle === 'function') {
+            return columnTitle(undefined)
+          }
+          return null
+        }
+
         let title: ReactNode = (
           <SelectionTitle
             checked={isSelectedAll}
@@ -161,7 +170,7 @@ export function selection<T>(options?: TableRowSelection<T>): Middleware<T> {
       }
 
       const column: ColumnType<T> = {
-        title: hideHead ? undefined : onCreateTitle(),
+        title: hideSelectAll ? undefined : onCreateTitle(),
         width: columnWidth ?? 32,
         // eslint-disable-next-line no-nested-ternary
         fixed: fixed === false ? undefined : fixed === 'left' ? 'left' : 'right',
