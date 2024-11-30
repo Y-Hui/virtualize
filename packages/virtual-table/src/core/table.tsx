@@ -1,4 +1,3 @@
-/* eslint-disable @eslint-react/hooks-extra/no-direct-set-state-in-use-effect */
 /* eslint-disable @eslint-react/hooks-extra/no-direct-set-state-in-use-layout-effect */
 import clsx from 'classnames'
 import {
@@ -28,6 +27,7 @@ import {
   type UseRowRectManagerOptions,
 } from './hooks/useRowRectManager'
 import { TablePipeline } from './hooks/useTablePipeline'
+import TableRoot from './root'
 
 type DefaultTableProps = DetailedHTMLProps<
   TableHTMLAttributes<HTMLTableElement>,
@@ -121,10 +121,6 @@ function VirtualTableCore<T>(
     visibleCount.current = count
   }, [estimatedRowHeight, hasData, overscanCount])
 
-  const hasFixedColumn = columns.some((x) => typeof x.fixed === 'string')
-  const [hasFixedLeft, setHasFixedLeft] = useState(false)
-  const [hasFixedRight, setHasFixedRight] = useState(false)
-
   useEffect(() => {
     const node = tableNode.current
     if (node == null) return
@@ -139,29 +135,17 @@ function VirtualTableCore<T>(
         setStartIndex(Math.max(0, anchor.index - overscanCount))
         setEndIndex(anchor.index + visibleCount.current + overscanCount)
       }
-
-      if (hasFixedColumn) {
-        const { scrollLeft, clientWidth, scrollWidth } = scrollElement
-        setHasFixedLeft(scrollLeft !== 0)
-        setHasFixedRight(!(scrollLeft + clientWidth >= scrollWidth))
-      }
-    }
-
-    if (hasFixedColumn) {
-      const scrollElement = getScrollElement(container)
-      const { scrollLeft, clientWidth, scrollWidth } = scrollElement
-      setHasFixedLeft(scrollLeft !== 0)
-      setHasFixedRight(!(scrollLeft + clientWidth >= scrollWidth))
     }
 
     container.addEventListener('scroll', onScroll)
     return () => {
       container.removeEventListener('scroll', onScroll)
     }
-  }, [hasFixedColumn, overscanCount, rects])
+  }, [overscanCount, rects])
 
   const topBlank = sum(0, startIndex)
   const bottomBlank = sum(endIndex)
+  const hasFixedColumn = columns.some((x) => typeof x.fixed === 'string')
 
   const shared = useMemo(() => {
     return { updateRowHeight } satisfies TableSharedContextType
@@ -170,14 +154,10 @@ function VirtualTableCore<T>(
   return (
     <TableShared.Provider value={shared}>
       <TableColumnsContext columns={columns}>
-        <div
-          className={clsx(
-            'virtual-table',
-            hasFixedLeft && 'virtual-table-has-fix-left',
-            hasFixedRight && 'virtual-table-has-fix-right',
-            rootClassName,
-          )}
+        <TableRoot
+          className={rootClassName}
           style={rootStyle}
+          hasFixedColumn={hasFixedColumn}
         >
           <TableHeader columns={columns} stickyHeader={stickyHeader} />
           <table
@@ -208,7 +188,7 @@ function VirtualTableCore<T>(
               rowClassName={rowClassName}
             />
           </table>
-        </div>
+        </TableRoot>
       </TableColumnsContext>
     </TableShared.Provider>
   )
