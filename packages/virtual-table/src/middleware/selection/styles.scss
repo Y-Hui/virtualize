@@ -1,0 +1,42 @@
+:root {
+  --virtual-table-row-selected-bg: #e6f4ff;
+  --virtual-table-row-selected-hover-bg: #bae0ff;
+}
+
+.virtual-table-selection {
+  position: relative;
+  display: inline-flex;
+
+  &-extra {
+    padding-inline-start: 2px;
+    position: absolute;
+    top: 0;
+    z-index: 1;
+    cursor: pointer;
+    margin-inline-start: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+
+    .anticon {
+      color: rgba(0, 0, 0, 0.29);
+      font-size: 12px;
+      vertical-align: baseline;
+    }
+  }
+}
+
+.virtual-table-row-selected {
+  .virtual-table-cell {
+    background-color: var(--virtual-table-row-selected-bg);
+  }
+
+  &:not(.no-hover):hover > .virtual-table-cell {
+    background-color: var(--virtual-table-row-selected-hover-bg);
+  }
+}
+
+.virtual-table-selection-column {
+  z-index: 3;
+}
