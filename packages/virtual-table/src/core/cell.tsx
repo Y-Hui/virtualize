@@ -81,6 +81,7 @@ function Cell<T>(props: CellProps<T>) {
         align != null && `virtual-table-align-${align}`,
         typeof fixed === 'string' && 'virtual-table-sticky-cell',
         className,
+        column.className,
         extraClassName,
       )}
       style={{

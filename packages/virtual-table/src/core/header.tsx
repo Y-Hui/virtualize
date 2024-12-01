@@ -96,6 +96,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
                         'virtual-table-cell-fix-left-last',
                       lastFixedRightColumnIndex === index &&
                         'virtual-table-cell-fix-right-last',
+                      column.className,
                       thClassName,
                     ),
                     style: {

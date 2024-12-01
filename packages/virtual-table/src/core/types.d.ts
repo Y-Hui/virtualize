@@ -11,6 +11,7 @@ export type SizeType = 'small' | 'middle' | 'large'
 export type FixedType = 'left' | 'right'
 
 interface ColumnTypeCommon<T> {
+  className?: string
   /** 表头列合并，设置为 0 时，不渲染	 */
   colSpan?: number
   title?: ReactNode
