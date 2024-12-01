@@ -5,6 +5,13 @@ export type AnyObject = Record<string, any>
 export type LiteralUnion<T extends string> = T | (string & {})
 
 export type {
+  Middleware,
+  MiddlewareContext,
+  MiddlewareRender,
+  MiddlewareRenders,
+  MiddlewareResult,
+} from './core/hooks/useTablePipeline'
+export type {
   AlignType,
   ColumnType,
   FixedType,
