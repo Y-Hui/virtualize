@@ -6,10 +6,11 @@ import {
   type ReactElement,
 } from 'react'
 
-import { type ColumnType } from '../types'
 import { findLastIndex } from '../utils/find-last-index'
 import Cell from './cell'
 import { useTableShared } from './context/shared'
+import { type ColumnType, type PipelineRender } from './types'
+import { pipelineRender } from './utils/render-pipeline'
 
 type NativeProps = DetailedHTMLProps<
   HTMLAttributes<HTMLTableRowElement>,
@@ -21,10 +22,22 @@ export interface RowProps<T> extends NativeProps {
   rowData: T
   columns: ColumnType<T>[]
   onRow?: (record: T, index: number) => Omit<NativeProps, 'children' | 'ref'>
+  rowPipelineRender?: PipelineRender
+  cellPipelineRender?: PipelineRender
 }
 
 function Row<T>(props: RowProps<T>) {
-  const { className, children, rowIndex, rowData, columns, onRow, ...rest } = props
+  const {
+    className,
+    children,
+    rowIndex,
+    rowData,
+    columns,
+    onRow,
+    rowPipelineRender,
+    cellPipelineRender,
+    ...rest
+  } = props
 
   const { updateRowHeight } = useTableShared()
 
@@ -33,7 +46,7 @@ function Row<T>(props: RowProps<T>) {
 
   const { className: extraClassName, ...extraProps } = onRow?.(rowData, rowIndex) ?? {}
 
-  return (
+  return pipelineRender(
     <tr
       {...rest}
       {...extraProps}
@@ -56,10 +69,12 @@ function Row<T>(props: RowProps<T>) {
             rowIndex={rowIndex}
             rowData={rowData}
             columnIndex={index}
+            cellPipelineRender={cellPipelineRender}
           />
         )
       })}
-    </tr>
+    </tr>,
+    rowPipelineRender,
   )
 }
 

@@ -7,10 +7,10 @@ import {
   useState,
 } from 'react'
 
-import { type ColumnType } from '../../types'
 import { __DEV__ } from '../../utils/dev'
 import { shallowEqualArrays } from '../../utils/equal'
 import { useCherryPickMemo } from '../hooks/useCherryPickMemo'
+import { type ColumnType } from '../types'
 
 export interface TableColumnsContextType {
   widthList: number[]

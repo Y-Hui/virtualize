@@ -7,8 +7,10 @@ import {
   type ReactElement,
 } from 'react'
 
-import { type AnyObject, type ColumnType } from '../types'
+import { type AnyObject } from '../types'
 import { useTableColumns } from './context/table-columns'
+import { type ColumnType, type PipelineRender } from './types'
+import { pipelineRender } from './utils/render-pipeline'
 
 type NativeProps = DetailedHTMLProps<
   HTMLAttributes<HTMLTableCellElement>,
@@ -20,6 +22,7 @@ export interface CellProps<T> extends NativeProps {
   columnIndex: number
   rowIndex: number
   rowData: T
+  cellPipelineRender?: PipelineRender
 }
 
 function getTableCellContent<T extends AnyObject>(
@@ -48,6 +51,7 @@ function Cell<T>(props: CellProps<T>) {
     rowData,
     rowIndex,
     columnIndex,
+    cellPipelineRender,
     ...restProps
   } = props
 
@@ -66,7 +70,7 @@ function Cell<T>(props: CellProps<T>) {
     return null
   }
 
-  return (
+  return pipelineRender(
     <td
       {...restProps}
       {...extraProps}
@@ -87,7 +91,8 @@ function Cell<T>(props: CellProps<T>) {
       }}
     >
       {getTableCellContent(rowIndex, rowData as AnyObject, column)}
-    </td>
+    </td>,
+    cellPipelineRender,
   )
 }
 

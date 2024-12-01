@@ -6,6 +6,7 @@ import {
   type ForwardedRef,
   forwardRef,
   type ReactElement,
+  type ReactNode,
   type RefAttributes,
   type TableHTMLAttributes,
   useEffect,
@@ -28,6 +29,7 @@ import {
 } from './hooks/useRowRectManager'
 import { TablePipeline } from './hooks/useTablePipeline'
 import TableRoot from './root'
+import { pipelineRender } from './utils/render-pipeline'
 
 type DefaultTableProps = DetailedHTMLProps<
   TableHTMLAttributes<HTMLTableElement>,
@@ -39,7 +41,14 @@ export type VirtualTableCoreRef = HTMLTableElement
 export interface VirtualTableCoreProps<T>
   extends Omit<DefaultTableProps, 'children'>,
     Pick<UseRowRectManagerOptions, 'estimatedRowHeight'>,
-    Omit<TableBodyProps<T>, 'startIndex'> {
+    Omit<
+      TableBodyProps<T>,
+      | 'startIndex'
+      | 'rowComponent'
+      | 'bodyRender'
+      | 'rowPipelineRender'
+      | 'cellPipelineRender'
+    > {
   rootClassName?: string
   rootStyle?: CSSProperties
 
@@ -73,7 +82,19 @@ function VirtualTableCore<T>(
     ...rest
   } = props
 
-  const { dataSource, columns, rowKey, rowClassName } = pipeline.use({
+  const {
+    dataSource,
+    columns,
+    rowKey,
+    rowClassName,
+
+    render,
+    renderBody,
+    renderRow,
+    renderCell,
+    renderHeader,
+    renderHeaderCell,
+  } = pipeline.use({
     dataSource: rawData,
     rowKey: rawRowKey,
     columns: rawColumns,
@@ -150,45 +171,57 @@ function VirtualTableCore<T>(
     return { updateRowHeight } satisfies TableSharedContextType
   }, [updateRowHeight])
 
+  const table: ReactNode = (
+    <TableRoot
+      className={rootClassName}
+      style={rootStyle}
+      hasFixedColumn={hasFixedColumn}
+    >
+      <TableHeader
+        columns={columns}
+        stickyHeader={stickyHeader}
+        headerRender={renderHeader}
+        cellRender={renderHeaderCell}
+      />
+      <table
+        {...rest}
+        className={clsx(className, 'virtual-table-body')}
+        style={{ ...style, paddingBottom: bottomBlank, paddingTop: topBlank }}
+        ref={composeRef(tableNode, ref)}
+      >
+        <colgroup>
+          {columns.map((item, index) => {
+            const key = 'key' in item ? item.key : item.dataIndex
+            return (
+              <col
+                key={typeof key === 'symbol' ? index : key}
+                style={{
+                  width: item.width,
+                  minWidth: item.minWidth,
+                }}
+              />
+            )
+          })}
+        </colgroup>
+        <TableBody
+          columns={columns}
+          rowKey={rowKey}
+          dataSource={dataSlice}
+          startIndex={startIndex}
+          rowClassName={rowClassName}
+          onRow={onRow}
+          bodyRender={renderBody}
+          rowPipelineRender={renderRow}
+          cellPipelineRender={renderCell}
+        />
+      </table>
+    </TableRoot>
+  )
+
   return (
     <TableShared.Provider value={shared}>
       <TableColumnsContext columns={columns}>
-        <TableRoot
-          className={rootClassName}
-          style={rootStyle}
-          hasFixedColumn={hasFixedColumn}
-        >
-          <TableHeader columns={columns} stickyHeader={stickyHeader} />
-          <table
-            {...rest}
-            className={clsx(className, 'virtual-table-body')}
-            style={{ ...style, paddingBottom: bottomBlank, paddingTop: topBlank }}
-            ref={composeRef(tableNode, ref)}
-          >
-            <colgroup>
-              {columns.map((item, index) => {
-                const key = 'key' in item ? item.key : item.dataIndex
-                return (
-                  <col
-                    key={typeof key === 'symbol' ? index : key}
-                    style={{
-                      width: item.width,
-                      minWidth: item.minWidth,
-                    }}
-                  />
-                )
-              })}
-            </colgroup>
-            <TableBody
-              columns={columns}
-              rowKey={rowKey}
-              dataSource={dataSlice}
-              startIndex={startIndex}
-              rowClassName={rowClassName}
-              onRow={onRow}
-            />
-          </table>
-        </TableRoot>
+        {pipelineRender(table, render)}
       </TableColumnsContext>
     </TableShared.Provider>
   )
