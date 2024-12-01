@@ -112,6 +112,7 @@ export class TablePipeline<T> {
 }
 
 export interface UseTablePipelineOptions<T> {
+  pipeline?: TablePipeline<T>
   use?: (Middleware<T> | undefined | null)[]
 }
 
@@ -121,7 +122,7 @@ export function useTablePipeline<T>(
   const { use } = options
   const pipeline = useMemo(() => new TablePipeline<T>(), [])
   if (use != null) {
-    pipeline.hooks = use.filter((x) => x != null)
+    pipeline.hooks = use.filter((x) => x != null).concat(options.pipeline?.hooks ?? [])
   }
   return pipeline
 }

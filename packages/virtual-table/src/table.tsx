@@ -14,10 +14,7 @@ import { selection, type TableRowSelection } from './middleware/selection'
 import { type SizeType } from './types'
 
 export interface VirtualTableProps<T>
-  extends Omit<
-    VirtualTableCoreProps<T>,
-    'estimatedRowHeight' | 'stickyHeader' | 'pipeline'
-  > {
+  extends Omit<VirtualTableCoreProps<T>, 'estimatedRowHeight' | 'stickyHeader'> {
   size?: SizeType
 
   // TODO:
@@ -59,11 +56,13 @@ function VirtualTable<T>(
     rowSelection,
     loading,
     bordered,
+    pipeline: extraPipeline,
     ...rest
   } = props
 
   const estimatedRowHeight = getDefaultEstimatedRowHeight(size, rowHeight)
   const pipeline = useTablePipeline<T>({
+    pipeline: extraPipeline,
     use: [selection(rowSelection)],
   })
 
