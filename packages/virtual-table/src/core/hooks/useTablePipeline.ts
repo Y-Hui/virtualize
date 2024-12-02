@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { type ReactNode, useMemo } from 'react'
 
 import { type NecessaryProps } from '../internal'
@@ -111,14 +112,12 @@ export class TablePipeline<T> {
   static defaultPipeline = new TablePipeline()
 }
 
-export interface UseTablePipelineOptions<T> {
+export interface UseTablePipelineOptions<T = any> {
   pipeline?: TablePipeline<T>
   use?: (Middleware<T> | undefined | null)[]
 }
 
-export function useTablePipeline<T>(
-  options: UseTablePipelineOptions<T>,
-): TablePipeline<T> {
+export function useTablePipeline<T = any>(options: UseTablePipelineOptions<T>) {
   const { use } = options
   const pipeline = useMemo(() => new TablePipeline<T>(), [])
   if (use != null) {

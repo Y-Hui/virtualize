@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useControllableValue } from 'ahooks'
 import { isValidElement, type Key, type ReactNode, useCallback, useRef } from 'react'
 
@@ -10,12 +11,12 @@ import SelectionCell from './cell'
 import SelectionTitle from './title'
 import { type TableRowSelection } from './types'
 
-const SELECTION_COLUMN_KEY = 'Table.SELECTION_COLUMN'
+const SELECTION_COLUMN_KEY = 'VirtualTable.SELECTION_COLUMN'
 
 /**
  * 为 Table 实现多选、单选功能，不传入 options 则是禁用插件
  */
-export function selection<T>(options?: TableRowSelection<T>): Middleware<T> {
+export function selection<T = any>(options?: TableRowSelection<T>): Middleware<T> {
   type Context = Required<MiddlewareContext<T>>
   return function useSelection(ctx) {
     const { columns: rawColumns } = ctx
