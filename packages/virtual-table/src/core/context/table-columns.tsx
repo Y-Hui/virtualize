@@ -9,7 +9,7 @@ import {
 
 import { __DEV__ } from '../../utils/dev'
 import { shallowEqualArrays } from '../../utils/equal'
-import { useCherryPickMemo } from '../hooks/useCherryPickMemo'
+import { useShallowMemo } from '../hooks/useShallowMemo'
 import { type ColumnType } from '../types'
 
 export interface TableColumnsContextType {
@@ -43,7 +43,7 @@ export function TableColumnsContext(
     }
   }
 
-  const columnsFixedRecord = useCherryPickMemo(() => {
+  const columnsFixedRecord = useShallowMemo(() => {
     return columns.map((x) => x.fixed)
   })
 

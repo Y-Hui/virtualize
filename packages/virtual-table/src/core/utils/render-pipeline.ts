@@ -1,10 +1,16 @@
 import { type ReactNode } from 'react'
 
-import { type PipelineRender } from '../types'
+import { type PipelineRender, type PipelineRenderOptions } from '../types'
 
-export function pipelineRender(node: ReactNode, render?: PipelineRender) {
+function pipelineRender(
+  node: ReactNode,
+  render: PipelineRender | undefined,
+  options: PipelineRenderOptions,
+): ReactNode {
   if (typeof render === 'function') {
-    return render(node)
+    return render(node, options)
   }
   return node
 }
+
+export { pipelineRender }

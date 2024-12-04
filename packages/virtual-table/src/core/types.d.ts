@@ -29,12 +29,32 @@ interface ColumnTypeCommon<T> {
 
 type ColumnTypeWithKey<T> = ColumnTypeCommon<T> & {
   key: Key
+  [key: string]: unknown
 }
 
 type ColumnTypeWithDataIndex<T> = ColumnTypeCommon<T> & {
   dataIndex: keyof T | (string & {})
+  [key: string]: unknown
 }
 
 export type ColumnType<T> = ColumnTypeWithKey<T> | ColumnTypeWithDataIndex<T>
 
-export type PipelineRender = (children: ReactNode) => ReactNode
+export interface PipelineRenderOptions {
+  /** renderCell、renderHeaderCell 存在 */
+  column?: ColumnType<any>
+  /** renderCell、renderHeaderCell 存在 */
+  columnIndex?: number
+  /** 列宽。renderHeaderCell 存在 */
+  columnWidthList?: number[]
+
+  /** renderRow 存在 */
+  rowIndex?: number
+  /** renderRow 存在 */
+  columns?: ColumnType<any>[]
+  /** renderRow 存在 */
+  rowData?: any
+}
+export type PipelineRender = (
+  children: ReactNode,
+  options: PipelineRenderOptions,
+) => ReactNode

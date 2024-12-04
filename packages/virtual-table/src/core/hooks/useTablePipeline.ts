@@ -97,10 +97,10 @@ export class TablePipeline<T> {
 
     Object.entries(renderFunctionMap).forEach(([key, renders]) => {
       if (renders.length > 0) {
-        context.current[key as keyof MiddlewareRenders] = (children) => {
+        context.current[key as keyof MiddlewareRenders] = (children, args) => {
           // reduce 把 [render1, render2] 转为 render1(render2(children))
           return renders.reduce<ReactNode>((node, render) => {
-            return render(node)
+            return render(node, args)
           }, children)
         }
       }

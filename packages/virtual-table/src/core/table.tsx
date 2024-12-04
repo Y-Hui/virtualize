@@ -5,6 +5,7 @@ import {
   type DetailedHTMLProps,
   type ForwardedRef,
   forwardRef,
+  type Key,
   type ReactElement,
   type ReactNode,
   type RefAttributes,
@@ -165,7 +166,8 @@ function VirtualTableCore<T>(
 
   const topBlank = sum(0, startIndex)
   const bottomBlank = sum(endIndex)
-  const hasFixedColumn = columns.some((x) => typeof x.fixed === 'string')
+  const hasFixedLeftColumn = columns.some((x) => x.fixed === 'left')
+  const hasFixedRightColumn = columns.some((x) => x.fixed === 'right')
 
   const shared = useMemo(() => {
     return { updateRowHeight } satisfies TableSharedContextType
@@ -175,7 +177,8 @@ function VirtualTableCore<T>(
     <TableRoot
       className={rootClassName}
       style={rootStyle}
-      hasFixedColumn={hasFixedColumn}
+      hasFixedLeftColumn={hasFixedLeftColumn}
+      hasFixedRightColumn={hasFixedRightColumn}
     >
       <TableHeader
         columns={columns}
@@ -191,7 +194,7 @@ function VirtualTableCore<T>(
       >
         <colgroup>
           {columns.map((item, index) => {
-            const key = 'key' in item ? item.key : item.dataIndex
+            const key = 'key' in item ? (item.key as Key) : item.dataIndex
             return (
               <col
                 key={typeof key === 'symbol' ? index : key}
@@ -221,7 +224,7 @@ function VirtualTableCore<T>(
   return (
     <TableShared.Provider value={shared}>
       <TableColumnsContext columns={columns}>
-        {pipelineRender(table, render)}
+        {pipelineRender(table, render, { columns })}
       </TableColumnsContext>
     </TableShared.Provider>
   )

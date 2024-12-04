@@ -46,6 +46,7 @@ function TableBody<T>(props: TableBodyProps<T>) {
       })}
     </tbody>,
     bodyRender,
+    { columns },
   )
 }
 

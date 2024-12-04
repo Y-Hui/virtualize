@@ -2,6 +2,7 @@ import clsx from 'classnames'
 import {
   type DetailedHTMLProps,
   type HTMLAttributes,
+  type Key,
   memo,
   type ReactElement,
 } from 'react'
@@ -57,7 +58,7 @@ function Row<T>(props: RowProps<T>) {
       }}
     >
       {columns.map((column, index) => {
-        const key = 'key' in column ? column.key : column.dataIndex
+        const key = 'key' in column ? (column.key as Key) : column.dataIndex
         return (
           <Cell
             key={typeof key === 'symbol' ? index : key}
@@ -75,6 +76,7 @@ function Row<T>(props: RowProps<T>) {
       })}
     </tr>,
     rowPipelineRender,
+    { columns, rowIndex, rowData },
   )
 }
 

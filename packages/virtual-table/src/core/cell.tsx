@@ -94,6 +94,7 @@ function Cell<T>(props: CellProps<T>) {
       {getTableCellContent(rowIndex, rowData as AnyObject, column)}
     </td>,
     cellPipelineRender,
+    { column, columnIndex },
   )
 }
 

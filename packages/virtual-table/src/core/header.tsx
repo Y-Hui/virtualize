@@ -3,6 +3,8 @@ import {
   createElement,
   type CSSProperties,
   type FC,
+  Fragment,
+  type Key,
   useLayoutEffect,
   useRef,
 } from 'react'
@@ -28,7 +30,7 @@ export interface TableHeaderProps {
 const TableHeader: FC<TableHeaderProps> = (props) => {
   const { className, style, columns, stickyHeader, headerRender, cellRender } = props
 
-  const { setWidthList, stickySizes } = useTableColumns()
+  const { widthList, setWidthList, stickySizes } = useTableColumns()
   const columnsWidthRef = useRef<number[]>([])
   useLayoutEffect(() => {
     setWidthList(columnsWidthRef.current)
@@ -49,7 +51,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
     >
       <colgroup>
         {columns.map((column, index) => {
-          const key = 'key' in column ? column.key : column.dataIndex
+          const key = 'key' in column ? (column.key as Key) : column.dataIndex
           return (
             <col
               key={typeof key === 'symbol' ? index : key}
@@ -73,45 +75,52 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
                 return null
               }
 
-              const key = 'key' in column ? column.key : column.dataIndex
+              const key = 'key' in column ? (column.key as Key) : column.dataIndex
+
               const {
                 className: thClassName,
                 style: thStyle,
                 ...rest
               } = column.onHeaderCell?.(column, index) || {}
 
-              return pipelineRender(
-                createElement(
-                  'th',
-                  {
-                    key: typeof key === 'symbol' ? index : key,
-                    scope: 'col',
-                    ...rest,
-                    colSpan: column.colSpan,
-                    className: clsx(
-                      'virtual-table-header-cell',
-                      column.align != null && `virtual-table-align-${column.align}`,
-                      typeof column.fixed === 'string' && 'virtual-table-sticky-cell',
-                      lastFixedLeftColumnIndex === index &&
-                        'virtual-table-cell-fix-left-last',
-                      lastFixedRightColumnIndex === index &&
-                        'virtual-table-cell-fix-right-last',
-                      column.className,
-                      thClassName,
+              return (
+                <Fragment key={typeof key === 'symbol' ? index : key}>
+                  {pipelineRender(
+                    createElement(
+                      'th',
+                      {
+                        scope: 'col',
+                        ...rest,
+                        colSpan: column.colSpan,
+                        className: clsx(
+                          'virtual-table-header-cell',
+                          column.align != null && `virtual-table-align-${column.align}`,
+                          typeof column.fixed === 'string' && 'virtual-table-sticky-cell',
+                          lastFixedLeftColumnIndex === index &&
+                            'virtual-table-cell-fix-left-last',
+                          lastFixedRightColumnIndex === index &&
+                            'virtual-table-cell-fix-right-last',
+                          column.className,
+                          thClassName,
+                        ),
+                        style: {
+                          ...thStyle,
+                          left: column.fixed === 'left' ? stickySizes[index] : undefined,
+                          right:
+                            column.fixed === 'right' ? stickySizes[index] : undefined,
+                        },
+                      },
+                      column.title,
                     ),
-                    style: {
-                      ...thStyle,
-                      left: column.fixed === 'left' ? stickySizes[index] : undefined,
-                      right: column.fixed === 'right' ? stickySizes[index] : undefined,
-                    },
-                  },
-                  column.title,
-                ),
-                cellRender,
+                    cellRender || undefined,
+                    { column, columns, columnIndex: index, columnWidthList: widthList },
+                  )}
+                </Fragment>
               )
             })}
           </tr>,
           headerRender,
+          { columns },
         )}
       </thead>
     </table>

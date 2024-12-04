@@ -15,11 +15,12 @@ export interface TableRootProps {
   className?: string
   style?: CSSProperties
   children?: ReactNode
-  hasFixedColumn?: boolean
+  hasFixedLeftColumn?: boolean
+  hasFixedRightColumn?: boolean
 }
 
 const TableRoot: FC<TableRootProps> = (props) => {
-  const { className, style, children, hasFixedColumn } = props
+  const { className, style, children, hasFixedLeftColumn, hasFixedRightColumn } = props
 
   const rootNode = useRef<HTMLDivElement>(null)
 
@@ -28,15 +29,19 @@ const TableRoot: FC<TableRootProps> = (props) => {
 
   useEffect(() => {
     const node = rootNode.current
-    if (node == null || !hasFixedColumn) return
+    if (node == null || (!hasFixedLeftColumn && !hasFixedRightColumn)) return
 
     const container = getScrollParent(node)
 
     const onCheckHasFixedEdge = () => {
       const scrollElement = getScrollElement(container)
       const { scrollLeft, clientWidth, scrollWidth } = scrollElement
-      setHasFixedLeft(scrollLeft !== 0)
-      setHasFixedRight(!(scrollLeft + clientWidth >= scrollWidth))
+      if (hasFixedLeftColumn) {
+        setHasFixedLeft(scrollLeft !== 0)
+      }
+      if (hasFixedRightColumn) {
+        setHasFixedRight(!(scrollLeft + clientWidth >= scrollWidth))
+      }
     }
 
     onCheckHasFixedEdge()
@@ -45,7 +50,7 @@ const TableRoot: FC<TableRootProps> = (props) => {
     return () => {
       container.removeEventListener('scroll', onCheckHasFixedEdge)
     }
-  }, [hasFixedColumn])
+  }, [hasFixedLeftColumn, hasFixedRightColumn])
 
   return (
     <div
