@@ -79,9 +79,11 @@ export function selection<T = any>(options?: TableRowSelection<T>): Middleware<T
       [rowKey, selectedRowKeys],
     )
 
-    const selectionPropsList = dataSource.map((row) => {
-      if (!getCheckboxProps) return {}
-      return getCheckboxProps(row as T)
+    const selectionPropsList = useShallowMemo(() => {
+      return dataSource.map((row) => {
+        if (!getCheckboxProps) return {}
+        return getCheckboxProps(row as T)
+      })
     })
 
     // 当有某一行数据 Checkbox disabled 时，过滤它
