@@ -14,6 +14,10 @@ const menus = [
     path: '/selection',
     label: '选择',
   },
+  {
+    path: '/column-resize',
+    label: 'Resize',
+  },
 ]
 
 const Root: FC = () => {
