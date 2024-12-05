@@ -12,11 +12,11 @@ import { shallowEqualArrays } from '../../utils/equal'
 import { useShallowMemo } from '../hooks/useShallowMemo'
 import { type ColumnType } from '../types'
 import { isValidFixedLeft, isValidFixedRight } from '../utils/verification'
+import { StickySize } from './sticky'
 
 export interface TableColumnsContextType {
   widthList: number[]
   setWidthList: (value: number[]) => void
-  stickySizes: number[]
 }
 
 export const TableColumns = createContext<TableColumnsContextType | null>(null)
@@ -48,7 +48,7 @@ export function TableColumnsContext(
     return columns.map((x) => x.fixed)
   })
 
-  const stickySizes = useMemo(() => {
+  const stickySizes = useShallowMemo(() => {
     let left = 0
     const leftOffset = columnsFixedRecord.reduce((res, fixed, index) => {
       if (isValidFixedLeft(fixed)) {
@@ -76,17 +76,20 @@ export function TableColumnsContext(
       }
       return 0
     })
-  }, [widthList, columnsFixedRecord])
+  })
 
   const context = useMemo(() => {
     return {
       widthList,
       setWidthList: updateWidthList, // updateWidthList 函数没有使用任何 state，可以在 deps 中忽略（这是安全的）
-      stickySizes,
     } satisfies TableColumnsContextType
-  }, [widthList, stickySizes])
+  }, [widthList])
 
-  return <TableColumns.Provider value={context}>{children}</TableColumns.Provider>
+  return (
+    <TableColumns.Provider value={context}>
+      <StickySize.Provider value={stickySizes}>{children}</StickySize.Provider>
+    </TableColumns.Provider>
+  )
 }
 
 export function useTableColumns() {

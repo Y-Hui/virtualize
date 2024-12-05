@@ -19,9 +19,13 @@ import SelectionCell from './cell'
 import SelectionTitle from './title'
 import { type TableRowSelection } from './types'
 
-const SELECTION_COLUMN_KEY = 'VirtualTable.SELECTION_COLUMN'
+export const SELECTION_COLUMN_KEY = 'VirtualTable.SELECTION_COLUMN'
 
 const EMPTY_ARR: AnyObject[] = []
+
+export function isSelectionColumn<T = any>(column: ColumnType<T>) {
+  return column.key === SELECTION_COLUMN_KEY
+}
 
 /**
  * 为 Table 实现多选、单选功能，不传入 options 则是禁用插件

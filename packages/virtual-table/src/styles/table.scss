@@ -33,13 +33,15 @@
   }
 
   &-header-cell {
+    position: relative;
     text-align: start;
     background-color: var(--virtual-table-header-bg);
     border-bottom: 1px solid var(--virtual-table-border-color);
     font-weight: 600;
     font-size: 14px;
 
-    &:not(.virtual-table-selection-column) + &:not(.virtual-table-selection-column) {
+    &:not(.virtual-table-selection-column)
+      + &:not(.virtual-table-selection-column):not(:last-child) {
       &::before {
         position: absolute;
         top: 50%;

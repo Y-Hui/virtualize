@@ -8,7 +8,7 @@ import {
 } from 'react'
 
 import { type AnyObject } from '../types'
-import { useTableColumns } from './context/table-columns'
+import { useStickySize } from './context/sticky'
 import { type ColumnType, type PipelineRender } from './types'
 import { pipelineRender } from './utils/render-pipeline'
 import { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verification'
@@ -57,7 +57,7 @@ function Cell<T>(props: CellProps<T>) {
   } = props
 
   const { align, fixed, onCell } = column
-  const { stickySizes } = useTableColumns()
+  const stickySizes = useStickySize()
 
   const {
     className: extraClassName,
