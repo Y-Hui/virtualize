@@ -1,10 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
+  type DetailedHTMLProps,
   type HTMLAttributes,
   type Key,
   type ReactNode,
   type TdHTMLAttributes,
 } from 'react'
+
+export type OnRowType = (
+  record: T,
+  index: number,
+) => Omit<
+  DetailedHTMLProps<HTMLAttributes<HTMLTableRowElement>, HTMLTableRowElement>,
+  'children' | 'ref'
+>
 
 export type { FixedType } from './utils/verification'
 export type AlignType = 'left' | 'right' | 'center'

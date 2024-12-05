@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import clsx from 'classnames'
 import { type ReactNode, useMemo } from 'react'
 
 import { type NecessaryProps } from '../internal'
-import { type PipelineRender } from '../types'
+import { type OnRowType, type PipelineRender } from '../types'
 
-export interface MiddlewareContext<T> extends NecessaryProps<T> {
-  rowClassName?: (record: T, index: number) => string
-}
+export interface MiddlewareContext<T> extends NecessaryProps<T> {}
 
 export type MiddlewareRender = PipelineRender
 
@@ -43,7 +42,10 @@ export interface MiddlewareRenders {
   renderHeaderCell?: MiddlewareRender
 }
 
-export interface MiddlewareResult<T> extends MiddlewareContext<T>, MiddlewareRenders {}
+export interface MiddlewareResult<T> extends MiddlewareContext<T>, MiddlewareRenders {
+  rowClassName?: (record: T, index: number) => string
+  onRow?: OnRowType
+}
 
 export type Middleware<T> = (context: MiddlewareContext<T>) => MiddlewareResult<T>
 
@@ -63,6 +65,9 @@ export class TablePipeline<T> {
       renderHeaderCell: [],
     } as const
 
+    const rowClassNameFunctions: ((record: T, index: number) => string)[] = []
+    const onRowFunctions: OnRowType[] = []
+
     this.hooks.forEach((hook) => {
       const {
         render,
@@ -71,6 +76,8 @@ export class TablePipeline<T> {
         renderCell,
         renderHeader,
         renderHeaderCell,
+        rowClassName,
+        onRow,
         ...rest
       } = hook(context.current)
 
@@ -92,6 +99,12 @@ export class TablePipeline<T> {
       if (typeof renderHeaderCell === 'function') {
         renderFunctionMap.renderHeaderCell.push(renderHeaderCell)
       }
+      if (typeof rowClassName === 'function') {
+        rowClassNameFunctions.push(rowClassName)
+      }
+      if (typeof onRow === 'function') {
+        onRowFunctions.push(onRow)
+      }
       context.current = rest
     })
 
@@ -105,6 +118,20 @@ export class TablePipeline<T> {
         }
       }
     })
+
+    if (rowClassNameFunctions.length > 0) {
+      context.current.rowClassName = (record, index) => {
+        return clsx(...rowClassNameFunctions.map((fn) => fn(record, index)))
+      }
+    }
+
+    if (onRowFunctions.length > 0) {
+      context.current.onRow = (record, index) => {
+        return onRowFunctions.reduce((result, item) => {
+          return { ...result, ...item(record, index) }
+        }, {})
+      }
+    }
 
     return context.current
   }

@@ -40,6 +40,10 @@ function SelectionCell<T>(props: SelectionCellProps<T>) {
     {
       ...rest,
       checked,
+      onClick: (e) => {
+        e.stopPropagation()
+        rest.onClick?.(e)
+      },
       onChange(e: CheckboxChangeEvent | RadioChangeEvent) {
         if (isRadio) {
           return onRadioChange?.(e)

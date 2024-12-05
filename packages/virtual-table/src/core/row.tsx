@@ -10,7 +10,7 @@ import {
 import { findLastIndex } from '../utils/find-last-index'
 import Cell from './cell'
 import { useTableShared } from './context/shared'
-import { type ColumnType, type PipelineRender } from './types'
+import { type ColumnType, type OnRowType, type PipelineRender } from './types'
 import { pipelineRender } from './utils/render-pipeline'
 import { isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
@@ -23,7 +23,7 @@ export interface RowProps<T> extends NativeProps {
   rowIndex: number
   rowData: T
   columns: ColumnType<T>[]
-  onRow?: (record: T, index: number) => Omit<NativeProps, 'children' | 'ref'>
+  onRow?: OnRowType
   rowPipelineRender?: PipelineRender
   cellPipelineRender?: PipelineRender
 }

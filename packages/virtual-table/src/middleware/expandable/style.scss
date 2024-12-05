@@ -1,0 +1,54 @@
+.virtual-table-expanded-row {
+  .virtual-table-cell {
+    background-color: rgba($color: #000000, $alpha: 0.02);
+  }
+}
+
+.virtual-table-row-expand-icon {
+  position: relative;
+  display: inline-flex;
+  vertical-align: sub;
+  border: 1px solid #f0f0f0;
+  width: 17px;
+  height: 17px;
+  background-color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  color: rgba($color: #000000, $alpha: 0.88);
+  transition: all 0.3s;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    background-color: currentColor;
+  }
+
+  &::before {
+    top: 7px;
+    left: 3px;
+    width: 9px;
+    height: 1px;
+  }
+
+  &::after {
+    top: 3px;
+    left: 7px;
+    height: 9px;
+    width: 1px;
+  }
+
+  &:hover {
+    color: #69b1ff;
+    border-color: currentColor;
+  }
+
+  &-expanded {
+    &::after {
+      background-color: transparent;
+    }
+  }
+
+  &-collapsed {
+  }
+}

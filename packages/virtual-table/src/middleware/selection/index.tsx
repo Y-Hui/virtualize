@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useControllableValue, useMemoizedFn } from 'ahooks'
+import { type MiddlewareResult } from 'packages/misc/src/components/virtual-table'
 import {
   isValidElement,
   type Key,
@@ -10,10 +11,7 @@ import {
 } from 'react'
 
 import { useShallowMemo } from '../../core/hooks/useShallowMemo'
-import {
-  type Middleware,
-  type MiddlewareContext,
-} from '../../core/hooks/useTablePipeline'
+import { type Middleware } from '../../core/hooks/useTablePipeline'
 import { type AnyObject, type ColumnType } from '../../types'
 import SelectionCell from './cell'
 import SelectionTitle from './title'
@@ -31,7 +29,6 @@ export function isSelectionColumn<T = any>(column: ColumnType<T>) {
  * 为 Table 实现多选、单选功能，不传入 options 则是禁用插件
  */
 export function selection<T = any>(options?: TableRowSelection<T>): Middleware<T> {
-  type Context = Required<MiddlewareContext<T>>
   return function useSelection(ctx) {
     const disablePlugin = options == null
 
@@ -70,8 +67,8 @@ export function selection<T = any>(options?: TableRowSelection<T>): Middleware<T
       defaultValue: [],
     })
 
-    const rowClassName: Context['rowClassName'] = useCallback(
-      (record) => {
+    const rowClassName = useCallback(
+      (record: T) => {
         const key = (record as AnyObject)[rowKey]
         const checked = selectedRowKeys.includes(key)
         return checked ? 'virtual-table-row-selected' : ''
@@ -283,7 +280,7 @@ export function selection<T = any>(options?: TableRowSelection<T>): Middleware<T
       ...ctx,
       rowClassName,
       columns: mergeColumns,
-    } satisfies MiddlewareContext<T>
+    } satisfies MiddlewareResult<T>
   }
 }
 

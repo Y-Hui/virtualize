@@ -10,6 +10,7 @@ import {
   type ReactNode,
   type RefAttributes,
   type TableHTMLAttributes,
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -30,6 +31,7 @@ import {
 } from './hooks/useRowRectManager'
 import { TablePipeline } from './hooks/useTablePipeline'
 import TableRoot from './root'
+import { type OnRowType } from './types'
 import { pipelineRender } from './utils/render-pipeline'
 
 type DefaultTableProps = DetailedHTMLProps<
@@ -95,15 +97,30 @@ function VirtualTableCore<T>(
     renderCell,
     renderHeader,
     renderHeaderCell,
+
+    onRow: onPipelineRow,
   } = pipeline.use({
     dataSource: rawData,
     rowKey: rawRowKey,
     columns: rawColumns,
-    rowClassName: rawRowClassName,
   })
 
+  const onRowClassName = useCallback(
+    (record: T, index: number) => {
+      return clsx(rawRowClassName?.(record, index), rowClassName?.(record, index))
+    },
+    [rawRowClassName, rowClassName],
+  )
+
+  const onRowProps: OnRowType = useCallback(
+    (record, index) => {
+      return { ...onRow?.(record, index), ...onPipelineRow?.(record, index) }
+    },
+    [onPipelineRow, onRow],
+  )
+
   const tableNode = useRef<HTMLTableElement>(null)
-  const { rects, updateRowHeight, sum } = useRowRectManager({
+  const { rowHeightList, rects, updateRowHeight, sum } = useRowRectManager({
     itemCount: dataSource?.length ?? 0,
     estimatedRowHeight,
   })
@@ -170,8 +187,13 @@ function VirtualTableCore<T>(
   const hasFixedRightColumn = columns.some((x) => x.fixed === 'right')
 
   const shared = useMemo(() => {
-    return { updateRowHeight } satisfies TableSharedContextType
-  }, [updateRowHeight])
+    return {
+      getRowHeightList() {
+        return rowHeightList.current
+      },
+      updateRowHeight,
+    } satisfies TableSharedContextType
+  }, [rowHeightList, updateRowHeight])
 
   const table: ReactNode = (
     <TableRoot
@@ -211,8 +233,8 @@ function VirtualTableCore<T>(
           rowKey={rowKey}
           dataSource={dataSlice}
           startIndex={startIndex}
-          rowClassName={rowClassName}
-          onRow={onRow}
+          rowClassName={onRowClassName}
+          onRow={onRowProps}
           bodyRender={renderBody}
           rowPipelineRender={renderRow}
           cellPipelineRender={renderCell}
