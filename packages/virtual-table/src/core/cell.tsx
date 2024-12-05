@@ -11,6 +11,7 @@ import { type AnyObject } from '../types'
 import { useTableColumns } from './context/table-columns'
 import { type ColumnType, type PipelineRender } from './types'
 import { pipelineRender } from './utils/render-pipeline'
+import { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 type NativeProps = DetailedHTMLProps<
   HTMLAttributes<HTMLTableCellElement>,
@@ -79,7 +80,7 @@ function Cell<T>(props: CellProps<T>) {
       className={clsx(
         'virtual-table-cell',
         align != null && `virtual-table-align-${align}`,
-        typeof fixed === 'string' && 'virtual-table-sticky-cell',
+        isValidFixed(fixed) && 'virtual-table-sticky-cell',
         className,
         column.className,
         extraClassName,
@@ -87,8 +88,8 @@ function Cell<T>(props: CellProps<T>) {
       style={{
         ...style,
         ...extraStyle,
-        left: fixed === 'left' ? stickySizes[columnIndex] : undefined,
-        right: fixed === 'right' ? stickySizes[columnIndex] : undefined,
+        left: isValidFixedLeft(fixed) ? stickySizes[columnIndex] : undefined,
+        right: isValidFixedRight(fixed) ? stickySizes[columnIndex] : undefined,
       }}
     >
       {getTableCellContent(rowIndex, rowData as AnyObject, column)}

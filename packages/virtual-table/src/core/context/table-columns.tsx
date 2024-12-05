@@ -11,6 +11,7 @@ import { __DEV__ } from '../../utils/dev'
 import { shallowEqualArrays } from '../../utils/equal'
 import { useShallowMemo } from '../hooks/useShallowMemo'
 import { type ColumnType } from '../types'
+import { isValidFixedLeft, isValidFixedRight } from '../utils/verification'
 
 export interface TableColumnsContextType {
   widthList: number[]
@@ -50,7 +51,7 @@ export function TableColumnsContext(
   const stickySizes = useMemo(() => {
     let left = 0
     const leftOffset = columnsFixedRecord.reduce((res, fixed, index) => {
-      if (fixed === 'left') {
+      if (isValidFixedLeft(fixed)) {
         res[index] = left
         left += widthList[index] ?? 0
       }
@@ -59,7 +60,7 @@ export function TableColumnsContext(
 
     let right = 0
     const rightOffset = columnsFixedRecord.reduceRight((res, fixed, index) => {
-      if (fixed === 'right') {
+      if (isValidFixedRight(fixed)) {
         res[index] = right
         right += widthList[index] ?? 0
       }
@@ -67,10 +68,10 @@ export function TableColumnsContext(
     }, [] as number[])
 
     return columnsFixedRecord.map((fixed, index) => {
-      if (fixed === 'left') {
+      if (isValidFixedLeft(fixed)) {
         return leftOffset[index]
       }
-      if (fixed === 'right') {
+      if (isValidFixedRight(fixed)) {
         return rightOffset[index]
       }
       return 0

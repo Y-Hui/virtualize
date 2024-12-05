@@ -6,9 +6,9 @@ import {
   type TdHTMLAttributes,
 } from 'react'
 
+export type { FixedType } from './utils/verification'
 export type AlignType = 'left' | 'right' | 'center'
 export type SizeType = 'small' | 'middle' | 'large'
-export type FixedType = 'left' | 'right'
 
 export interface ColumnExtra {}
 

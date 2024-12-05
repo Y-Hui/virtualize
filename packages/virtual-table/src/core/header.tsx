@@ -13,6 +13,7 @@ import { findLastIndex } from '../utils/find-last-index'
 import { useTableColumns } from './context/table-columns'
 import { type ColumnType, type PipelineRender } from './types'
 import { pipelineRender } from './utils/render-pipeline'
+import { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 export interface TableHeaderProps {
   className?: string
@@ -36,8 +37,10 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
     setWidthList(columnsWidthRef.current)
   })
 
-  const lastFixedLeftColumnIndex = findLastIndex(columns, (x) => x.fixed === 'left')
-  const lastFixedRightColumnIndex = columns.findIndex((x) => x.fixed === 'right')
+  const lastFixedLeftColumnIndex = findLastIndex(columns, (x) =>
+    isValidFixedLeft(x.fixed),
+  )
+  const lastFixedRightColumnIndex = columns.findIndex((x) => isValidFixedRight(x.fixed))
 
   return (
     <table
@@ -95,7 +98,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
                         className: clsx(
                           'virtual-table-header-cell',
                           column.align != null && `virtual-table-align-${column.align}`,
-                          typeof column.fixed === 'string' && 'virtual-table-sticky-cell',
+                          isValidFixed(column.fixed) && 'virtual-table-sticky-cell',
                           lastFixedLeftColumnIndex === index &&
                             'virtual-table-cell-fix-left-last',
                           lastFixedRightColumnIndex === index &&
@@ -105,9 +108,12 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
                         ),
                         style: {
                           ...thStyle,
-                          left: column.fixed === 'left' ? stickySizes[index] : undefined,
-                          right:
-                            column.fixed === 'right' ? stickySizes[index] : undefined,
+                          left: isValidFixedLeft(column.fixed)
+                            ? stickySizes[index]
+                            : undefined,
+                          right: isValidFixedRight(column.fixed)
+                            ? stickySizes[index]
+                            : undefined,
                         },
                       },
                       column.title,

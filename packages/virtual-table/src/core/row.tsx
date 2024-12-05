@@ -12,6 +12,7 @@ import Cell from './cell'
 import { useTableShared } from './context/shared'
 import { type ColumnType, type PipelineRender } from './types'
 import { pipelineRender } from './utils/render-pipeline'
+import { isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 type NativeProps = DetailedHTMLProps<
   HTMLAttributes<HTMLTableRowElement>,
@@ -42,8 +43,10 @@ function Row<T>(props: RowProps<T>) {
 
   const { updateRowHeight } = useTableShared()
 
-  const lastFixedLeftColumnIndex = findLastIndex(columns, (x) => x.fixed === 'left')
-  const lastFixedRightColumnIndex = columns.findIndex((x) => x.fixed === 'right')
+  const lastFixedLeftColumnIndex = findLastIndex(columns, (x) =>
+    isValidFixedLeft(x.fixed),
+  )
+  const lastFixedRightColumnIndex = columns.findIndex((x) => isValidFixedRight(x.fixed))
 
   const { className: extraClassName, ...extraProps } = onRow?.(rowData, rowIndex) ?? {}
 
