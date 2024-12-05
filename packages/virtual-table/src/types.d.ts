@@ -13,6 +13,7 @@ export type {
 } from './core/hooks/useTablePipeline'
 export type {
   AlignType,
+  ColumnExtra,
   ColumnType,
   FixedType,
   PipelineRender,

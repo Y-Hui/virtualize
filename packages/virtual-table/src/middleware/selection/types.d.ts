@@ -1,3 +1,5 @@
-import type { TableRowSelection } from 'antd/es/table/interface'
+import type { AnyObject, TableRowSelection as Selection } from 'antd/es/table/interface'
 
-export type { TableRowSelection }
+export interface TableRowSelection<T = AnyObject> extends Selection<T> {
+  disableResize?: boolean
+}

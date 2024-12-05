@@ -1,7 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useControllableValue } from 'ahooks'
-import { isValidElement, type Key, type ReactNode, useCallback, useRef } from 'react'
+import { useControllableValue, useMemoizedFn } from 'ahooks'
+import {
+  isValidElement,
+  type Key,
+  type ReactNode,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react'
 
+import { useShallowMemo } from '../../core/hooks/useShallowMemo'
 import {
   type Middleware,
   type MiddlewareContext,
@@ -13,18 +21,43 @@ import { type TableRowSelection } from './types'
 
 const SELECTION_COLUMN_KEY = 'VirtualTable.SELECTION_COLUMN'
 
+const EMPTY_ARR: AnyObject[] = []
+
 /**
  * 为 Table 实现多选、单选功能，不传入 options 则是禁用插件
  */
 export function selection<T = any>(options?: TableRowSelection<T>): Middleware<T> {
   type Context = Required<MiddlewareContext<T>>
   return function useSelection(ctx) {
+    const disablePlugin = options == null
+
     const { columns: rawColumns } = ctx
     const rowKey = ctx.rowKey as string
-    const dataSource = (ctx.dataSource ?? []) as AnyObject[]
+    const dataSource = disablePlugin ? EMPTY_ARR : ((ctx.dataSource ?? []) as AnyObject[])
 
-    // preserveSelectedRowKeys=true 时，勾选过的数据，都会在这里存一份
-    const cache = useRef(new Map<Key, T>())
+    const {
+      preserveSelectedRowKeys,
+      type,
+      getCheckboxProps,
+      onSelect,
+      selections,
+      hideSelectAll = false,
+      fixed = 'left',
+      columnWidth,
+      columnTitle,
+
+      disableResize,
+
+      // TODO: 未实现
+      // checkStrictly 属性使用场景：
+      // const dataSource = [{ key: 1, name: "张三", children: [{ key: 1.1, name: "李四" }] }]
+      // dataSource 中含有 children 属性，antd Table 组件会显示为“树形”结构，Table 左侧会新增一个展开按钮，点击后会显示“李四”的数据
+      // 勾选“张三”的时候，会把对应 children 全部选中。如果 checkStrictly=false 则不选中。
+      checkStrictly: _checkStrictly,
+
+      renderCell,
+      onCell,
+    } = options || {}
 
     const [selectedRowKeys, setSelectedRowKeys] = useControllableValue<Key[]>(options, {
       defaultValuePropName: 'defaultSelectedRowKeys',
@@ -42,60 +75,24 @@ export function selection<T = any>(options?: TableRowSelection<T>): Middleware<T
       [rowKey, selectedRowKeys],
     )
 
-    if (options == null) {
-      return ctx
-    }
-
-    const {
-      preserveSelectedRowKeys,
-      type,
-      getCheckboxProps,
-      onSelect,
-      selections,
-      hideSelectAll = false,
-      fixed = 'left',
-      columnWidth,
-      columnTitle,
-
-      // TODO: 未实现
-      // checkStrictly 属性使用场景：
-      // const dataSource = [{ key: 1, name: "张三", children: [{ key: 1.1, name: "李四" }] }]
-      // dataSource 中含有 children 属性，antd Table 组件会显示为“树形”结构，Table 左侧会新增一个展开按钮，点击后会显示“李四”的数据
-      // 勾选“张三”的时候，会把对应 children 全部选中。如果 checkStrictly=false 则不选中。
-      checkStrictly: _checkStrictly,
-
-      renderCell,
-      onCell,
-    } = options
-
     const selectionPropsList = dataSource.map((row) => {
       if (!getCheckboxProps) return {}
       return getCheckboxProps(row as T)
     })
-    const allDisabled = !selectionPropsList.some((item) => !item.disabled)
 
     // 当有某一行数据 Checkbox disabled 时，过滤它
-    const allKeys = dataSource
-      .filter((_data, index) => !selectionPropsList[index].disabled)
-      .map((x) => x[rowKey as string])
+    const allKeys: Key[] = useShallowMemo(() => {
+      return dataSource
+        .filter((_data, index) => !selectionPropsList[index].disabled)
+        .map((x) => x[rowKey as string])
+    })
 
-    const isSelected = selectedRowKeys.length > 0
-    const indeterminate = isSelected && allKeys.length > selectedRowKeys.length
-    const isSelectedAll = isSelected
-      ? allKeys.length > 0 && allKeys.every((key) => selectedRowKeys.includes(key))
-      : false
+    // preserveSelectedRowKeys=true 时，勾选过的数据，都会在这里存一份
+    const cache = useRef(new Map<Key, T>())
 
-    const shakeDeadKeys = (keys: Key[]) => {
-      const unionKeys = new Set(keys)
-      if (!preserveSelectedRowKeys) {
-        return Array.from(unionKeys).filter((key) => {
-          return allKeys.includes(key)
-        })
-      }
-      return Array.from(unionKeys)
-    }
+    const allDisabled = !selectionPropsList.some((item) => !item.disabled)
 
-    const getRowsByKeys = (keys: Key[]) => {
+    const getRowsByKeys = useMemoizedFn((keys: Key[]) => {
       const result: (T | undefined)[] = []
       keys.forEach((key) => {
         let value = dataSource.find((row) => row[rowKey] === key) as T | undefined
@@ -111,26 +108,45 @@ export function selection<T = any>(options?: TableRowSelection<T>): Middleware<T
         result.push(value)
       })
       return result
-    }
+    })
 
-    const onSelectAll = () => {
-      const keys = shakeDeadKeys([...selectedRowKeys, ...allKeys])
-      const rows = getRowsByKeys(keys)
-      setSelectedRowKeys(keys, rows, { type: 'all' })
-    }
+    const mergeColumns = useMemo(() => {
+      if (disablePlugin) {
+        return rawColumns
+      }
 
-    const onSelectInvert = () => {
-      const keys = allKeys.filter((key) => !selectedRowKeys.includes(key))
-      const rows = getRowsByKeys(keys)
-      setSelectedRowKeys(keys, rows, { type: 'invert' })
-    }
-
-    const onClearAll = () => {
-      setSelectedRowKeys([], [], { type: 'none' })
-    }
-
-    const mergeColumns = () => {
       const renderRadio = type === 'radio'
+      const isSelected = selectedRowKeys.length > 0
+      const indeterminate = isSelected && allKeys.length > selectedRowKeys.length
+      const isSelectedAll = isSelected
+        ? allKeys.length > 0 && allKeys.every((key) => selectedRowKeys.includes(key))
+        : false
+
+      const shakeDeadKeys = (keys: Key[]) => {
+        const unionKeys = new Set(keys)
+        if (!preserveSelectedRowKeys) {
+          return Array.from(unionKeys).filter((key) => {
+            return allKeys.includes(key)
+          })
+        }
+        return Array.from(unionKeys)
+      }
+
+      const onSelectAll = () => {
+        const keys = shakeDeadKeys([...selectedRowKeys, ...allKeys])
+        const rows = getRowsByKeys(keys)
+        setSelectedRowKeys(keys, rows, { type: 'all' })
+      }
+
+      const onSelectInvert = () => {
+        const keys = allKeys.filter((key) => !selectedRowKeys.includes(key))
+        const rows = getRowsByKeys(keys)
+        setSelectedRowKeys(keys, rows, { type: 'invert' })
+      }
+
+      const onClearAll = () => {
+        setSelectedRowKeys([], [], { type: 'none' })
+      }
 
       const onCreateTitle = () => {
         if (renderRadio) {
@@ -176,6 +192,7 @@ export function selection<T = any>(options?: TableRowSelection<T>): Middleware<T
         // eslint-disable-next-line no-nested-ternary
         fixed: fixed === false ? undefined : fixed === 'left' ? 'left' : 'right',
         key: SELECTION_COLUMN_KEY,
+        disableResize,
         render(_value, record, index) {
           const key = (record as AnyObject)[rowKey]
           const checked = selectedRowKeys.includes(key)
@@ -227,13 +244,39 @@ export function selection<T = any>(options?: TableRowSelection<T>): Middleware<T
           return { className: 'virtual-table-selection-column' }
         },
       }
+
       return [column, ...rawColumns]
+    }, [
+      disablePlugin,
+      disableResize,
+      allDisabled,
+      allKeys,
+      columnTitle,
+      columnWidth,
+      fixed,
+      getRowsByKeys,
+      hideSelectAll,
+      onCell,
+      onSelect,
+      preserveSelectedRowKeys,
+      rawColumns,
+      renderCell,
+      rowKey,
+      selectedRowKeys,
+      selectionPropsList,
+      selections,
+      setSelectedRowKeys,
+      type,
+    ])
+
+    if (disablePlugin) {
+      return ctx
     }
 
     return {
       ...ctx,
       rowClassName,
-      columns: mergeColumns(),
+      columns: mergeColumns,
     } satisfies MiddlewareContext<T>
   }
 }
