@@ -4,6 +4,7 @@ import { type ExpandableConfig } from 'antd/es/table/interface'
 import clsx from 'classnames'
 import { type Key, useCallback, useMemo, useRef } from 'react'
 
+import { useShallowMemo } from '../../core/hooks/useShallowMemo'
 import { type OnRowType } from '../../core/types'
 import {
   type AnyObject,
@@ -27,7 +28,7 @@ export function tableExpandable<T>(options?: ExpandableConfig<T>): Middleware<T>
   return function useTableExpandable(ctx) {
     const disablePlugin = options == null
 
-    const { rowKey, columns: rawColumns } = ctx
+    const { rowKey, columns: rawColumns, dataSource } = ctx
     const {
       // expandedRowKeys,
       // defaultExpandedRowKeys,
@@ -62,6 +63,19 @@ export function tableExpandable<T>(options?: ExpandableConfig<T>): Middleware<T>
       defaultValuePropName: 'defaultExpandedRowKeys',
     })
 
+    const _rowExpandableValue = useMemo(() => {
+      return (dataSource ?? []).map((row) => {
+        if (!rowExpandable) return false
+        return rowExpandable(row as T)
+      })
+    }, [dataSource, rowExpandable])
+
+    // useShallowMemo 每一次渲染时候都会重新求值，这对于某些开销较大的计算不太友好，
+    // 所以使用 useMemo 求值再通过 useShallowMemo 浅比较
+    // useMemo 标记 deps 后，若 deps 不变也就不需要重新求值
+    // 使用 useShallowMemo 主要是为了防止重新求值后结果不变但地址指针变化，导致不必要的渲染
+    const rowExpandableRecord = useShallowMemo(() => _rowExpandableValue)
+
     const onUpdateExpansion = useMemoizedFn((rowData: T, shouldExpand?: boolean) => {
       const key = (rowData as AnyObject)[rowKey as string]
       expansionKeys.current.add(key)
@@ -84,13 +98,10 @@ export function tableExpandable<T>(options?: ExpandableConfig<T>): Middleware<T>
 
     const renderRow: MiddlewareRender = useCallback(
       (children, args) => {
-        if (typeof rowExpandable !== 'function') {
-          return children
-        }
-
         const { rowData, rowIndex } = args
 
-        if (rowExpandable(rowData)) {
+        const isExpandable = rowExpandableRecord[rowIndex!]
+        if (isExpandable) {
           const key = rowData[rowKey] as string | number
           const isExpanded: boolean | undefined = expansion.includes(key)
           const isRendered = expansionKeys.current.has(key)
@@ -120,7 +131,7 @@ export function tableExpandable<T>(options?: ExpandableConfig<T>): Middleware<T>
         }
         return children
       },
-      [expansion, rowExpandable, expandedRowRender, rowKey, expandedRowClassName],
+      [rowExpandableRecord, rowKey, expansion, expandedRowClassName, expandedRowRender],
     )
 
     const columns = useMemo((): ColumnType<T>[] => {
@@ -134,10 +145,10 @@ export function tableExpandable<T>(options?: ExpandableConfig<T>): Middleware<T>
           title: columnTitle,
           width: columnWidth,
           fixed,
-          render(_value, record, _index) {
+          render(_value, record, index) {
             const key = (record as AnyObject)[rowKey as string] as string | number
 
-            const expandable = rowExpandable?.(record) ?? false
+            const expandable = rowExpandableRecord[index] ?? false
             const expanded = expansion.includes(key) ?? false
 
             if (typeof expandIcon === 'function') {
@@ -182,16 +193,16 @@ export function tableExpandable<T>(options?: ExpandableConfig<T>): Middleware<T>
       columnWidth,
       fixed,
       rawColumns,
-      rowExpandable,
       rowKey,
-      expandIcon,
+      rowExpandableRecord,
       expansion,
+      expandIcon,
       onUpdateExpansion,
     ])
 
     const onRow: OnRowType = useCallback(
-      (record) => {
-        if (rowExpandable?.(record)) {
+      (record, index) => {
+        if (rowExpandableRecord[index]) {
           return {
             onClick: (e) => {
               e.stopPropagation()
@@ -201,7 +212,7 @@ export function tableExpandable<T>(options?: ExpandableConfig<T>): Middleware<T>
         }
         return {}
       },
-      [rowExpandable, onUpdateExpansion],
+      [rowExpandableRecord, onUpdateExpansion],
     )
 
     if (disablePlugin) {
