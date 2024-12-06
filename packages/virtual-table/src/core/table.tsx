@@ -26,6 +26,7 @@ import { TableShared, type TableSharedContextType } from './context/shared'
 import { TableColumnsContext } from './context/table-columns'
 import TableHeader from './header'
 import {
+  type RowRect,
   useRowRectManager,
   type UseRowRectManagerOptions,
 } from './hooks/useRowRectManager'
@@ -159,22 +160,50 @@ function VirtualTableCore<T>(
     visibleCount.current = count
   }, [estimatedRowHeight, hasData, overscanCount])
 
+  const scrollTopRef = useRef(0)
+
+  // 锚点元素，当前虚拟列表中，最接近滚动容器顶部的元素
+  const anchorRef = useRef<RowRect>({
+    index: 0,
+    height: estimatedRowHeight,
+    top: 0,
+    bottom: estimatedRowHeight,
+  })
+
   useEffect(() => {
     const node = tableNode.current
     if (node == null) return
     const container = getScrollParent(node)
 
-    const onScroll = (e: Event) => {
-      const scrollElement = getScrollElement(e.target)
-      const { scrollTop } = scrollElement
+    const updateBoundary = (scrollTop: number) => {
       // TODO: 考虑二分法查找；未判断滚动方向，这可能是导致向上滚动白屏的原因
       const anchor = rects().find((x) => x.bottom > scrollTop)
       if (anchor != null) {
+        anchorRef.current = anchor
         setStartIndex(Math.max(0, anchor.index - overscanCount))
         setEndIndex(anchor.index + visibleCount.current + overscanCount)
       }
     }
 
+    const onScroll = (e: Event) => {
+      const scrollElement = getScrollElement(e.target)
+      const { scrollTop } = scrollElement
+
+      // 如果滚动距离比较小，没有超出锚点元素的边界，就不需要计算 startIndex、endIndex 了
+      // 向下滚动
+      if (scrollTop > scrollTopRef.current) {
+        if (scrollTop > anchorRef.current.bottom) {
+          updateBoundary(scrollTop)
+        }
+      } else if (scrollTop < scrollTopRef.current) {
+        // 向上滚动
+        if (scrollTop < anchorRef.current.top) {
+          updateBoundary(scrollTop)
+        }
+      }
+
+      scrollTopRef.current = scrollTop
+    }
     container.addEventListener('scroll', onScroll)
     return () => {
       container.removeEventListener('scroll', onScroll)
