@@ -121,13 +121,11 @@ function VirtualTableCore<T>(
   )
 
   const tableNode = useRef<HTMLTableElement>(null)
-  const { rowHeightList, rects, updateRowHeight, sum } = useRowRectManager({
-    itemCount: dataSource?.length ?? 0,
-    estimatedRowHeight,
-  })
 
   // 滚动容器内可见数据条数
   const visibleCount = useRef(0)
+  const containerHeightRef = useRef(0)
+
   const [startIndex, setStartIndex] = useState(0)
   const [endIndex, setEndIndex] = useState(0)
 
@@ -157,6 +155,7 @@ function VirtualTableCore<T>(
       setEndIndex(nextStartIndex + count + overscanCount)
     }
 
+    containerHeightRef.current = containerHeight
     visibleCount.current = count
   }, [estimatedRowHeight, hasData, overscanCount])
 
@@ -170,13 +169,23 @@ function VirtualTableCore<T>(
     bottom: estimatedRowHeight,
   })
 
+  const { rowHeightList, rects, updateRowHeight, sum } = useRowRectManager({
+    itemCount: dataSource?.length ?? 0,
+    estimatedRowHeight,
+    onChange(index, _height, rowRects) {
+      if (anchorRef.current.index === index) {
+        anchorRef.current = rowRects[index]
+      }
+    },
+  })
+
   useEffect(() => {
     const node = tableNode.current
     if (node == null) return
     const container = getScrollParent(node)
 
     const updateBoundary = (scrollTop: number) => {
-      // TODO: 考虑二分法查找；未判断滚动方向，这可能是导致向上滚动白屏的原因
+      // TODO: 考虑二分法查找
       const anchor = rects().find((x) => x.bottom > scrollTop)
       if (anchor != null) {
         anchorRef.current = anchor

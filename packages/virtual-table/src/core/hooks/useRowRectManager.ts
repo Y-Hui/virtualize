@@ -1,5 +1,7 @@
 import { useCallback, useRef } from 'react'
 
+import { useEvent } from './useEvent'
+
 export interface RowRect {
   index: number
   height: number
@@ -11,10 +13,11 @@ export interface UseRowRectManagerOptions {
   itemCount: number
   /** 预计每行高度 */
   estimatedRowHeight: number
+  onChange?: (index: number, height: number, rects: RowRect[]) => void
 }
 
 export function useRowRectManager(options: UseRowRectManagerOptions) {
-  const { itemCount, estimatedRowHeight = 46 } = options
+  const { itemCount, estimatedRowHeight = 46, onChange } = options
   const rowHeightList = useRef<number[]>([])
 
   const calc = () => {
@@ -69,10 +72,11 @@ export function useRowRectManager(options: UseRowRectManagerOptions) {
   }
 
   // DOM 渲染结束后，进行高度测量，再修改 rowHeightList
-  const updateRowHeight = useCallback((index: number, height: number) => {
+  const updateRowHeight = useEvent((index: number, height: number) => {
     rowHeightList.current[index] = height
     updateRectList()
-  }, [])
+    onChange?.(index, height, rectList.current)
+  })
 
   const sum = (startIndex: number, endIndex?: number) => {
     return rowHeightList.current.slice(startIndex, endIndex).reduce((a, b) => a + b, 0)

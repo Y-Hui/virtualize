@@ -32,7 +32,7 @@ const ExpandRow: FC<ExpandRowProps> = (props) => {
           currentNodeHeight.current = node.offsetHeight
           updateRowHeight(rowIndex, originHeight + currentNodeHeight.current)
         } else {
-          updateRowHeight(rowIndex, originHeight - currentNodeHeight.current)
+          // 关闭后，不需要再次更新 RowHeight，否则计算会出错
         }
       }}
     >
