@@ -6,6 +6,7 @@ import {
   type ForwardedRef,
   forwardRef,
   type Key,
+  memo,
   type ReactElement,
   type ReactNode,
   type RefAttributes,
@@ -30,7 +31,7 @@ import {
   useRowRectManager,
   type UseRowRectManagerOptions,
 } from './hooks/useRowRectManager'
-import { TablePipeline } from './hooks/useTablePipeline'
+import { type Middleware, TablePipeline } from './hooks/useTablePipeline'
 import TableRoot from './root'
 import { type OnRowType } from './types'
 import { pipelineRender } from './utils/render-pipeline'
@@ -62,7 +63,7 @@ export interface VirtualTableCoreProps<T>
   /** 在头和尾额外渲染多少条 @default 5 */
   overscanCount?: number
 
-  pipeline?: TablePipeline<T>
+  pipeline?: Middleware<T>
 }
 
 function VirtualTableCore<T>(
@@ -80,7 +81,7 @@ function VirtualTableCore<T>(
     estimatedRowHeight,
     overscanCount = 5,
     stickyHeader,
-    pipeline = TablePipeline.defaultPipeline as TablePipeline<T>,
+    pipeline = (TablePipeline.defaultPipeline as TablePipeline<T>).use,
     rowClassName: rawRowClassName,
     onRow,
     ...rest
@@ -100,7 +101,7 @@ function VirtualTableCore<T>(
     renderHeaderCell,
 
     onRow: onPipelineRow,
-  } = pipeline.use({
+  } = pipeline({
     dataSource: rawData,
     rowKey: rawRowKey,
     columns: rawColumns,
@@ -294,6 +295,6 @@ if (__DEV__) {
   VirtualTableCore.displayName = 'VirtualTable.Core'
 }
 
-export default forwardRef(VirtualTableCore) as <T>(
+export default memo(forwardRef(VirtualTableCore)) as <T>(
   props: VirtualTableCoreProps<T> & RefAttributes<HTMLTableElement>,
 ) => ReactElement

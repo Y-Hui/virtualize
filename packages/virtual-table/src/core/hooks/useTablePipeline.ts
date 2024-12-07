@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import clsx from 'classnames'
-import { type ReactNode, useMemo } from 'react'
+import { type ReactNode, useRef } from 'react'
 
+import { shallowEqualArrays } from '../../utils/equal'
 import { type NecessaryProps } from '../internal'
 import { type OnRowType, type PipelineRender } from '../types'
 
@@ -50,10 +51,18 @@ export interface MiddlewareResult<T> extends MiddlewareContext<T>, MiddlewareRen
 export type Middleware<T> = (context: MiddlewareContext<T>) => MiddlewareResult<T>
 
 export class TablePipeline<T> {
+  constructor() {
+    this.use = this.use.bind(this)
+  }
+
   hooks: Middleware<T>[] = []
 
   // eslint-disable-next-line @eslint-react/hooks-extra/ensure-custom-hooks-using-other-hooks
   use(options: MiddlewareContext<T>): MiddlewareResult<T> {
+    if (this.hooks.length === 0) {
+      return options
+    }
+
     const context: { current: MiddlewareResult<T> } = { current: options }
 
     const renderFunctionMap: Record<keyof MiddlewareRenders, MiddlewareRender[]> = {
@@ -140,15 +149,28 @@ export class TablePipeline<T> {
 }
 
 export interface UseTablePipelineOptions<T = any> {
-  pipeline?: TablePipeline<T>
+  pipeline?: Middleware<T>
   use?: (Middleware<T> | undefined | null)[]
 }
 
 export function useTablePipeline<T = any>(options: UseTablePipelineOptions<T>) {
-  const { use } = options
-  const pipeline = useMemo(() => new TablePipeline<T>(), [])
+  const { use, pipeline: extraPipeline } = options
+
+  const prevPipeline = useRef<TablePipeline<T> | null>(null)
+
   if (use != null) {
-    pipeline.hooks = use.filter((x) => x != null).concat(options.pipeline?.hooks ?? [])
+    const nextHooks = [...use, extraPipeline].filter((x) => x != null)
+
+    // eslint-disable-next-line react-compiler/react-compiler
+    if (!shallowEqualArrays(prevPipeline.current?.hooks, nextHooks)) {
+      const pipeline = new TablePipeline<T>()
+      pipeline.hooks = nextHooks.filter((x) => x != null)
+      // eslint-disable-next-line react-compiler/react-compiler
+      prevPipeline.current = pipeline
+      return pipeline.use
+    }
   }
-  return pipeline
+
+  // eslint-disable-next-line react-compiler/react-compiler
+  return prevPipeline.current?.use
 }

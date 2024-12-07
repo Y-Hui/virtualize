@@ -59,3 +59,33 @@ export function shallowEqualArrays(
 
   return true
 }
+
+export function isShallowEqual(value: unknown, oldValue: unknown) {
+  if (Object.is(value, oldValue)) {
+    return true
+  }
+  if (Array.isArray(value) && Array.isArray(oldValue)) {
+    if (shallowEqualArrays(value, oldValue)) {
+      return true
+    }
+    if (value.length === oldValue.length) {
+      const hasObject = value.findIndex((x) => typeof x === 'object' && x != null) > -1
+      if (hasObject) {
+        return value.every((state, index) => {
+          if (Array.isArray(state)) {
+            return shallowEqualArrays(state, oldValue[index] as unknown[])
+          }
+          if (typeof state === 'object' && state != null) {
+            return shallowEqualObjects(state, oldValue[index] as Record<string, unknown>)
+          }
+          return Object.is(state, oldValue[index])
+        })
+      }
+    }
+    return false
+  }
+  if (typeof value === 'object' && value != null) {
+    return shallowEqualObjects(value, oldValue as Record<string, unknown>)
+  }
+  return false
+}
