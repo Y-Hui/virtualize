@@ -10,6 +10,7 @@ import {
 
 import { useTablePipeline } from './core/hooks/useTablePipeline'
 import Table, { type VirtualTableCoreProps, type VirtualTableCoreRef } from './core/table'
+import { type ExpandableConfig, tableExpandable } from './middleware/expandable'
 import { selection, type TableRowSelection } from './middleware/selection'
 import { type SizeType } from './types'
 
@@ -27,6 +28,7 @@ export interface VirtualTableProps<T>
   estimatedRowHeight?: number
   sticky?: boolean | { offsetHeader: number }
   rowSelection?: TableRowSelection<T>
+  expandable?: ExpandableConfig<T>
 }
 
 function getDefaultEstimatedRowHeight(size: SizeType, height?: number) {
@@ -57,13 +59,15 @@ function VirtualTable<T>(
     loading,
     bordered,
     pipeline: extraPipeline,
+    expandable,
     ...rest
   } = props
 
   const estimatedRowHeight = getDefaultEstimatedRowHeight(size, rowHeight)
+
   const pipeline = useTablePipeline<T>({
     pipeline: extraPipeline,
-    use: [selection(rowSelection)],
+    use: [selection(rowSelection), tableExpandable(expandable)],
   })
 
   return (
