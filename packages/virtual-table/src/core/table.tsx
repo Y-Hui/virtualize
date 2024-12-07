@@ -94,10 +94,12 @@ function VirtualTableCore<T>(
     rowClassName,
 
     render,
+    renderTable,
     renderBody,
     renderRow,
     renderCell,
     renderHeader,
+    renderHeaderRow,
     renderHeaderCell,
 
     onRow: onPipelineRow,
@@ -245,40 +247,45 @@ function VirtualTableCore<T>(
         columns={columns}
         stickyHeader={stickyHeader}
         headerRender={renderHeader}
+        headerRowRender={renderHeaderRow}
         cellRender={renderHeaderCell}
       />
-      <table
-        {...rest}
-        className={clsx(className, 'virtual-table-body')}
-        style={{ ...style, paddingBottom: bottomBlank, paddingTop: topBlank }}
-        ref={composeRef(tableNode, ref)}
-      >
-        <colgroup>
-          {columns.map((item, index) => {
-            const key = 'key' in item ? (item.key as Key) : item.dataIndex
-            return (
-              <col
-                key={typeof key === 'symbol' ? index : key}
-                style={{
-                  width: item.width,
-                  minWidth: item.minWidth,
-                }}
-              />
-            )
-          })}
-        </colgroup>
-        <TableBody
-          columns={columns}
-          rowKey={rowKey}
-          dataSource={dataSlice}
-          startIndex={startIndex}
-          rowClassName={onRowClassName}
-          onRow={onRowProps}
-          bodyRender={renderBody}
-          rowPipelineRender={renderRow}
-          cellPipelineRender={renderCell}
-        />
-      </table>
+      {pipelineRender(
+        <table
+          {...rest}
+          className={clsx(className, 'virtual-table-body')}
+          style={{ ...style, paddingBottom: bottomBlank, paddingTop: topBlank }}
+          ref={composeRef(tableNode, ref)}
+        >
+          <colgroup>
+            {columns.map((item, index) => {
+              const key = 'key' in item ? (item.key as Key) : item.dataIndex
+              return (
+                <col
+                  key={typeof key === 'symbol' ? index : key}
+                  style={{
+                    width: item.width,
+                    minWidth: item.minWidth,
+                  }}
+                />
+              )
+            })}
+          </colgroup>
+          <TableBody
+            columns={columns}
+            rowKey={rowKey}
+            dataSource={dataSlice}
+            startIndex={startIndex}
+            rowClassName={onRowClassName}
+            onRow={onRowProps}
+            bodyRender={renderBody}
+            rowPipelineRender={renderRow}
+            cellPipelineRender={renderCell}
+          />
+        </table>,
+        renderTable,
+        { columns },
+      )}
     </TableRoot>
   )
 

@@ -17,6 +17,11 @@ export interface MiddlewareRenders {
    */
   render?: MiddlewareRender
   /**
+   * 自定义 Table 渲染，children 为 table。
+   * @note 注意：出于性能考虑，**需要自行对函数 memo**
+   */
+  renderTable?: MiddlewareRender
+  /**
    * 自定义 Table 渲染，children 为 TableBody。
    * @note 注意：出于性能考虑，**需要自行对函数 memo**
    */
@@ -36,6 +41,11 @@ export interface MiddlewareRenders {
    * @note 注意：出于性能考虑，**需要自行对函数 memo**
    */
   renderHeader?: MiddlewareRender
+  /**
+   * 自定义 TableHeaderRow 渲染，children 为 TableHeaderRow。
+   * @note 注意：出于性能考虑，**需要自行对函数 memo**
+   */
+  renderHeaderRow?: MiddlewareRender
   /**
    * 自定义 Row 渲染，children 为 HeaderCell。
    * @note 注意：出于性能考虑，**需要自行对函数 memo**
@@ -67,10 +77,12 @@ export class TablePipeline<T> {
 
     const renderFunctionMap: Record<keyof MiddlewareRenders, MiddlewareRender[]> = {
       render: [],
+      renderTable: [],
       renderBody: [],
       renderRow: [],
       renderCell: [],
       renderHeader: [],
+      renderHeaderRow: [],
       renderHeaderCell: [],
     } as const
 
@@ -80,10 +92,12 @@ export class TablePipeline<T> {
     this.hooks.forEach((hook) => {
       const {
         render,
+        renderTable,
         renderBody,
         renderRow,
         renderCell,
         renderHeader,
+        renderHeaderRow,
         renderHeaderCell,
         rowClassName,
         onRow,
@@ -92,6 +106,9 @@ export class TablePipeline<T> {
 
       if (typeof render === 'function') {
         renderFunctionMap.render.push(render)
+      }
+      if (typeof renderTable === 'function') {
+        renderFunctionMap.renderTable.push(renderTable)
       }
       if (typeof renderBody === 'function') {
         renderFunctionMap.renderBody.push(renderBody)
@@ -104,6 +121,9 @@ export class TablePipeline<T> {
       }
       if (typeof renderHeader === 'function') {
         renderFunctionMap.renderHeader.push(renderHeader)
+      }
+      if (typeof renderHeaderRow === 'function') {
+        renderFunctionMap.renderHeaderRow.push(renderHeaderRow)
       }
       if (typeof renderHeaderCell === 'function') {
         renderFunctionMap.renderHeaderCell.push(renderHeaderCell)
