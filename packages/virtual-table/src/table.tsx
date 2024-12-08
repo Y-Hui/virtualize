@@ -23,8 +23,6 @@ export interface VirtualTableProps<T>
     >,
     TableSummaryOptions<T> {
   size?: SizeType
-
-  // TODO:
   bordered?: boolean
 
   // TODO:
@@ -86,7 +84,7 @@ function VirtualTable<T>(
     <Table
       {...rest}
       pipeline={pipeline}
-      rootClassName={clsx(`virtual-table-${size}`)}
+      rootClassName={clsx(`virtual-table-${size}`, bordered && 'virtual-table-bordered')}
       ref={ref}
       estimatedRowHeight={estimatedRowHeight}
       stickyHeader={typeof sticky === 'boolean' ? sticky : sticky?.offsetHeader}

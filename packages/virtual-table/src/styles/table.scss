@@ -163,4 +163,16 @@
       padding: 16px;
     }
   }
+
+  &-bordered {
+    .virtual-table-cell,
+    .virtual-table-header-cell {
+      border-inline-end: 1px solid var(--virtual-table-border-color);
+    }
+    .virtual-table-header-cell {
+      &::before {
+        background-color: transparent !important;
+      }
+    }
+  }
 }

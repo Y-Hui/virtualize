@@ -50,7 +50,7 @@ export const selection = /*#__PURE__*/ createMiddleware(function useSelection<T 
     columnWidth,
     columnTitle,
 
-    disableResize,
+    disableResize = true,
 
     // TODO: 未实现
     // checkStrictly 属性使用场景：
@@ -196,7 +196,8 @@ export const selection = /*#__PURE__*/ createMiddleware(function useSelection<T 
 
     const column: ColumnType<T> = {
       title: hideSelectAll ? undefined : onCreateTitle(),
-      width: columnWidth ?? 32,
+      width: columnWidth ?? (selections == null ? 32 : 48),
+      align: 'center',
       // eslint-disable-next-line no-nested-ternary
       fixed: fixed === false ? undefined : fixed === 'left' ? 'left' : 'right',
       key: SELECTION_COLUMN_KEY,
