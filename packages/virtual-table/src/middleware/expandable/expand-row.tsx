@@ -3,7 +3,7 @@ import './style.scss'
 import clsx from 'classnames'
 import { type CSSProperties, type FC, type ReactNode, useRef } from 'react'
 
-import { useTableShared } from '../../core'
+import { useContainerSize, useTableShared } from '../../core'
 
 export interface ExpandRowProps {
   className?: string
@@ -12,12 +12,15 @@ export interface ExpandRowProps {
   isExpanded?: boolean
   colSpan?: number
   children?: ReactNode
+  fixed?: boolean
 }
 
 const ExpandRow: FC<ExpandRowProps> = (props) => {
-  const { className, style, rowIndex, isExpanded, colSpan, children } = props
+  const { className, style, rowIndex, isExpanded, colSpan, children, fixed } = props
 
   const { getRowHeightList, updateRowHeight } = useTableShared()
+  const { width } = useContainerSize()
+
   const currentNodeHeight = useRef(0)
 
   return (
@@ -36,8 +39,16 @@ const ExpandRow: FC<ExpandRowProps> = (props) => {
         }
       }}
     >
-      <td className="virtual-table-cell" colSpan={colSpan}>
-        {children}
+      <td colSpan={colSpan}>
+        <div
+          className={clsx(
+            'virtual-table-cell',
+            fixed && 'virtual-table-expanded-row-fixed',
+          )}
+          style={{ width: width <= 0 ? undefined : width }}
+        >
+          {children}
+        </div>
       </td>
     </tr>
   )

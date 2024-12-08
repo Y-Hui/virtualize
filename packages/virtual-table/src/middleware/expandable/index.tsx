@@ -4,7 +4,7 @@ import { type ExpandableConfig } from 'antd/es/table/interface'
 import clsx from 'classnames'
 import { type Key, useCallback, useMemo, useRef } from 'react'
 
-import { type OnRowType, useShallowMemo } from '../../core'
+import { isValidFixed, type OnRowType, useShallowMemo } from '../../core'
 import {
   type AnyObject,
   type ColumnType,
@@ -106,6 +106,8 @@ export const tableExpandable = /*#__PURE__*/ createMiddleware(function useTableE
     }
   })
 
+  const isFixed = isValidFixed(fixed)
+
   const renderRow: MiddlewareRender = useCallback(
     (children, args) => {
       const { rowData, rowIndex } = args
@@ -133,6 +135,7 @@ export const tableExpandable = /*#__PURE__*/ createMiddleware(function useTableE
                 rowIndex={rowIndex!}
                 isExpanded={isExpanded}
                 colSpan={args.columns!.length}
+                fixed={isFixed}
               >
                 {expandedRowRender?.(rowData, rowIndex!, 0, isExpanded)}
               </ExpandRow>
@@ -142,7 +145,14 @@ export const tableExpandable = /*#__PURE__*/ createMiddleware(function useTableE
       }
       return children
     },
-    [rowExpandableRecord, rowKey, expansion, expandedRowClassName, expandedRowRender],
+    [
+      isFixed,
+      rowExpandableRecord,
+      rowKey,
+      expansion,
+      expandedRowClassName,
+      expandedRowRender,
+    ],
   )
 
   const columns = useMemo((): ColumnType<T>[] => {
