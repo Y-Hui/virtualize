@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'react-resizable/css/styles.css'
 
-import { useCallback, useMemo, useState } from 'react'
+import { isValidElement, useCallback, useMemo, useState } from 'react'
 import { Resizable } from 'react-resizable'
 
 import { type MiddlewareContext, type MiddlewareRender } from '../../types'
+import { __DEV__ } from '../../utils/dev'
 import { createMiddleware } from '../index'
 
 declare module '../../types' {
@@ -85,6 +86,12 @@ export const columnResize = /*#__PURE__*/ createMiddleware(function useColumnRes
 
       if (typeof width === 'string') {
         width = columnWidthList[columnIndex]
+      }
+
+      if (__DEV__) {
+        if (isValidElement(children) && children.type === Resizable) {
+          throw Error('columnResize 插件重复使用')
+        }
       }
 
       return (

@@ -23,7 +23,7 @@ export interface VirtualTableProps<T>
       VirtualTableCoreProps<T>,
       'estimatedRowHeight' | 'stickyHeader' | 'summary'
     >,
-    TableSummaryOptions<T> {
+    Partial<TableSummaryOptions<T>> {
   size?: SizeType
   bordered?: boolean
   loading?: boolean
@@ -77,7 +77,7 @@ function VirtualTable<T>(
       selection(rowSelection),
       tableExpandable(expandable),
       columnResize(),
-      tableSummary({ summary }),
+      tableSummary(summary == null ? undefined : { summary }),
     ],
   })
 
