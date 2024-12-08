@@ -33,8 +33,8 @@ export const tableExpandable = /*#__PURE__*/ createMiddleware(function useTableE
   const { rowKey, columns: rawColumns, dataSource } = ctx
   const {
     // expandedRowKeys,
-    // defaultExpandedRowKeys,
     // onExpandedRowsChange,
+    defaultExpandedRowKeys,
     expandedRowRender,
     columnTitle,
     expandRowByClick = false,
@@ -57,22 +57,6 @@ export const tableExpandable = /*#__PURE__*/ createMiddleware(function useTableE
     fixed,
   } = options || {}
 
-  // 即使 defaultExpandAllRows 变更之后，此插件也不要响应变化，只使用初始值，所以存储一下
-  const defaultExpandAll = useRef(
-    // options 中有 expandedRowKeys 则表示受控模式，那么 defaultExpandAllRows 不生效
-    'expandedRowKeys' in (options ?? {}) ? false : defaultExpandAllRows,
-  )
-
-  const expansionKeys = useRef(new Set<Key>())
-  const [expansion = EMPTY_ARR, setExpansion] = useControllableValue<Key[]>(
-    options ?? {},
-    {
-      trigger: 'onExpandedRowsChange',
-      valuePropName: 'expandedRowKeys',
-      defaultValuePropName: 'defaultExpandedRowKeys',
-    },
-  )
-
   const _rowExpandableValue = useMemo(() => {
     return (dataSource ?? []).map((row) => {
       if (!rowExpandable) return false
@@ -85,6 +69,37 @@ export const tableExpandable = /*#__PURE__*/ createMiddleware(function useTableE
   // useMemo 标记 deps 后，若 deps 不变也就不需要重新求值
   // 使用 useShallowMemo 主要是为了防止重新求值后结果不变但地址指针变化，导致不必要的渲染
   const rowExpandableRecord = useShallowMemo(() => _rowExpandableValue)
+
+  // 即使 defaultExpandAllRows 变更之后，此插件也不要响应变化，只使用初始值，所以存储一下
+  const defaultExpandAll = useRef(
+    // options 中有 expandedRowKeys 则表示受控模式，那么 defaultExpandAllRows 不生效
+    'expandedRowKeys' in (options ?? {}) || 'defaultExpandedRowKeys' in (options ?? {})
+      ? false
+      : defaultExpandAllRows,
+  )
+  const defaultExpandKey = useShallowMemo((): readonly Key[] => {
+    if (defaultExpandAll.current) {
+      const expandKeys = (dataSource ?? []).map((record, index): Key | null => {
+        if (rowExpandableRecord[index]) {
+          const key = (record as AnyObject)[rowKey as string] as string | number
+          return key
+        }
+        return null
+      })
+      return expandKeys.filter((x) => x != null)
+    }
+    return []
+  })
+
+  const expansionKeys = useRef(new Set<Key>(defaultExpandedRowKeys ?? defaultExpandKey))
+  const [expansion = EMPTY_ARR, setExpansion] = useControllableValue<readonly Key[]>(
+    options ?? {},
+    {
+      trigger: 'onExpandedRowsChange',
+      valuePropName: 'expandedRowKeys',
+      defaultValue: defaultExpandedRowKeys ?? defaultExpandKey,
+    },
+  )
 
   const onUpdateExpansion = useMemoizedFn((rowData: T, shouldExpand?: boolean) => {
     const key = (rowData as AnyObject)[rowKey as string]
@@ -115,9 +130,8 @@ export const tableExpandable = /*#__PURE__*/ createMiddleware(function useTableE
       const isExpandable = rowExpandableRecord[rowIndex!]
       if (isExpandable) {
         const key = rowData[rowKey] as string | number
-        const isExpanded: boolean | undefined =
-          expansion.includes(key) || defaultExpandAll.current
-        const isRendered = expansionKeys.current.has(key) || defaultExpandAll.current
+        const isExpanded: boolean | undefined = expansion.includes(key)
+        const isRendered = expansionKeys.current.has(key)
 
         let className = ''
         if (typeof expandedRowClassName === 'string') {
