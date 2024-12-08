@@ -34,29 +34,34 @@ export const tableExpandable = /*#__PURE__*/ createMiddleware(function useTableE
   const {
     // expandedRowKeys,
     // defaultExpandedRowKeys,
+    // onExpandedRowsChange,
     expandedRowRender,
     columnTitle,
     expandRowByClick = false,
     expandIcon,
     onExpand,
-    // onExpandedRowsChange,
 
-    // TODO:
-    defaultExpandAllRows: _defaultExpandAllRows,
+    defaultExpandAllRows = false,
 
-    // TODO:
+    // TODO: 未实现
     indentSize: _indentSize,
 
     showExpandColumn = true,
     expandedRowClassName,
 
-    // TODO:
+    // TODO: 未实现
     childrenColumnName: _childrenColumnName,
 
     rowExpandable,
     columnWidth = 50,
     fixed,
   } = options || {}
+
+  // 即使 defaultExpandAllRows 变更之后，此插件也不要响应变化，只使用初始值，所以存储一下
+  const defaultExpandAll = useRef(
+    // options 中有 expandedRowKeys 则表示受控模式，那么 defaultExpandAllRows 不生效
+    'expandedRowKeys' in (options ?? {}) ? false : defaultExpandAllRows,
+  )
 
   const expansionKeys = useRef(new Set<Key>())
   const [expansion = EMPTY_ARR, setExpansion] = useControllableValue<Key[]>(
@@ -108,8 +113,9 @@ export const tableExpandable = /*#__PURE__*/ createMiddleware(function useTableE
       const isExpandable = rowExpandableRecord[rowIndex!]
       if (isExpandable) {
         const key = rowData[rowKey] as string | number
-        const isExpanded: boolean | undefined = expansion.includes(key)
-        const isRendered = expansionKeys.current.has(key)
+        const isExpanded: boolean | undefined =
+          expansion.includes(key) || defaultExpandAll.current
+        const isRendered = expansionKeys.current.has(key) || defaultExpandAll.current
 
         let className = ''
         if (typeof expandedRowClassName === 'string') {
