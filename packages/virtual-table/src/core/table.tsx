@@ -23,6 +23,7 @@ import { __DEV__ } from '../utils/dev'
 import { getScrollElement, getScrollParent, isRoot, isWindow } from '../utils/dom'
 import { composeRef } from '../utils/ref'
 import TableBody, { type TableBodyProps } from './body'
+import { ContainerSize, type ContainerSizeState } from './context/container-size'
 import { TableShared, type TableSharedContextType } from './context/shared'
 import { TableColumnsContext } from './context/table-columns'
 import TableHeader from './header'
@@ -124,6 +125,33 @@ function VirtualTableCore<T>(
   )
 
   const tableNode = useRef<HTMLTableElement>(null)
+  const [scrollContainerWidth, setScrollContainerWidth] = useState(0)
+  const [scrollContainerHeight, setScrollContainerHeight] = useState(0)
+
+  const containerSize = useMemo((): ContainerSizeState => {
+    return { width: scrollContainerWidth, height: scrollContainerHeight }
+  }, [scrollContainerWidth, scrollContainerHeight])
+
+  useLayoutEffect(() => {
+    const table = tableNode.current
+    if (table == null) return
+    const scrollerContainer = getScrollParent(table)
+    let scroller: HTMLElement
+    if (isWindow(scrollerContainer)) {
+      scroller = document.scrollingElement as HTMLElement
+    } else {
+      scroller = scrollerContainer
+    }
+    const observer = new ResizeObserver((entries) => {
+      const { width, height } = entries[0].contentRect
+      setScrollContainerWidth(width)
+      setScrollContainerHeight(height)
+    })
+    observer.observe(scroller)
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
 
   // 滚动容器内可见数据条数
   const visibleCount = useRef(0)
@@ -292,7 +320,9 @@ function VirtualTableCore<T>(
   return (
     <TableShared.Provider value={shared}>
       <TableColumnsContext columns={columns}>
-        {pipelineRender(table, render, { columns })}
+        <ContainerSize.Provider value={containerSize}>
+          {pipelineRender(table, render, { columns })}
+        </ContainerSize.Provider>
       </TableColumnsContext>
     </TableShared.Provider>
   )

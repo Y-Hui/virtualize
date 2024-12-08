@@ -1,5 +1,6 @@
 export type { CellProps as VirtualTableCellProps } from './cell'
 export { default as VirtualTableCell } from './cell'
+export { useContainerSize } from './context/container-size'
 export { useTableShared } from './context/shared'
 export { useTableSticky } from './context/sticky'
 export { useTableColumns } from './context/table-columns'
