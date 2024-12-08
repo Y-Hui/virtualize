@@ -11,6 +11,7 @@ import {
 import { useTablePipeline } from './core/hooks/useTablePipeline'
 import Table, { type VirtualTableCoreProps, type VirtualTableCoreRef } from './core/table'
 import { columnResize } from './middleware/column-resize'
+import { tableEmpty } from './middleware/empty'
 import { type ExpandableConfig, tableExpandable } from './middleware/expandable'
 import { tableLoading } from './middleware/loading'
 import { selection, type TableRowSelection } from './middleware/selection'
@@ -71,6 +72,7 @@ function VirtualTable<T>(
   const pipeline = useTablePipeline<T>({
     pipeline: extraPipeline,
     use: [
+      tableEmpty(),
       tableLoading({ loading }),
       selection(rowSelection),
       tableExpandable(expandable),
