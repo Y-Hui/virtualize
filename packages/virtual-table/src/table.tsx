@@ -12,6 +12,7 @@ import { useTablePipeline } from './core/hooks/useTablePipeline'
 import Table, { type VirtualTableCoreProps, type VirtualTableCoreRef } from './core/table'
 import { columnResize } from './middleware/column-resize'
 import { type ExpandableConfig, tableExpandable } from './middleware/expandable'
+import { tableLoading } from './middleware/loading'
 import { selection, type TableRowSelection } from './middleware/selection'
 import { tableSummary, type TableSummaryOptions } from './middleware/summary'
 import { type SizeType } from './types'
@@ -24,10 +25,7 @@ export interface VirtualTableProps<T>
     TableSummaryOptions<T> {
   size?: SizeType
   bordered?: boolean
-
-  // TODO:
   loading?: boolean
-
   /** 预计每行高度 */
   estimatedRowHeight?: number
   sticky?: boolean | { offsetHeader: number }
@@ -73,6 +71,7 @@ function VirtualTable<T>(
   const pipeline = useTablePipeline<T>({
     pipeline: extraPipeline,
     use: [
+      tableLoading({ loading }),
       selection(rowSelection),
       tableExpandable(expandable),
       columnResize(),
