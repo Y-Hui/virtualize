@@ -51,7 +51,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
   const lastFixedLeftColumnIndex = findLastIndex(columns, (x) =>
     isValidFixedLeft(x.fixed),
   )
-  const lastFixedRightColumnIndex = columns.findIndex((x) => isValidFixedRight(x.fixed))
+  const firstFixedRightColumnIndex = columns.findIndex((x) => isValidFixedRight(x.fixed))
 
   const row = pipelineRender(
     <tr>
@@ -83,8 +83,8 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
                     isValidFixed(column.fixed) && 'virtual-table-sticky-cell',
                     lastFixedLeftColumnIndex === index &&
                       'virtual-table-cell-fix-left-last',
-                    lastFixedRightColumnIndex === index &&
-                      'virtual-table-cell-fix-right-last',
+                    firstFixedRightColumnIndex === index &&
+                      'virtual-table-cell-fix-right-first',
                     column.className,
                     thClassName,
                   ),

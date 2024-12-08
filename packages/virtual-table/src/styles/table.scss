@@ -101,7 +101,7 @@
     }
   }
 
-  &-cell-fix-right-last {
+  &-cell-fix-right-first {
     &::after {
       content: '';
       position: absolute;
@@ -130,11 +130,11 @@
   }
 
   &-has-fix-right {
-    .virtual-table-cell-fix-right-last::after {
+    .virtual-table-cell-fix-right-first::after {
       box-shadow: inset -10px 0 8px -8px var(--virtual-table-color-split);
     }
 
-    .virtual-table-cell-fix-right-last::before {
+    .virtual-table-cell-fix-right-first::before {
       background-color: transparent;
     }
   }

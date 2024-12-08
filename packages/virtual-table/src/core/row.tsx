@@ -46,7 +46,7 @@ function Row<T>(props: RowProps<T>) {
   const lastFixedLeftColumnIndex = findLastIndex(columns, (x) =>
     isValidFixedLeft(x.fixed),
   )
-  const lastFixedRightColumnIndex = columns.findIndex((x) => isValidFixedRight(x.fixed))
+  const firstFixedRightColumnIndex = columns.findIndex((x) => isValidFixedRight(x.fixed))
 
   const { className: extraClassName, ...extraProps } = onRow?.(rowData, rowIndex) ?? {}
 
@@ -67,7 +67,8 @@ function Row<T>(props: RowProps<T>) {
             key={typeof key === 'symbol' ? index : key}
             className={clsx(
               lastFixedLeftColumnIndex === index && 'virtual-table-cell-fix-left-last',
-              lastFixedRightColumnIndex === index && 'virtual-table-cell-fix-right-last',
+              firstFixedRightColumnIndex === index &&
+                'virtual-table-cell-fix-right-first',
             )}
             column={column}
             rowIndex={rowIndex}

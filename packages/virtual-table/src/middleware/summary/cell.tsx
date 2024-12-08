@@ -34,7 +34,7 @@ function Cell(props: CellProps) {
   const { size: stickySizes, fixed: columnsFixed } = useTableSticky()
   const fixed = columnsFixed[columnIndex]
 
-  const { left: lastFixedLeftColumnIndex, right: lastFixedRightColumnIndex } =
+  const { left: lastFixedLeftColumnIndex, right: firstFixedRightColumnIndex } =
     useMemo(() => {
       const left = findLastIndex(columnsFixed, (x) => isValidFixedLeft(x))
       const right = columnsFixed.findIndex((x) => isValidFixedRight(x))
@@ -45,7 +45,18 @@ function Cell(props: CellProps) {
     return null
   }
 
-  const index = columnIndex + ((colSpan ?? 0) - 1)
+  const colOffset = Math.max(0, (colSpan ?? 0) - 1)
+  let index = columnIndex + colOffset
+  let offset = stickySizes[index]
+
+  if (colSpan != null) {
+    if (index === lastFixedLeftColumnIndex) {
+      index = columnIndex + colOffset
+    } else if (columnIndex === firstFixedRightColumnIndex) {
+      index = columnIndex
+      offset = stickySizes[index + colOffset]
+    }
+  }
 
   return (
     <td
@@ -56,13 +67,13 @@ function Cell(props: CellProps) {
         align != null && `virtual-table-align-${align}`,
         isValidFixed(fixed) && 'virtual-table-sticky-cell',
         lastFixedLeftColumnIndex === index && 'virtual-table-cell-fix-left-last',
-        lastFixedRightColumnIndex === index && 'virtual-table-cell-fix-right-last',
+        firstFixedRightColumnIndex === index && 'virtual-table-cell-fix-right-first',
         className,
       )}
       style={{
         ...style,
         left: isValidFixedLeft(fixed) ? stickySizes[columnIndex] : undefined,
-        right: isValidFixedRight(fixed) ? stickySizes[columnIndex] : undefined,
+        right: isValidFixedRight(fixed) ? offset : undefined,
       }}
     >
       {children}
