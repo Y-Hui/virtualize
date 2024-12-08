@@ -28,7 +28,8 @@
 }
 
 .virtual-table-row-selected {
-  .virtual-table-cell {
+  .virtual-table-cell,
+  .virtual-table-cell.virtual-table-sticky-cell {
     background-color: var(--virtual-table-row-selected-bg);
   }
 

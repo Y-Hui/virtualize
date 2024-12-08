@@ -27,6 +27,7 @@
     top: 0;
     left: 0;
     z-index: 3;
+    background-color: #fff;
   }
 
   &-header {
@@ -80,7 +81,7 @@
     position: sticky !important;
     z-index: 2;
 
-    &.virtual-table-cell {
+    &:not(.virtual-table-header-cell) {
       background-color: #fff;
     }
   }
@@ -114,6 +115,10 @@
   }
 
   &-has-fix-left {
+    .virtual-table-sticky-cell:not(.virtual-table-header-cell) {
+      background-color: #fff;
+    }
+
     .virtual-table-cell-fix-left-last::after {
       box-shadow: inset 10px 0 8px -8px var(--virtual-table-color-split);
     }
@@ -155,7 +160,7 @@
   &-large {
     .virtual-table-header-cell,
     .virtual-table-cell {
-      padding: 8px;
+      padding: 16px;
     }
   }
 }

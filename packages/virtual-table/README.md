@@ -12,3 +12,4 @@
 - [ ] 窗口 resize、滚动容器 resize 时重新计算
 - [x] expandable 支持
 - [x] expandable，展开多个行再收起后，滚动出现闪烁
+- [x] 总结栏

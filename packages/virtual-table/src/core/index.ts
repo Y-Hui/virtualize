@@ -1,7 +1,7 @@
 export type { CellProps as VirtualTableCellProps } from './cell'
 export { default as VirtualTableCell } from './cell'
 export { useTableShared } from './context/shared'
-export { useStickySize } from './context/sticky'
+export { useTableSticky } from './context/sticky'
 export { useTableColumns } from './context/table-columns'
 export { useEvent } from './hooks/useEvent'
 export { useShallowMemo } from './hooks/useShallowMemo'

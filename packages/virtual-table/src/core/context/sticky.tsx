@@ -1,17 +1,23 @@
 import { createContext, useContext } from 'react'
 
 import { __DEV__ } from '../../utils/dev'
+import { type FixedType } from '../types'
 
-export const StickySize = createContext<number[] | null>(null)
-
-if (__DEV__) {
-  StickySize.displayName = 'VirtualTable.StickySize'
+export interface StickyContextState {
+  size: number[]
+  fixed: (FixedType | undefined)[]
 }
 
-export function useStickySize() {
-  const context = useContext(StickySize)
+export const Sticky = createContext<StickyContextState | null>(null)
+
+if (__DEV__) {
+  Sticky.displayName = 'VirtualTable.Sticky'
+}
+
+export function useTableSticky() {
+  const context = useContext(Sticky)
   if (context == null) {
-    throw Error('useStickySize 脱离上下文调用')
+    throw Error('useTableSticky 脱离上下文调用')
   }
   return context
 }

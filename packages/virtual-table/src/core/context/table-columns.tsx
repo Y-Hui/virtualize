@@ -11,8 +11,12 @@ import { __DEV__ } from '../../utils/dev'
 import { shallowEqualArrays } from '../../utils/equal'
 import { useShallowMemo } from '../hooks/useShallowMemo'
 import { type ColumnType } from '../types'
-import { isValidFixedLeft, isValidFixedRight } from '../utils/verification'
-import { StickySize } from './sticky'
+import {
+  type FixedType,
+  isValidFixedLeft,
+  isValidFixedRight,
+} from '../utils/verification'
+import { Sticky, type StickyContextState } from './sticky'
 
 export interface TableColumnsContextType {
   widthList: number[]
@@ -45,7 +49,7 @@ export function TableColumnsContext(
   }
 
   const columnsFixedRecord = useShallowMemo(() => {
-    return columns.map((x) => x.fixed)
+    return columns.map((x): FixedType | undefined => x.fixed)
   })
 
   const stickySizes = useShallowMemo(() => {
@@ -78,6 +82,10 @@ export function TableColumnsContext(
     })
   })
 
+  const stickyState = useMemo((): StickyContextState => {
+    return { size: stickySizes, fixed: columnsFixedRecord }
+  }, [columnsFixedRecord, stickySizes])
+
   const context = useMemo(() => {
     return {
       widthList,
@@ -87,7 +95,7 @@ export function TableColumnsContext(
 
   return (
     <TableColumns.Provider value={context}>
-      <StickySize.Provider value={stickySizes}>{children}</StickySize.Provider>
+      <Sticky.Provider value={stickyState}>{children}</Sticky.Provider>
     </TableColumns.Provider>
   )
 }

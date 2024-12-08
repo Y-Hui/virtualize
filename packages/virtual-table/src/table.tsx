@@ -10,12 +10,18 @@ import {
 
 import { useTablePipeline } from './core/hooks/useTablePipeline'
 import Table, { type VirtualTableCoreProps, type VirtualTableCoreRef } from './core/table'
+import { columnResize } from './middleware/column-resize'
 import { type ExpandableConfig, tableExpandable } from './middleware/expandable'
 import { selection, type TableRowSelection } from './middleware/selection'
+import { tableSummary, type TableSummaryOptions } from './middleware/summary'
 import { type SizeType } from './types'
 
 export interface VirtualTableProps<T>
-  extends Omit<VirtualTableCoreProps<T>, 'estimatedRowHeight' | 'stickyHeader'> {
+  extends Omit<
+      VirtualTableCoreProps<T>,
+      'estimatedRowHeight' | 'stickyHeader' | 'summary'
+    >,
+    TableSummaryOptions<T> {
   size?: SizeType
 
   // TODO:
@@ -60,6 +66,7 @@ function VirtualTable<T>(
     bordered,
     pipeline: extraPipeline,
     expandable,
+    summary,
     ...rest
   } = props
 
@@ -67,7 +74,12 @@ function VirtualTable<T>(
 
   const pipeline = useTablePipeline<T>({
     pipeline: extraPipeline,
-    use: [selection(rowSelection), tableExpandable(expandable)],
+    use: [
+      selection(rowSelection),
+      tableExpandable(expandable),
+      columnResize(),
+      tableSummary({ summary }),
+    ],
   })
 
   return (

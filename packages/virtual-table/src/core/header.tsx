@@ -10,7 +10,7 @@ import {
 } from 'react'
 
 import { findLastIndex } from '../utils/find-last-index'
-import { useStickySize } from './context/sticky'
+import { useTableSticky } from './context/sticky'
 import { useTableColumns } from './context/table-columns'
 import { type ColumnType, type PipelineRender } from './types'
 import { pipelineRender } from './utils/render-pipeline'
@@ -42,7 +42,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
   } = props
 
   const { widthList, setWidthList } = useTableColumns()
-  const stickySizes = useStickySize()
+  const { size: stickySizes } = useTableSticky()
   const columnsWidthRef = useRef<number[]>([])
   useLayoutEffect(() => {
     setWidthList(columnsWidthRef.current)
