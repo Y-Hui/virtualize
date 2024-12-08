@@ -10,8 +10,7 @@ import {
   useRef,
 } from 'react'
 
-import { useShallowMemo } from '../../core/hooks/useShallowMemo'
-import { type MiddlewareContext } from '../../core/hooks/useTablePipeline'
+import { type MiddlewareContext, useShallowMemo } from '../../core'
 import { type AnyObject, type ColumnType } from '../../types'
 import { createMiddleware } from '../index'
 import SelectionCell from './cell'

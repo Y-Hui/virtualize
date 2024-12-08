@@ -4,8 +4,7 @@ import { type ExpandableConfig } from 'antd/es/table/interface'
 import clsx from 'classnames'
 import { type Key, useCallback, useMemo, useRef } from 'react'
 
-import { useShallowMemo } from '../../core/hooks/useShallowMemo'
-import { type OnRowType } from '../../core/types'
+import { type OnRowType, useShallowMemo } from '../../core'
 import {
   type AnyObject,
   type ColumnType,

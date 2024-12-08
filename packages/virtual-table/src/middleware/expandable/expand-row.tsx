@@ -3,7 +3,7 @@ import './style.scss'
 import clsx from 'classnames'
 import { type CSSProperties, type FC, type ReactNode, useRef } from 'react'
 
-import { useTableShared } from '../../core/context/shared'
+import { useTableShared } from '../../core'
 
 export interface ExpandRowProps {
   className?: string
