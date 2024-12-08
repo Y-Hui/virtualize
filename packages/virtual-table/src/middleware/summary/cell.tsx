@@ -1,5 +1,5 @@
 import clsx from 'classnames'
-import { type DetailedHTMLProps, type HTMLAttributes, memo } from 'react'
+import { type DetailedHTMLProps, type HTMLAttributes, memo, useMemo } from 'react'
 
 import {
   isValidFixed,
@@ -8,6 +8,7 @@ import {
   useTableSticky,
 } from '../../core'
 import { type ColumnType } from '../../types'
+import { findLastIndex } from '../../utils/find-last-index'
 
 type NativeProps = DetailedHTMLProps<
   HTMLAttributes<HTMLTableCellElement>,
@@ -33,9 +34,18 @@ function Cell(props: CellProps) {
   const { size: stickySizes, fixed: columnsFixed } = useTableSticky()
   const fixed = columnsFixed[columnIndex]
 
+  const { left: lastFixedLeftColumnIndex, right: lastFixedRightColumnIndex } =
+    useMemo(() => {
+      const left = findLastIndex(columnsFixed, (x) => isValidFixedLeft(x))
+      const right = columnsFixed.findIndex((x) => isValidFixedRight(x))
+      return { left, right }
+    }, [columnsFixed])
+
   if (colSpan === 0) {
     return null
   }
+
+  const index = columnIndex + ((colSpan ?? 0) - 1)
 
   return (
     <td
@@ -45,6 +55,8 @@ function Cell(props: CellProps) {
         'virtual-table-cell virtual-table-summary-cell',
         align != null && `virtual-table-align-${align}`,
         isValidFixed(fixed) && 'virtual-table-sticky-cell',
+        lastFixedLeftColumnIndex === index && 'virtual-table-cell-fix-left-last',
+        lastFixedRightColumnIndex === index && 'virtual-table-cell-fix-right-last',
         className,
       )}
       style={{
