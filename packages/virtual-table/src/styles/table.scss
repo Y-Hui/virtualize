@@ -16,6 +16,10 @@
   font-size: var(--virtual-table-font-size);
   line-height: 1.57142;
 
+  table {
+    border-collapse: separate;
+  }
+
   &-header-wrapper {
     border-spacing: 0;
     table-layout: fixed;
