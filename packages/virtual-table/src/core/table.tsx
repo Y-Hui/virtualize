@@ -127,9 +127,16 @@ function VirtualTableCore<T>(
   const tableNode = useRef<HTMLTableElement>(null)
   const [scrollContainerWidth, setScrollContainerWidth] = useState(0)
   const [scrollContainerHeight, setScrollContainerHeight] = useState(0)
+  const scrollerContainerRef = useRef<HTMLElement | null>(null)
 
   const containerSize = useMemo((): ContainerSizeState => {
-    return { width: scrollContainerWidth, height: scrollContainerHeight }
+    return {
+      width: scrollContainerWidth,
+      height: scrollContainerHeight,
+      container() {
+        return scrollerContainerRef.current
+      },
+    }
   }, [scrollContainerWidth, scrollContainerHeight])
 
   useLayoutEffect(() => {
@@ -142,6 +149,7 @@ function VirtualTableCore<T>(
     } else {
       scroller = scrollerContainer
     }
+    scrollerContainerRef.current = scroller
     const observer = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect
       setScrollContainerWidth(width)

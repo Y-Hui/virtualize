@@ -7,6 +7,8 @@ import {
   type TdHTMLAttributes,
 } from 'react'
 
+import { type FixedType } from './utils/verification'
+
 export type OnRowType = (
   record: T,
   index: number,
@@ -15,7 +17,7 @@ export type OnRowType = (
   'children' | 'ref'
 >
 
-export type { FixedType } from './utils/verification'
+export type { FixedType }
 export type AlignType = 'left' | 'right' | 'center'
 export type SizeType = 'small' | 'middle' | 'large'
 
