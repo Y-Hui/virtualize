@@ -1,27 +1,26 @@
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons'
 import { Button, Input, InputNumber, Space } from 'antd'
 import { type FC, useMemo } from 'react'
-import { type ColumnType } from 'virtual-table'
-import VirtualTable from 'virtual-table'
+import VirtualTable, { type ColumnType, type ExpandableConfig } from 'virtual-table'
 
 import { type MockData, useAsyncData } from '@/utils/mock'
 
-const ColumnResizeDemo: FC = () => {
+const ExpandableDemo: FC = () => {
   const [data, setData] = useAsyncData()
+
+  const expandable = useMemo((): ExpandableConfig<MockData> => {
+    return {
+      fixed: 'left',
+      rowExpandable: () => true,
+      expandedRowRender(record) {
+        return record.name
+      },
+    }
+  }, [])
 
   const isOnlyOneData = data.length === 1
   const columns = useMemo((): ColumnType<MockData>[] => {
     return [
-      {
-        title: 'Index',
-        dataIndex: 'key',
-        width: 56,
-        align: 'center',
-        fixed: 'left',
-        render(_value, _record, index) {
-          return index
-        },
-      },
       {
         title: '',
         key: 'prefix-action',
@@ -174,12 +173,48 @@ const ColumnResizeDemo: FC = () => {
           />
         ),
       },
+      {
+        title: 'Data6',
+        dataIndex: 'data6',
+        width: 200,
+        fixed: 'right',
+        render: (value, _row, index) => (
+          <Input
+            value={value}
+            onChange={(e) => {
+              setData((prevState) => {
+                const result = prevState.slice()
+                result[index] = { ...result[index], data6: e.currentTarget.value }
+                return result
+              })
+            }}
+          />
+        ),
+      },
+      {
+        title: 'Data7',
+        dataIndex: 'data7',
+        width: 200,
+        fixed: 'right',
+        render: (value, _row, index) => (
+          <Input
+            value={value}
+            onChange={(e) => {
+              setData((prevState) => {
+                const result = prevState.slice()
+                result[index] = { ...result[index], data7: e.currentTarget.value }
+                return result
+              })
+            }}
+          />
+        ),
+      },
     ]
   }, [isOnlyOneData, setData])
 
   return (
-    <div style={{ padding: '0 12px' }}>
-      <h2>Resize</h2>
+    <div style={{ padding: 16 }}>
+      <h2>Expandable</h2>
       <div
         style={{
           boxSizing: 'border-box',
@@ -194,6 +229,7 @@ const ColumnResizeDemo: FC = () => {
           dataSource={data}
           columns={columns}
           estimatedRowHeight={57}
+          expandable={expandable}
           sticky
         />
       </div>
@@ -201,4 +237,4 @@ const ColumnResizeDemo: FC = () => {
   )
 }
 
-export default ColumnResizeDemo
+export default ExpandableDemo

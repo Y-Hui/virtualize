@@ -118,7 +118,7 @@ export function useAsyncData() {
   useEffect(() => {
     setTimeout(() => {
       setData(createMockData)
-    }, 200)
+    }, 300)
   }, [])
 
   return [data, setData] as const

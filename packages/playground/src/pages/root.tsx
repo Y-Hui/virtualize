@@ -18,6 +18,14 @@ const menus = [
     path: '/column-resize',
     label: 'Resize',
   },
+  {
+    path: '/expandable',
+    label: 'Expandable',
+  },
+  {
+    path: '/summary',
+    label: 'Summary',
+  },
 ]
 
 const Root: FC = () => {

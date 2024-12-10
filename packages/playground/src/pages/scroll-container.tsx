@@ -8,7 +8,7 @@ import { type MockData, useAsyncData } from '@/utils/mock'
 const ScrollContainer: FC = () => {
   const [data, setData] = useAsyncData()
 
-  const columns = [
+  const columns: ColumnType<MockData>[] = [
     {
       title: 'Index',
       dataIndex: 'key',
@@ -49,7 +49,7 @@ const ScrollContainer: FC = () => {
               size="small"
               shape="circle"
               danger
-              // disabled={isOnlyOneData}
+              disabled={data.length === 1}
               onClick={() => {
                 setData((prevState) => {
                   const result = prevState.slice()
@@ -206,7 +206,7 @@ const ScrollContainer: FC = () => {
         />
       ),
     },
-  ] satisfies ColumnType<MockData>[]
+  ]
 
   return (
     <div style={{ padding: '0 12px' }}>

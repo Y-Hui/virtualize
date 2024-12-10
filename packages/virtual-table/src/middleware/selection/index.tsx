@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useControllableValue, useMemoizedFn } from 'ahooks'
-import { type MiddlewareResult } from 'packages/misc/src/components/virtual-table'
 import {
   isValidElement,
   type Key,
@@ -286,7 +285,7 @@ export const selection = /*#__PURE__*/ createMiddleware(function useSelection<T 
     ...ctx,
     rowClassName,
     columns: mergeColumns,
-  } satisfies MiddlewareResult<T>
+  }
 })
 
 export type { TableRowSelection }

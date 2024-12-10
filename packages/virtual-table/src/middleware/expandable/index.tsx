@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useControllableValue, useMemoizedFn } from 'ahooks'
-import { type ExpandableConfig } from 'antd/es/table/interface'
+import { type ExpandableConfig as RawExpandableConfig } from 'antd/es/table/interface'
 import clsx from 'classnames'
 import { type Key, useCallback, useMemo, useRef } from 'react'
 
@@ -8,13 +8,16 @@ import { isValidFixed, type OnRowType, useShallowMemo } from '../../core'
 import {
   type AnyObject,
   type ColumnType,
+  type FixedType,
   type MiddlewareContext,
   type MiddlewareRender,
 } from '../../types'
 import { createMiddleware } from '../index'
 import ExpandRow from './expand-row'
 
-export type { ExpandableConfig }
+export type ExpandableConfig<T> = Omit<RawExpandableConfig<T>, 'fixed'> & {
+  fixed?: FixedType
+}
 
 export const EXPANSION_COLUMN_KEY = 'VirtualTable.EXPANSION_COLUMN'
 

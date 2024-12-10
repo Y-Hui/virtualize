@@ -6,12 +6,16 @@ import { lazy, StrictMode, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 
+import { __DEV__ } from './constant'
 
 const Root = lazy(() => import('./pages/root'))
 const DefaultDemo = lazy(() => import('./pages/default'))
 const ScrollContainer = lazy(() => import('./pages/scroll-container'))
 const SelectionDemo = lazy(() => import('./pages/selection'))
 const ColumnResize = lazy(() => import('./pages/column-resize'))
+const Expandable = lazy(() => import('./pages/expandable'))
+const SummaryDemo = lazy(() => import('./pages/summary'))
+const FullDemo = lazy(() => import('./pages/full'))
 
 const router = createHashRouter([
   {
@@ -33,6 +37,18 @@ const router = createHashRouter([
       {
         path: '/column-resize',
         element: <ColumnResize />,
+      },
+      {
+        path: '/expandable',
+        element: <Expandable />,
+      },
+      {
+        path: '/summary',
+        element: <SummaryDemo />,
+      },
+      {
+        path: '/full',
+        element: <FullDemo />,
       },
     ],
   },

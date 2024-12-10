@@ -3,7 +3,7 @@ import VirtualTable, { type ColumnType } from 'virtual-table'
 
 import { type MockStringData, useAsyncPureStringData } from '@/utils/mock'
 
-const columns = [
+const columns: ColumnType<MockStringData>[] = [
   {
     title: 'Key',
     dataIndex: 'key',
@@ -16,15 +16,15 @@ const columns = [
     width: 200,
     align: 'center',
   },
-  ...Array.from({ length: 6 }, (_, index) => {
+  ...Array.from({ length: 6 }, (_, index): ColumnType<MockStringData> => {
     return {
       title: `Text${2 + index}`,
       dataIndex: `text${2 + index}`,
       width: 200,
       align: 'center',
-    } satisfies ColumnType<MockStringData>
+    }
   }),
-] satisfies ColumnType<MockStringData>[]
+]
 
 const DefaultDemo: FC = () => {
   const [data] = useAsyncPureStringData()

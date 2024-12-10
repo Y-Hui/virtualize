@@ -1,27 +1,39 @@
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons'
-import { Button, Input, InputNumber, Space } from 'antd'
-import { type FC, useMemo } from 'react'
-import { type ColumnType } from 'virtual-table'
-import VirtualTable from 'virtual-table'
+import { Button, Input, InputNumber, Radio, Space } from 'antd'
+import { type FC, useCallback, useMemo, useState } from 'react'
+import VirtualTable, { type ColumnType } from 'virtual-table'
 
 import { type MockData, useAsyncData } from '@/utils/mock'
 
-const ColumnResizeDemo: FC = () => {
+const SummaryDemo: FC = () => {
+  const [summaryPosition, setSummaryPosition] = useState<'bottom' | 'top'>('bottom')
+
   const [data, setData] = useAsyncData()
+
+  const summary = useCallback(
+    (_dataSource: readonly MockData[]) => {
+      return (
+        <VirtualTable.Summary fixed={summaryPosition}>
+          <VirtualTable.Summary.Row>
+            <VirtualTable.Summary.Cell index={0}>0</VirtualTable.Summary.Cell>
+            <VirtualTable.Summary.Cell index={1}>1</VirtualTable.Summary.Cell>
+            <VirtualTable.Summary.Cell index={2}>2</VirtualTable.Summary.Cell>
+            <VirtualTable.Summary.Cell index={3}>3</VirtualTable.Summary.Cell>
+            <VirtualTable.Summary.Cell index={4}>4</VirtualTable.Summary.Cell>
+            <VirtualTable.Summary.Cell index={5}>5</VirtualTable.Summary.Cell>
+            <VirtualTable.Summary.Cell index={6}>6</VirtualTable.Summary.Cell>
+            <VirtualTable.Summary.Cell index={7}>7</VirtualTable.Summary.Cell>
+            <VirtualTable.Summary.Cell index={8}>8</VirtualTable.Summary.Cell>
+          </VirtualTable.Summary.Row>
+        </VirtualTable.Summary>
+      )
+    },
+    [summaryPosition],
+  )
 
   const isOnlyOneData = data.length === 1
   const columns = useMemo((): ColumnType<MockData>[] => {
     return [
-      {
-        title: 'Index',
-        dataIndex: 'key',
-        width: 56,
-        align: 'center',
-        fixed: 'left',
-        render(_value, _record, index) {
-          return index
-        },
-      },
       {
         title: '',
         key: 'prefix-action',
@@ -174,12 +186,68 @@ const ColumnResizeDemo: FC = () => {
           />
         ),
       },
+      {
+        title: 'Data6',
+        dataIndex: 'data6',
+        width: 200,
+        fixed: 'right',
+        render: (value, _row, index) => (
+          <Input
+            value={value}
+            onChange={(e) => {
+              setData((prevState) => {
+                const result = prevState.slice()
+                result[index] = { ...result[index], data6: e.currentTarget.value }
+                return result
+              })
+            }}
+          />
+        ),
+      },
+      {
+        title: 'Data7',
+        dataIndex: 'data7',
+        width: 200,
+        fixed: 'right',
+        render: (value, _row, index) => (
+          <Input
+            value={value}
+            onChange={(e) => {
+              setData((prevState) => {
+                const result = prevState.slice()
+                result[index] = { ...result[index], data7: e.currentTarget.value }
+                return result
+              })
+            }}
+          />
+        ),
+      },
     ]
   }, [isOnlyOneData, setData])
 
   return (
-    <div style={{ padding: '0 12px' }}>
-      <h2>Resize</h2>
+    <div style={{ padding: 16 }}>
+      <div
+        style={{
+          marginBottom: 30,
+          display: 'grid',
+          gridTemplateColumns: 'repeat(5, minmax(0, 1fr))',
+        }}
+      >
+        <div>
+          <label style={{ marginRight: 8 }} htmlFor="summaryPosition">
+            总结栏位置
+          </label>
+          <Radio.Group
+            id="summaryPosition"
+            value={summaryPosition}
+            onChange={(e) => setSummaryPosition(e.target.value)}
+          >
+            <Radio value="top">Top</Radio>
+            <Radio value="bottom">Bottom</Radio>
+          </Radio.Group>
+        </div>
+      </div>
       <div
         style={{
           boxSizing: 'border-box',
@@ -194,6 +262,7 @@ const ColumnResizeDemo: FC = () => {
           dataSource={data}
           columns={columns}
           estimatedRowHeight={57}
+          summary={summary}
           sticky
         />
       </div>
@@ -201,4 +270,4 @@ const ColumnResizeDemo: FC = () => {
   )
 }
 
-export default ColumnResizeDemo
+export default SummaryDemo
