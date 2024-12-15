@@ -1,8 +1,11 @@
 ## VirtualTable
 
+### BUG TODO 🚧
+- [ ] SPA 页面切换时，滚动条位置未还原，滚动容器为 window，未正确计算
+- [ ] 窗口 resize、滚动容器 resize 时未重新计算
+
 ### TODO 🚧
 - [ ] 虚拟列表查找 anchor 时优化。
-- [ ] 窗口 resize、滚动容器 resize 时重新计算
 - [ ] 横向虚拟化
 - [ ] 尝试将虚拟化、sticky 从 core 中拆分为 middleware
 - [ ] 文档编写
