@@ -55,7 +55,7 @@ export interface MiddlewareRenders {
 
 export interface MiddlewareResult<T> extends MiddlewareContext<T>, MiddlewareRenders {
   rowClassName?: (record: T, index: number) => string
-  onRow?: OnRowType
+  onRow?: OnRowType<T>
 }
 
 export type Middleware<T> = (context: MiddlewareContext<T>) => MiddlewareResult<T>
@@ -87,7 +87,7 @@ export class TablePipeline<T> {
     } as const
 
     const rowClassNameFunctions: ((record: T, index: number) => string)[] = []
-    const onRowFunctions: OnRowType[] = []
+    const onRowFunctions: OnRowType<T>[] = []
 
     this.hooks.forEach((hook) => {
       const {

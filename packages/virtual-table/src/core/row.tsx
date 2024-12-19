@@ -23,7 +23,7 @@ export interface RowProps<T> extends NativeProps {
   rowIndex: number
   rowData: T
   columns: ColumnType<T>[]
-  onRow?: OnRowType
+  onRow?: OnRowType<T>
   rowPipelineRender?: PipelineRender
   cellPipelineRender?: PipelineRender
 }

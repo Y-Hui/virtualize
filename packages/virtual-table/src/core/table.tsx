@@ -117,7 +117,7 @@ function VirtualTableCore<T>(
     [rawRowClassName, rowClassName],
   )
 
-  const onRowProps: OnRowType = useCallback(
+  const onRowProps: OnRowType<T> = useCallback(
     (record, index) => {
       return { ...onRow?.(record, index), ...onPipelineRow?.(record, index) }
     },

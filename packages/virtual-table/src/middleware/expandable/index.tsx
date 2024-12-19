@@ -238,7 +238,7 @@ export const tableExpandable = /*#__PURE__*/ createMiddleware(function useTableE
     onUpdateExpansion,
   ])
 
-  const onRow: OnRowType = useCallback(
+  const onRow: OnRowType<T> = useCallback(
     (record, index) => {
       if (rowExpandableRecord[index]) {
         return {

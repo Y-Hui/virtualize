@@ -9,7 +9,7 @@ import {
 
 import { type FixedType } from './utils/verification'
 
-export type OnRowType = (
+export type OnRowType<T = any> = (
   record: T,
   index: number,
 ) => Omit<
