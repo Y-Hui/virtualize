@@ -4,6 +4,7 @@ import { cloneElement, isValidElement, useCallback } from 'react'
 
 import { type MiddlewareContext, type MiddlewareRender } from '../../types'
 import { createMiddleware } from '../index'
+import EmptyRow from './empty-row'
 
 export const tableEmpty = createMiddleware(function useTableEmpty<T>(
   ctx: MiddlewareContext<T>,
@@ -23,13 +24,7 @@ export const tableEmpty = createMiddleware(function useTableEmpty<T>(
       if (isValidElement(children)) {
         return cloneElement(children, children.props, [
           ...(children.props?.children ?? []),
-          <tr key="virtual-table-placeholder$">
-            <td colSpan={columns?.length}>
-              <div style={{ padding: 16 }}>
-                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-              </div>
-            </td>
-          </tr>,
+          <EmptyRow key="virtual-table-placeholder$" colSpan={columns?.length ?? 0} />,
         ])
       }
 
