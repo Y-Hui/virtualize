@@ -112,7 +112,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
   return (
     <table
       className={clsx('virtual-table-header-wrapper', className, {
-        'virtual-table-sticky-header': stickyHeader != null,
+        'virtual-table-sticky-header': stickyHeader,
       })}
       style={{
         ...style,
