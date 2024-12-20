@@ -10,47 +10,95 @@ export interface MiddlewareContext<T> extends NecessaryProps<T> {}
 
 export type MiddlewareRender = PipelineRender
 
+// Context
+// └── render(<TableRoot />)
+//     │
+//     └── renderRoot(<TableRoot />) div.virtual-table
+//         │
+//         └── renderContent()
+//             │
+//             ├── renderHeaderWrapper(<TableHeader />) div.virtual-table-header
+//             │   │
+//             │   └── renderHeaderRoot(<table />)
+//             │       ├── colgroup
+//             │       │
+//             │       └── renderHeader(<thead />)
+//             │           └── renderHeaderRow(<tr />)
+//             │               └── renderHeaderCell(<th />)
+//             │
+//             └── renderBodyWrapper(<TableBody />) div.virtual-table-body-wrapper
+//                 │
+//                 └── renderBodyRoot(table.virtual-table-body)
+//                     ├── colgroup
+//                     │
+//                     └── renderBody(<tbody />)
+//                         └── renderRow(<tr />)
+//                             └── renderCell(<td />)
+//
 export interface MiddlewareRenders {
   /**
-   * 自定义 Table 渲染，children 为 table。
-   * @note 注意：出于性能考虑，**需要自行对函数 memo**
+   * 自定义最外层渲染，children 为 整个 VirtualTable。
    */
   render?: MiddlewareRender
   /**
-   * 自定义 Table 渲染，children 为 table。
+   * 自定义 TableRoot(div.virtual-table) 的渲染。
    * @note 注意：出于性能考虑，**需要自行对函数 memo**
    */
-  renderTable?: MiddlewareRender
+  renderRoot?: MiddlewareRender
   /**
-   * 自定义 Table 渲染，children 为 TableBody。
+   * 自定义渲染，children 为（TableHeader、TableBody）。
+   */
+  renderContent?: MiddlewareRender
+  /**
+   * 自定义渲染 TableHeader。children 为 div.virtual-table-header
    * @note 注意：出于性能考虑，**需要自行对函数 memo**
    */
-  renderBody?: MiddlewareRender
+  renderHeaderWrapper?: MiddlewareRender
   /**
-   * 自定义 Row 渲染，children 为 Row。
+   * children 为 table
    * @note 注意：出于性能考虑，**需要自行对函数 memo**
    */
-  renderRow?: MiddlewareRender
+  renderHeaderRoot?: MiddlewareRender
   /**
-   * 自定义 Row 渲染，children 为 Cell。
-   * @note 注意：出于性能考虑，**需要自行对函数 memo**
-   */
-  renderCell?: MiddlewareRender
-  /**
-   * 自定义 TableHeader 渲染，children 为 TableHeader。
+   * children 为 thead
    * @note 注意：出于性能考虑，**需要自行对函数 memo**
    */
   renderHeader?: MiddlewareRender
   /**
-   * 自定义 TableHeaderRow 渲染，children 为 TableHeaderRow。
+   * children 为 tr
    * @note 注意：出于性能考虑，**需要自行对函数 memo**
    */
   renderHeaderRow?: MiddlewareRender
   /**
-   * 自定义 Row 渲染，children 为 HeaderCell。
+   * children 为 th
    * @note 注意：出于性能考虑，**需要自行对函数 memo**
    */
   renderHeaderCell?: MiddlewareRender
+  /**
+   * 自定义渲染 TableBody。children 为 div.virtual-table-body-wrapper
+   * @note 注意：出于性能考虑，**需要自行对函数 memo**
+   */
+  renderBodyWrapper?: MiddlewareRender
+  /**
+   * children 为 table.virtual-table-body
+   * @note 注意：出于性能考虑，**需要自行对函数 memo**
+   */
+  renderBodyRoot?: MiddlewareRender
+  /**
+   * children 为 tbody
+   * @note 注意：出于性能考虑，**需要自行对函数 memo**
+   */
+  renderBody?: MiddlewareRender
+  /**
+   * children 为 tr
+   * @note 注意：出于性能考虑，**需要自行对函数 memo**
+   */
+  renderRow?: MiddlewareRender
+  /**
+   * children 为 td
+   * @note 注意：出于性能考虑，**需要自行对函数 memo**
+   */
+  renderCell?: MiddlewareRender
 }
 
 export interface MiddlewareResult<T> extends MiddlewareContext<T>, MiddlewareRenders {
@@ -77,57 +125,52 @@ export class TablePipeline<T> {
 
     const renderFunctionMap: Record<keyof MiddlewareRenders, MiddlewareRender[]> = {
       render: [],
-      renderTable: [],
-      renderBody: [],
-      renderRow: [],
-      renderCell: [],
+      renderRoot: [],
+      renderContent: [],
+      renderHeaderWrapper: [],
+      renderHeaderRoot: [],
       renderHeader: [],
       renderHeaderRow: [],
       renderHeaderCell: [],
+      renderBodyWrapper: [],
+      renderBodyRoot: [],
+      renderBody: [],
+      renderRow: [],
+      renderCell: [],
     } as const
 
     const rowClassNameFunctions: ((record: T, index: number) => string)[] = []
     const onRowFunctions: OnRowType<T>[] = []
 
     this.hooks.forEach((hook) => {
+      const nextCtx = hook(context.current)
       const {
-        render,
-        renderTable,
-        renderBody,
-        renderRow,
-        renderCell,
-        renderHeader,
-        renderHeaderRow,
-        renderHeaderCell,
+        render: _render,
+        renderRoot: _renderRoot,
+        renderContent: _renderContent,
+        renderHeaderWrapper: _renderHeaderWrapper,
+        renderHeaderRoot: _renderHeaderRoot,
+        renderHeader: _renderHeader,
+        renderHeaderRow: _renderHeaderRow,
+        renderHeaderCell: _renderHeaderCell,
+        renderBodyWrapper: _renderBodyWrapper,
+        renderBodyRoot: _renderBodyRoot,
+        renderBody: _renderBody,
+        renderRow: _renderRow,
+        renderCell: _renderCell,
+
         rowClassName,
         onRow,
         ...rest
-      } = hook(context.current)
+      } = nextCtx
 
-      if (typeof render === 'function') {
-        renderFunctionMap.render.push(render)
-      }
-      if (typeof renderTable === 'function') {
-        renderFunctionMap.renderTable.push(renderTable)
-      }
-      if (typeof renderBody === 'function') {
-        renderFunctionMap.renderBody.push(renderBody)
-      }
-      if (typeof renderRow === 'function') {
-        renderFunctionMap.renderRow.push(renderRow)
-      }
-      if (typeof renderCell === 'function') {
-        renderFunctionMap.renderCell.push(renderCell)
-      }
-      if (typeof renderHeader === 'function') {
-        renderFunctionMap.renderHeader.push(renderHeader)
-      }
-      if (typeof renderHeaderRow === 'function') {
-        renderFunctionMap.renderHeaderRow.push(renderHeaderRow)
-      }
-      if (typeof renderHeaderCell === 'function') {
-        renderFunctionMap.renderHeaderCell.push(renderHeaderCell)
-      }
+      Object.entries(renderFunctionMap).forEach(([key, value]) => {
+        const target = nextCtx[key as keyof MiddlewareRenders]
+        if (typeof target === 'function') {
+          value.push(target)
+        }
+      })
+
       if (typeof rowClassName === 'function') {
         rowClassNameFunctions.push(rowClassName)
       }

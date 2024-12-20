@@ -73,12 +73,12 @@ function VirtualTable<T>(
   const pipeline = useTablePipeline<T>({
     pipeline: extraPipeline,
     use: [
-      tableEmpty(),
-      tableLoading({ loading }),
       selection(rowSelection),
       tableExpandable(expandable),
       columnResize(),
+      tableEmpty(),
       tableSummary(summary == null ? undefined : { summary }),
+      tableLoading({ loading }),
     ],
   })
 

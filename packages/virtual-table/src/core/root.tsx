@@ -12,6 +12,8 @@ import {
 
 import { composeRef } from '../utils/ref'
 import { useHorizontalScrollContext } from './context/horizontal-scroll'
+import { type PipelineRender } from './types'
+import { pipelineRender } from './utils/render-pipeline'
 
 export interface TableRootProps {
   className?: string
@@ -19,11 +21,19 @@ export interface TableRootProps {
   children?: ReactNode
   hasFixedLeftColumn?: boolean
   hasFixedRightColumn?: boolean
+  renderRoot?: PipelineRender
 }
 
 const TableRoot = forwardRef<HTMLDivElement, TableRootProps>(
   function TableRoot(props, ref) {
-    const { className, style, children, hasFixedLeftColumn, hasFixedRightColumn } = props
+    const {
+      className,
+      style,
+      children,
+      hasFixedLeftColumn,
+      hasFixedRightColumn,
+      renderRoot,
+    } = props
 
     const rootNode = useRef<HTMLDivElement>(null)
 
@@ -60,7 +70,7 @@ const TableRoot = forwardRef<HTMLDivElement, TableRootProps>(
       }
     }, [elements, hasFixedLeftColumn, hasFixedRightColumn])
 
-    return (
+    return pipelineRender(
       <div
         // eslint-disable-next-line react-compiler/react-compiler
         ref={composeRef(ref, rootNode)}
@@ -73,7 +83,9 @@ const TableRoot = forwardRef<HTMLDivElement, TableRootProps>(
         style={style}
       >
         {children}
-      </div>
+      </div>,
+      renderRoot,
+      {},
     )
   },
 )

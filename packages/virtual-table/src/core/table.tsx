@@ -6,7 +6,6 @@ import {
   forwardRef,
   memo,
   type ReactElement,
-  type ReactNode,
   type RefAttributes,
   useCallback,
   useEffect,
@@ -87,13 +86,18 @@ function VirtualTableCore<T>(
     rowClassName,
 
     render,
-    renderTable,
-    renderBody,
-    renderRow,
-    renderCell,
+    renderRoot,
+    renderContent,
+    renderHeaderWrapper,
+    renderHeaderRoot,
     renderHeader,
     renderHeaderRow,
     renderHeaderCell,
+    renderBodyWrapper,
+    renderBodyRoot,
+    renderBody,
+    renderRow,
+    renderCell,
 
     onRow: onPipelineRow,
   } = pipeline({
@@ -249,20 +253,16 @@ function VirtualTableCore<T>(
     } satisfies TableSharedContextType
   }, [rowHeightList, updateRowHeight])
 
-  const table: ReactNode = (
-    <TableRoot
-      ref={rootNode}
-      className={className}
-      style={style}
-      hasFixedLeftColumn={hasFixedLeftColumn}
-      hasFixedRightColumn={hasFixedRightColumn}
-    >
+  const contentNode = pipelineRender(
+    <>
       <TableHeader
         columns={columns}
         stickyHeader={stickyHeader}
-        headerRender={renderHeader}
-        headerRowRender={renderHeaderRow}
-        cellRender={renderHeaderCell}
+        renderHeaderWrapper={renderHeaderWrapper}
+        renderHeaderRoot={renderHeaderRoot}
+        renderHeader={renderHeader}
+        renderHeaderRow={renderHeaderRow}
+        renderHeaderCell={renderHeaderCell}
       />
       <TableBody
         tableRef={composeRef(tableNode, ref)}
@@ -278,21 +278,37 @@ function VirtualTableCore<T>(
         startIndex={startIndex}
         rowClassName={onRowClassName}
         onRow={onRowProps}
-        tableRender={renderTable}
-        bodyRender={renderBody}
-        rowRender={renderRow}
-        cellRender={renderCell}
+        renderBodyWrapper={renderBodyWrapper}
+        renderBodyRoot={renderBodyRoot}
+        renderBody={renderBody}
+        renderRow={renderRow}
+        renderCell={renderCell}
       />
-    </TableRoot>
+    </>,
+    renderContent,
+    { columns },
+  )
+
+  const table = pipelineRender(
+    <TableRoot
+      ref={rootNode}
+      className={className}
+      style={style}
+      hasFixedLeftColumn={hasFixedLeftColumn}
+      hasFixedRightColumn={hasFixedRightColumn}
+      renderRoot={renderRoot}
+    >
+      {contentNode}
+    </TableRoot>,
+    render,
+    { columns },
   )
 
   return (
     <TableShared.Provider value={shared}>
       <TableColumnsContext columns={columns}>
         <ContainerSize.Provider value={containerSize}>
-          <HorizontalScrollContext>
-            {pipelineRender(table, render, { columns })}
-          </HorizontalScrollContext>
+          <HorizontalScrollContext>{table}</HorizontalScrollContext>
         </ContainerSize.Provider>
       </TableColumnsContext>
     </TableShared.Provider>

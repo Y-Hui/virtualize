@@ -6,7 +6,6 @@ import {
   Fragment,
   type Key,
   type RefObject,
-  type UIEventHandler,
   useLayoutEffect,
   useRef,
 } from 'react'
@@ -33,11 +32,11 @@ export interface TableHeaderProps {
   /** 开启表头 sticky，设置为 true 则默认 top 为 0，为 number 则是偏移量 */
   stickyHeader?: number | boolean
 
-  headerRender?: PipelineRender
-  headerRowRender?: PipelineRender
-  cellRender?: PipelineRender
-
-  onScroll?: UIEventHandler<HTMLDivElement>
+  renderHeaderWrapper?: PipelineRender
+  renderHeaderRoot?: PipelineRender
+  renderHeader?: PipelineRender
+  renderHeaderRow?: PipelineRender
+  renderHeaderCell?: PipelineRender
 }
 
 const TableHeader: FC<TableHeaderProps> = (props) => {
@@ -47,9 +46,11 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
     wrapperRef,
     columns,
     stickyHeader,
-    headerRender,
-    headerRowRender,
-    cellRender,
+    renderHeaderWrapper,
+    renderHeaderRoot,
+    renderHeader,
+    renderHeaderRow,
+    renderHeaderCell,
   } = props
 
   const { widthList, setWidthList } = useTableColumns()
@@ -63,6 +64,8 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
     isValidFixedLeft(x.fixed),
   )
   const firstFixedRightColumnIndex = columns.findIndex((x) => isValidFixedRight(x.fixed))
+
+  const { addShouldSyncElement } = useHorizontalScrollContext()
 
   const row = pipelineRender(
     <tr>
@@ -109,20 +112,44 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
                 },
                 column.title,
               ),
-              cellRender || undefined,
+              renderHeaderCell || undefined,
               { column, columns, columnIndex: index, columnWidthList: widthList },
             )}
           </Fragment>
         )
       })}
     </tr>,
-    headerRowRender,
+    renderHeaderRow,
     { columns },
   )
 
-  const { addShouldSyncElement } = useHorizontalScrollContext()
+  const theadNode = pipelineRender(
+    <thead className="virtual-table-thead">{row}</thead>,
+    renderHeader,
+    { columns },
+  )
 
-  return (
+  const tableNode = pipelineRender(
+    <table
+      style={{
+        ...style,
+        top: Number.isFinite(stickyHeader) ? (stickyHeader as number) : undefined,
+      }}
+    >
+      <Colgroup
+        columns={columns}
+        colRef={(node, index) => {
+          if (node == null) return
+          columnsWidthRef.current[index] = node.offsetWidth
+        }}
+      />
+      {theadNode}
+    </table>,
+    renderHeaderRoot,
+    { columns },
+  )
+
+  return pipelineRender(
     <div
       ref={composeRef(wrapperRef, (node) => {
         if (node == null) {
@@ -134,26 +161,10 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
         'virtual-table-header-sticky': stickyHeader,
       })}
     >
-      <table
-        style={{
-          ...style,
-          top: Number.isFinite(stickyHeader) ? (stickyHeader as number) : undefined,
-        }}
-      >
-        <Colgroup
-          columns={columns}
-          colRef={(node, index) => {
-            if (node == null) return
-            columnsWidthRef.current[index] = node.offsetWidth
-          }}
-        />
-        {pipelineRender(
-          <thead className="virtual-table-thead">{row}</thead>,
-          headerRender,
-          { columns },
-        )}
-      </table>
-    </div>
+      {tableNode}
+    </div>,
+    renderHeaderWrapper,
+    { columns },
   )
 }
 

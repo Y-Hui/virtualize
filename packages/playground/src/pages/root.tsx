@@ -26,6 +26,10 @@ const menus = [
     path: '/summary',
     label: 'Summary',
   },
+  {
+    path: '/full',
+    label: 'Full',
+  },
 ]
 
 const Root: FC = () => {

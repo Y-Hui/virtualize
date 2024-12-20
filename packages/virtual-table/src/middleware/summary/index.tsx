@@ -47,7 +47,7 @@ export const tableSummary = createMiddleware(function useTableSummary<T = any>(
 
   return {
     ...ctx,
-    renderTable(children) {
+    renderContent(children) {
       return (
         <>
           {children}

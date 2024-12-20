@@ -12,15 +12,16 @@ import { pipelineRender } from './utils/render-pipeline'
 
 export interface TableBodyProps<T>
   extends NecessaryProps<T>,
-    Pick<RowProps<T>, 'onRow' | 'rowRender' | 'cellRender'> {
+    Pick<RowProps<T>, 'onRow' | 'renderRow' | 'renderCell'> {
   className?: string
   style?: CSSProperties
   startIndex: number
   wrapperRef?: Ref<HTMLDivElement>
   tableRef?: Ref<HTMLTableElement>
   rowClassName?: (record: T, index: number) => string
-  tableRender?: PipelineRender
-  bodyRender?: PipelineRender
+  renderBodyWrapper?: PipelineRender
+  renderBodyRoot?: PipelineRender
+  renderBody?: PipelineRender
 }
 
 function TableBody<T>(props: TableBodyProps<T>) {
@@ -35,13 +36,16 @@ function TableBody<T>(props: TableBodyProps<T>) {
     startIndex,
     rowClassName,
     onRow,
-    tableRender,
-    bodyRender,
-    rowRender,
-    cellRender,
+    renderBodyWrapper,
+    renderBodyRoot,
+    renderBody,
+    renderRow,
+    renderCell,
   } = props
 
-  const body = pipelineRender(
+  const { addShouldSyncElement } = useHorizontalScrollContext()
+
+  const bodyNode = pipelineRender(
     <tbody>
       {dataSource?.map((e, rowIndex) => {
         const _rowKey = (e as AnyObject)[rowKey as string]
@@ -53,19 +57,26 @@ function TableBody<T>(props: TableBodyProps<T>) {
             rowData={e}
             columns={columns}
             onRow={onRow}
-            rowRender={rowRender}
-            cellRender={cellRender}
+            renderRow={renderRow}
+            renderCell={renderCell}
           />
         )
       })}
     </tbody>,
-    bodyRender,
+    renderBody,
     { columns },
   )
 
-  const { addShouldSyncElement } = useHorizontalScrollContext()
+  const tableNode = pipelineRender(
+    <table className={clsx(className, 'virtual-table-body')} style={style} ref={tableRef}>
+      <Colgroup columns={columns} />
+      {bodyNode}
+    </table>,
+    renderBodyRoot,
+    { columns },
+  )
 
-  return (
+  return pipelineRender(
     <div
       ref={composeRef(wrapperRef, (node) => {
         if (node == null) return
@@ -73,19 +84,10 @@ function TableBody<T>(props: TableBodyProps<T>) {
       })}
       className="virtual-table-body-wrapper"
     >
-      {pipelineRender(
-        <table
-          className={clsx(className, 'virtual-table-body')}
-          style={style}
-          ref={tableRef}
-        >
-          <Colgroup columns={columns} />
-          {body}
-        </table>,
-        tableRender,
-        { columns },
-      )}
-    </div>
+      {tableNode}
+    </div>,
+    renderBodyWrapper,
+    { columns },
   )
 }
 

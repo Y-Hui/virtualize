@@ -29,3 +29,33 @@
 - [ ] 清理不必要的库（classnames、antd）
 - [ ] 尝试移除 ahooks
 - [ ] 改进 Summary（antd Summary API 使用不便）
+
+
+### DOM 结构 / Pipeline render 结构
+
+```
+Context
+└── render(<TableRoot />)
+    │
+    └── renderRoot(<TableRoot />) div.virtual-table
+        │
+        └── renderContent()
+            │
+            ├── renderHeaderWrapper(<TableHeader />) div.virtual-table-header
+            │   │
+            │   └── renderHeaderRoot(<table />)
+            │       ├── colgroup
+            │       │
+            │       └── renderHeader(<thead />)
+            │           └── renderHeaderRow(<tr />)
+            │               └── renderHeaderCell(<th />)
+            │
+            └── renderBodyWrapper(<TableBody />) div.virtual-table-body-wrapper
+                │
+                └── renderBodyRoot(table.virtual-table-body)
+                    ├── colgroup
+                    │
+                    └── renderBody(<tbody />)
+                        └── renderRow(<tr />)
+                            └── renderCell(<td />)
+```

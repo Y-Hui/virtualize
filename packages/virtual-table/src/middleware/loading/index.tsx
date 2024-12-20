@@ -12,7 +12,7 @@ export const tableLoading = createMiddleware(function useTableLoading<T>(
 
   return {
     ...ctx,
-    render(children) {
+    renderContent(children) {
       return <Spin spinning={loading}>{children}</Spin>
     },
   }

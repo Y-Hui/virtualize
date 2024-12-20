@@ -1,6 +1,7 @@
 import clsx from 'clsx'
 import type { FC, Key, ReactNode } from 'react'
 
+import { useHorizontalScrollContext } from '../../core'
 import { type ColumnType } from '../../types'
 
 export interface FooterProps {
@@ -13,29 +14,37 @@ export interface FooterProps {
 const Footer: FC<FooterProps> = (props) => {
   const { columns, fixed, children } = props
 
+  const { addShouldSyncElement } = useHorizontalScrollContext()
+
   return (
-    <table
+    <div
       className={clsx(
-        'virtual-table-summary',
-        fixed && 'virtual-table-summary-sticky-bottom',
+        'virtual-table-summary-wrapper',
+        fixed && 'virtual-table-summary-sticky-bottom virtual-table-summary-top-border',
       )}
+      ref={(node) => {
+        if (node == null) return
+        addShouldSyncElement('virtual-table-summary', node)
+      }}
     >
-      <colgroup>
-        {columns.map((item, index) => {
-          const key = 'key' in item ? (item.key as Key) : item.dataIndex
-          return (
-            <col
-              key={typeof key === 'symbol' ? index : key}
-              style={{
-                width: item.width,
-                minWidth: item.minWidth,
-              }}
-            />
-          )
-        })}
-      </colgroup>
-      <tfoot className="virtual-table-summary-tfoot">{children}</tfoot>
-    </table>
+      <table className="virtual-table-summary">
+        <colgroup>
+          {columns.map((item, index) => {
+            const key = 'key' in item ? (item.key as Key) : item.dataIndex
+            return (
+              <col
+                key={typeof key === 'symbol' ? index : key}
+                style={{
+                  width: item.width,
+                  minWidth: item.minWidth,
+                }}
+              />
+            )
+          })}
+        </colgroup>
+        <tfoot className="virtual-table-summary-tfoot">{children}</tfoot>
+      </table>
+    </div>
   )
 }
 

@@ -1,5 +1,5 @@
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons'
-import { Button, Input, InputNumber, Radio, Space } from 'antd'
+import { Button, Input, InputNumber, Radio, Space, Switch } from 'antd'
 import { type FC, useCallback, useMemo, useState } from 'react'
 import VirtualTable, {
   type ColumnType,
@@ -11,6 +11,9 @@ import { type MockData, useAsyncData } from '@/utils/mock'
 
 const FullDemo: FC = () => {
   const [summaryPosition, setSummaryPosition] = useState<'bottom' | 'top'>('bottom')
+  const [loading, setLoading] = useState(false)
+  const [sticky, setSticky] = useState(true)
+  const [empty, setEmpty] = useState(false)
 
   const [data, setData] = useAsyncData()
 
@@ -261,11 +264,8 @@ const FullDemo: FC = () => {
         }}
       >
         <div>
-          <label style={{ marginRight: 8 }} htmlFor="summaryPosition">
-            总结栏位置
-          </label>
+          <label style={{ marginRight: 8 }}>总结栏位置</label>
           <Radio.Group
-            id="summaryPosition"
             value={summaryPosition}
             onChange={(e) => setSummaryPosition(e.target.value)}
           >
@@ -273,25 +273,38 @@ const FullDemo: FC = () => {
             <Radio value="bottom">Bottom</Radio>
           </Radio.Group>
         </div>
+        <div>
+          <label style={{ marginRight: 8 }}>Loading</label>
+          <Switch value={loading} onChange={setLoading} />
+        </div>
+        <div>
+          <label style={{ marginRight: 8 }}>Sticky</label>
+          <Switch value={sticky} onChange={setSticky} />
+        </div>
+        <div>
+          <label style={{ marginRight: 8 }}>Empty</label>
+          <Switch value={empty} onChange={setEmpty} />
+        </div>
       </div>
-      <div
-        style={{
-          boxSizing: 'border-box',
-          height: 500,
-          border: '1px solid #f00',
-          overflow: 'auto',
-          overscrollBehavior: 'contain',
-        }}
-      >
+      <div>
         <VirtualTable
+          // style={{
+          //   boxSizing: 'border-box',
+          //   height: 500,
+          //   width: 800,
+          //   border: '1px solid #f00',
+          //   overflow: 'auto',
+          //   overscrollBehavior: 'contain',
+          // }}
           rowKey="key"
-          dataSource={data}
+          dataSource={empty ? [] : data}
           columns={columns}
           estimatedRowHeight={57}
           rowSelection={selection}
           expandable={expandable}
           summary={summary}
-          sticky
+          sticky={sticky}
+          loading={loading}
         />
       </div>
     </div>

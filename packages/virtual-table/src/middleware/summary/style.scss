@@ -2,6 +2,14 @@
   --virtual-table-summary-bg: #fff;
 }
 
+.virtual-table-summary-wrapper {
+  overflow: auto hidden;
+}
+
+.virtual-table-summary-top-border {
+  box-shadow: #f0f0f0 0px -1px 0px 0px;
+}
+
 .virtual-table-summary {
   border-spacing: 0;
   table-layout: fixed;
