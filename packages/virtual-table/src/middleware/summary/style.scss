@@ -4,6 +4,11 @@
 
 .virtual-table-summary-wrapper {
   overflow: auto hidden;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .virtual-table-summary-top-border {

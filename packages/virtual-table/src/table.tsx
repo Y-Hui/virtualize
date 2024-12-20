@@ -13,6 +13,7 @@ import Table, { type VirtualTableCoreProps, type VirtualTableCoreRef } from './c
 import { columnResize } from './middleware/column-resize'
 import { tableEmpty } from './middleware/empty'
 import { type ExpandableConfig, tableExpandable } from './middleware/expandable'
+import { horizontalScrollBar } from './middleware/horizontal-scroll-bar'
 import { tableLoading } from './middleware/loading'
 import { selection, type TableRowSelection } from './middleware/selection'
 import { tableSummary, type TableSummaryOptions } from './middleware/summary'
@@ -78,6 +79,7 @@ function VirtualTable<T>(
       columnResize(),
       tableEmpty(),
       tableSummary(summary == null ? undefined : { summary }),
+      horizontalScrollBar(),
       tableLoading({ loading }),
     ],
   })

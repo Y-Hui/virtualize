@@ -1,8 +1,9 @@
 import clsx from 'clsx'
-import type { FC, Key, ReactNode } from 'react'
+import { type FC, type Key, type ReactNode, useState } from 'react'
 
 import { useHorizontalScrollContext } from '../../core'
 import { type ColumnType } from '../../types'
+import { getScrollbarSize } from '../horizontal-scroll-bar/getScrollbarSize'
 
 export interface FooterProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -15,6 +16,9 @@ const Footer: FC<FooterProps> = (props) => {
   const { columns, fixed, children } = props
 
   const { addShouldSyncElement } = useHorizontalScrollContext()
+  const [scrollbarHeight] = useState(() => {
+    return getScrollbarSize().height
+  })
 
   return (
     <div
@@ -22,6 +26,7 @@ const Footer: FC<FooterProps> = (props) => {
         'virtual-table-summary-wrapper',
         fixed && 'virtual-table-summary-sticky-bottom virtual-table-summary-top-border',
       )}
+      style={{ paddingBottom: scrollbarHeight }}
       ref={(node) => {
         if (node == null) return
         addShouldSyncElement('virtual-table-summary', node)
