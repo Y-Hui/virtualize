@@ -1,9 +1,0 @@
-**/*.svg
-**/*.ejs
-**/*.html
-package.json
-.umi
-.umi-production
-.umi-test
-qqmap-wx-jssdk.min.js
-tailwind.config.js

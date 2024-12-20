@@ -16,7 +16,7 @@ import { type TableRowSelection } from './types'
 
 export interface SelectionTitleProps
   extends Pick<TableRowSelection<unknown>, 'selections'>,
-    Pick<CheckboxProps, 'onChange' | 'checked' | 'indeterminate' | 'disabled'> {
+  Pick<CheckboxProps, 'onChange' | 'checked' | 'indeterminate' | 'disabled'> {
   onSelectAll: () => void
   onSelectInvert: () => void
   onClear: () => void
@@ -70,13 +70,12 @@ function SelectionTitle(props: SelectionTitleProps) {
     },
   }
 
-  const selections =
-    // eslint-disable-next-line no-nested-ternary
-    rawSelections === true
-      ? DEFAULT_SELECTIONS_KEYS
-      : Array.isArray(rawSelections)
-        ? rawSelections
-        : undefined
+  // eslint-disable-next-line no-nested-ternary
+  const selections = rawSelections === true
+    ? DEFAULT_SELECTIONS_KEYS
+    : Array.isArray(rawSelections)
+      ? rawSelections
+      : undefined
 
   return (
     <div className={clsx('virtual-table-selection')}>

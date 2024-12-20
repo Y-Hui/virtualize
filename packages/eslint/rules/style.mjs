@@ -18,10 +18,10 @@ export default {
     'block-spacing': ['error', 'always'],
 
     // enforce one true brace style
-    'brace-style': ['error', '1tbs', { allowSingleLine: true }],
+    // 'brace-style': ['error', '1tbs', { allowSingleLine: true }],
 
     // require camel case names
-    camelcase: ['error', { properties: 'never', ignoreDestructuring: false }],
+    'camelcase': ['error', { properties: 'never', ignoreDestructuring: false }],
 
     // enforce or disallow capitalization of the first letter of a comment
     // https://eslint.org/docs/rules/capitalized-comments
@@ -136,51 +136,51 @@ export default {
 
     // this option sets a specific tab width for your code
     // https://eslint.org/docs/rules/indent
-    indent: [
-      'error',
-      2,
-      {
-        SwitchCase: 1,
-        VariableDeclarator: 1,
-        outerIIFEBody: 1,
-        // MemberExpression: null,
-        FunctionDeclaration: {
-          parameters: 1,
-          body: 1,
-        },
-        FunctionExpression: {
-          parameters: 1,
-          body: 1,
-        },
-        CallExpression: {
-          arguments: 1,
-        },
-        ArrayExpression: 1,
-        ObjectExpression: 1,
-        ImportDeclaration: 1,
-        flatTernaryExpressions: false,
-        // list derived from https://github.com/benjamn/ast-types/blob/HEAD/def/jsx.js
-        ignoredNodes: [
-          'JSXElement',
-          'JSXElement > *',
-          'JSXAttribute',
-          'JSXIdentifier',
-          'JSXNamespacedName',
-          'JSXMemberExpression',
-          'JSXSpreadAttribute',
-          'JSXExpressionContainer',
-          'JSXOpeningElement',
-          'JSXClosingElement',
-          'JSXFragment',
-          'JSXOpeningFragment',
-          'JSXClosingFragment',
-          'JSXText',
-          'JSXEmptyExpression',
-          'JSXSpreadChild',
-        ],
-        ignoreComments: false,
-      },
-    ],
+    // 'indent': [
+    //   'error',
+    //   2,
+    //   {
+    //     SwitchCase: 1,
+    //     VariableDeclarator: 1,
+    //     outerIIFEBody: 1,
+    //     // MemberExpression: null,
+    //     FunctionDeclaration: {
+    //       parameters: 1,
+    //       body: 1,
+    //     },
+    //     FunctionExpression: {
+    //       parameters: 1,
+    //       body: 1,
+    //     },
+    //     CallExpression: {
+    //       arguments: 1,
+    //     },
+    //     ArrayExpression: 1,
+    //     ObjectExpression: 1,
+    //     ImportDeclaration: 1,
+    //     flatTernaryExpressions: false,
+    //     // list derived from https://github.com/benjamn/ast-types/blob/HEAD/def/jsx.js
+    //     ignoredNodes: [
+    //       'JSXElement',
+    //       'JSXElement > *',
+    //       'JSXAttribute',
+    //       'JSXIdentifier',
+    //       'JSXNamespacedName',
+    //       'JSXMemberExpression',
+    //       'JSXSpreadAttribute',
+    //       'JSXExpressionContainer',
+    //       'JSXOpeningElement',
+    //       'JSXClosingElement',
+    //       'JSXFragment',
+    //       'JSXOpeningFragment',
+    //       'JSXClosingFragment',
+    //       'JSXText',
+    //       'JSXEmptyExpression',
+    //       'JSXSpreadChild',
+    //     ],
+    //     ignoreComments: false,
+    //   },
+    // ],
 
     // specify whether double or single quotes should be used in JSX attributes
     // https://eslint.org/docs/rules/jsx-quotes
@@ -467,9 +467,9 @@ export default {
     'object-curly-newline': [
       'error',
       {
-        ObjectExpression: { minProperties: 4, multiline: true, consistent: true },
+        ObjectExpression: { minProperties: 5, multiline: true, consistent: true },
         ObjectPattern: { minProperties: 4, multiline: true, consistent: true },
-        ImportDeclaration: { minProperties: 4, multiline: true, consistent: true },
+        ImportDeclaration: { minProperties: 8, multiline: true, consistent: true },
         ExportDeclaration: { minProperties: 4, multiline: true, consistent: true },
       },
     ],
@@ -506,9 +506,7 @@ export default {
         classes: 'never',
         switches: 'never',
       },
-      {
-        allowSingleLineBlocks: true,
-      },
+      { allowSingleLineBlocks: true },
     ],
 
     // Require or disallow padding lines between statements
@@ -525,14 +523,14 @@ export default {
 
     // require quotes around object literal property names
     // https://eslint.org/docs/rules/quote-props.html
-    'quote-props': [
-      'error',
-      'as-needed',
-      { keywords: false, unnecessary: true, numbers: false },
-    ],
+    // 'quote-props': [
+    //   'error',
+    //   'as-needed',
+    //   { keywords: false, unnecessary: true, numbers: false },
+    // ],
 
     // specify whether double or single quotes should be used
-    quotes: ['error', 'single', { avoidEscape: true }],
+    'quotes': ['error', 'single', { avoidEscape: true }],
 
     // do not require jsdoc
     // https://eslint.org/docs/rules/require-jsdoc

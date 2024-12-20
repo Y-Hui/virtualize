@@ -16,9 +16,7 @@ const Footer: FC<FooterProps> = (props) => {
   const { columns, fixed, children } = props
 
   const { addShouldSyncElement } = useHorizontalScrollContext()
-  const [scrollbarHeight] = useState(() => {
-    return getScrollbarSize().height
-  })
+  const [scrollbarHeight] = useState(() => getScrollbarSize().height)
 
   return (
     <div

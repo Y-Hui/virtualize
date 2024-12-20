@@ -3,11 +3,12 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
+// import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 // eslint-disable-next-line import/no-named-as-default, import/no-named-as-default-member
 import reactCompiler from 'eslint-plugin-react-compiler'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import react from '@eslint-react/eslint-plugin'
+import stylistic from '@stylistic/eslint-plugin'
 import airbnb from './airbnb.mjs'
 
 /**
@@ -18,6 +19,14 @@ export default function eslintConfig(...overrides) {
     { ignores: ['**/dist/**/*', '**/node_modules/', '.git/', '**/*.svg'] },
     airbnb,
     react.configs.all,
+    stylistic.configs.customize({
+      indent: 2,
+      quotes: 'single',
+      semi: false,
+      jsx: true,
+      arrowParens: true,
+      braceStyle: '1tbs',
+    }),
     {
       extends: [js.configs.recommended, ...tseslint.configs.recommended],
       files: ['**/*.{ts,tsx,js,jsx}'],
@@ -32,6 +41,7 @@ export default function eslintConfig(...overrides) {
         'react-refresh': reactRefresh,
         'simple-import-sort': simpleImportSort,
         'react-compiler': reactCompiler,
+        // '@stylistic': stylistic,
       },
       rules: {
         ...reactHooks.configs.recommended.rules,
@@ -101,7 +111,7 @@ export default function eslintConfig(...overrides) {
         '@eslint-react/naming-convention/filename': 'off',
         '@eslint-react/prefer-destructuring-assignment': 'error',
         'no-underscore-dangle': 'off',
-        camelcase: 'off',
+        'camelcase': 'off',
         'comma-dangle': ['error', 'only-multiline'],
         '@eslint-react/avoid-shorthand-fragment': 'off',
         '@eslint-react/avoid-shorthand-boolean': 'off',
@@ -111,7 +121,7 @@ export default function eslintConfig(...overrides) {
         '@eslint-react/hooks-extra/ensure-use-memo-has-non-empty-deps': 'off',
       },
     },
-    eslintPluginPrettierRecommended,
+    // eslintPluginPrettierRecommended,
     ...overrides,
   )
 }

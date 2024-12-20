@@ -12,7 +12,7 @@ import { pipelineRender } from './utils/render-pipeline'
 
 export interface TableBodyProps<T>
   extends NecessaryProps<T>,
-    Pick<RowProps<T>, 'onRow' | 'renderRow' | 'renderCell'> {
+  Pick<RowProps<T>, 'onRow' | 'renderRow' | 'renderCell'> {
   className?: string
   style?: CSSProperties
   startIndex: number

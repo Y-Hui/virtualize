@@ -14,7 +14,7 @@ export default {
 
     // specify the maximum cyclomatic complexity allowed in a program
     // https://eslint.org/docs/rules/complexity
-    complexity: ['off', 20],
+    'complexity': ['off', 20],
 
     // enforce that class methods use "this"
     // https://eslint.org/docs/rules/class-methods-use-this
@@ -31,7 +31,7 @@ export default {
 
     // specify curly brace conventions for all control statements
     // https://eslint.org/docs/rules/curly
-    curly: ['error', 'multi-line'], // multiline
+    'curly': ['error', 'multi-line'], // multiline
 
     // require default case in switch statements
     // https://eslint.org/docs/rules/default-case
@@ -54,7 +54,7 @@ export default {
 
     // require the use of === and !==
     // https://eslint.org/docs/rules/eqeqeq
-    eqeqeq: ['error', 'always', { null: 'ignore' }],
+    'eqeqeq': ['error', 'always', { null: 'ignore' }],
 
     // Require grouped accessor pairs in object literals and classes
     // https://eslint.org/docs/rules/grouped-accessor-pairs
@@ -421,7 +421,7 @@ export default {
 
     // require use of the second argument for parseInt()
     // https://eslint.org/docs/rules/radix
-    radix: 'error',
+    'radix': 'error',
 
     // require `await` in `async function` (note: this is a horrible rule that should never be used)
     // https://eslint.org/docs/rules/require-await
@@ -441,7 +441,7 @@ export default {
 
     // require or disallow Yoda conditions
     // https://eslint.org/docs/rules/yoda
-    yoda: 'error',
+    'yoda': 'error',
 
     'no-class-assign': 'error',
     'no-compare-neg-zero': 'error',
@@ -554,7 +554,7 @@ export default {
     'prefer-arrow-callback': [
       'error',
       {
-        allowNamedFunctions: false,
+        allowNamedFunctions: true,
         allowUnboundThis: true,
       },
     ],

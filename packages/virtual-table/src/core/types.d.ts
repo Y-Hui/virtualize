@@ -21,11 +21,11 @@ export type { FixedType }
 export type AlignType = 'left' | 'right' | 'center'
 export type SizeType = 'small' | 'middle' | 'large'
 
-export interface ColumnExtra {}
+export interface ColumnExtra { }
 
 interface ColumnTypeCommon<T> extends ColumnExtra {
   className?: string
-  /** 表头列合并，设置为 0 时，不渲染	 */
+  /** 表头列合并，设置为 0 时，不渲染 */
   colSpan?: number
   title?: ReactNode
   align?: AlignType

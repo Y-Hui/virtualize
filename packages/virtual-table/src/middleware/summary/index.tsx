@@ -12,50 +12,45 @@ export interface TableSummaryOptions<T = any> {
   summary: (data: readonly T[]) => React.ReactNode
 }
 
-export const tableSummary = createMiddleware(function useTableSummary<T = any>(
-  ctx: MiddlewareContext<T>,
-  options?: TableSummaryOptions<T> | void,
-) {
-  const { summary } = options ?? {}
-  const { columns, dataSource = [] } = ctx
+export const tableSummary = createMiddleware(
+  function useTableSummary<T>(ctx: MiddlewareContext<T>, options?: TableSummaryOptions<T> | void) {
+    const { summary } = options ?? {}
+    const { columns, dataSource = [] } = ctx
 
-  const summaryNode = summary?.(dataSource ?? [])
-  const fixed =
-    isValidElement(summaryNode) &&
-    summaryNode.type === Summary &&
-    (summaryNode.props as SummaryProps).fixed
+    const summaryNode = summary?.(dataSource ?? [])
+    const fixed = isValidElement(summaryNode)
+      && summaryNode.type === Summary
+      && (summaryNode.props as SummaryProps).fixed
 
-  const renderHeader = useCallback(
-    (children: ReactNode) => {
+    const renderHeader = useCallback((children: ReactNode) => {
       return (
         <>
           {children}
           <tfoot className="virtual-table-summary-tfoot">{summaryNode}</tfoot>
         </>
       )
-    },
-    [summaryNode],
-  )
+    }, [summaryNode])
 
-  if (summary == null) {
-    return ctx
-  }
+    if (summary == null) {
+      return ctx
+    }
 
-  if (fixed === 'top') {
-    return { ...ctx, renderHeader }
-  }
+    if (fixed === 'top') {
+      return { ...ctx, renderHeader }
+    }
 
-  return {
-    ...ctx,
-    renderContent(children) {
-      return (
-        <>
-          {children}
-          <Footer fixed={fixed === 'bottom' || fixed} columns={columns}>
-            {summaryNode}
-          </Footer>
-        </>
-      )
-    },
-  }
-})
+    return {
+      ...ctx,
+      renderContent(children) {
+        return (
+          <>
+            {children}
+            <Footer fixed={fixed === 'bottom' || fixed} columns={columns}>
+              {summaryNode}
+            </Footer>
+          </>
+        )
+      },
+    }
+  },
+)

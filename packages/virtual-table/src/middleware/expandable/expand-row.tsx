@@ -16,7 +16,15 @@ export interface ExpandRowProps {
 }
 
 const ExpandRow: FC<ExpandRowProps> = (props) => {
-  const { className, style, rowIndex, isExpanded, colSpan, children, fixed } = props
+  const {
+    className,
+    style,
+    rowIndex,
+    isExpanded,
+    colSpan,
+    children,
+    fixed,
+  } = props
 
   const { getRowHeightList, updateRowHeight } = useTableShared()
   const { tableWidth } = useContainerSize()

@@ -60,9 +60,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
     setWidthList(columnsWidthRef.current)
   })
 
-  const lastFixedLeftColumnIndex = findLastIndex(columns, (x) =>
-    isValidFixedLeft(x.fixed),
-  )
+  const lastFixedLeftColumnIndex = findLastIndex(columns, (x) => isValidFixedLeft(x.fixed))
   const firstFixedRightColumnIndex = columns.findIndex((x) => isValidFixedRight(x.fixed))
 
   const { addShouldSyncElement } = useHorizontalScrollContext()
@@ -95,10 +93,8 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
                     'virtual-table-header-cell',
                     column.align != null && `virtual-table-align-${column.align}`,
                     isValidFixed(column.fixed) && 'virtual-table-sticky-cell',
-                    lastFixedLeftColumnIndex === index &&
-                      'virtual-table-cell-fix-left-last',
-                    firstFixedRightColumnIndex === index &&
-                      'virtual-table-cell-fix-right-first',
+                    lastFixedLeftColumnIndex === index && 'virtual-table-cell-fix-left-last',
+                    firstFixedRightColumnIndex === index && 'virtual-table-cell-fix-right-first',
                     column.className,
                     thClassName,
                   ),

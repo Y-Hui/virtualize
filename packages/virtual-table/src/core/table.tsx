@@ -16,7 +16,9 @@ import {
 } from 'react'
 
 import { __DEV__ } from '../utils/dev'
-import { getScrollElement, getScrollParent, isRoot, isWindow } from '../utils/dom'
+import {
+  getScrollElement, getScrollParent, isRoot, isWindow,
+} from '../utils/dom'
 import { composeRef } from '../utils/ref'
 import TableBody, { type TableBodyProps } from './body'
 import { ContainerSize, type ContainerSizeState } from './context/container-size'
@@ -39,14 +41,14 @@ export type VirtualTableCoreRef = HTMLTableElement
 
 export interface VirtualTableCoreProps<T>
   extends Pick<UseRowRectManagerOptions, 'estimatedRowHeight'>,
-    Omit<
-      TableBodyProps<T>,
-      | 'startIndex'
-      | 'rowComponent'
-      | 'bodyRender'
-      | 'rowPipelineRender'
-      | 'cellPipelineRender'
-    > {
+  Omit<
+    TableBodyProps<T>,
+    | 'startIndex'
+    | 'rowComponent'
+    | 'bodyRender'
+    | 'rowPipelineRender'
+    | 'cellPipelineRender'
+  > {
   tableBodyClassName?: string
   tableBodyStyle?: CSSProperties
 
@@ -106,19 +108,13 @@ function VirtualTableCore<T>(
     columns: rawColumns,
   })
 
-  const onRowClassName = useCallback(
-    (record: T, index: number) => {
-      return clsx(rawRowClassName?.(record, index), rowClassName?.(record, index))
-    },
-    [rawRowClassName, rowClassName],
-  )
+  const onRowClassName = useCallback((record: T, index: number) => {
+    return clsx(rawRowClassName?.(record, index), rowClassName?.(record, index))
+  }, [rawRowClassName, rowClassName])
 
-  const onRowProps: OnRowType<T> = useCallback(
-    (record, index) => {
-      return { ...onRow?.(record, index), ...onPipelineRow?.(record, index) }
-    },
-    [onPipelineRow, onRow],
-  )
+  const onRowProps: OnRowType<T> = useCallback((record, index) => {
+    return { ...onRow?.(record, index), ...onPipelineRow?.(record, index) }
+  }, [onPipelineRow, onRow])
 
   const tableNode = useRef<HTMLTableElement>(null)
   const rootNode = useRef<HTMLDivElement>(null)
@@ -130,8 +126,9 @@ function VirtualTableCore<T>(
     return getScrollParent(root)
   }, [])
 
-  const { scrollContainerHeight, scrollContainerWidth, tableHeight, tableWidth } =
-    useCalcSize({ getScroller, root: rootNode })
+  const {
+    scrollContainerHeight, scrollContainerWidth, tableHeight, tableWidth,
+  } = useCalcSize({ getScroller, root: rootNode })
 
   const containerSize = useMemo((): ContainerSizeState => {
     return {
@@ -190,7 +187,9 @@ function VirtualTableCore<T>(
     bottom: estimatedRowHeight,
   })
 
-  const { rowHeightList, rects, updateRowHeight, sum } = useRowRectManager({
+  const {
+    rowHeightList, rects, updateRowHeight, sum,
+  } = useRowRectManager({
     itemCount: dataSource?.length ?? 0,
     estimatedRowHeight,
     onChange(index, _height, rowRects) {

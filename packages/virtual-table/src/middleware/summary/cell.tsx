@@ -34,12 +34,11 @@ function Cell(props: CellProps) {
   const { size: stickySizes, fixed: columnsFixed } = useTableSticky()
   const fixed = columnsFixed[columnIndex]
 
-  const { left: lastFixedLeftColumnIndex, right: firstFixedRightColumnIndex } =
-    useMemo(() => {
-      const left = findLastIndex(columnsFixed, (x) => isValidFixedLeft(x))
-      const right = columnsFixed.findIndex((x) => isValidFixedRight(x))
-      return { left, right }
-    }, [columnsFixed])
+  const { left: lastFixedLeftColumnIndex, right: firstFixedRightColumnIndex } = useMemo(() => {
+    const left = findLastIndex(columnsFixed, (x) => isValidFixedLeft(x))
+    const right = columnsFixed.findIndex((x) => isValidFixedRight(x))
+    return { left, right }
+  }, [columnsFixed])
 
   if (colSpan === 0) {
     return null

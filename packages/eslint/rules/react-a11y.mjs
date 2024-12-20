@@ -18,10 +18,10 @@ export default {
     'jsx-a11y/alt-text': [
       'error',
       {
-        elements: ['img', 'object', 'area', 'input[type="image"]'],
-        img: [],
-        object: [],
-        area: [],
+        'elements': ['img', 'object', 'area', 'input[type="image"]'],
+        'img': [],
+        'object': [],
+        'area': [],
         'input[type="image"]': [],
       },
     ],

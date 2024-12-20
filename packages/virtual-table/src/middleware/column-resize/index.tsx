@@ -41,21 +41,18 @@ const resizeStorage = {
   },
 }
 
-// eslint-disable-next-line spaced-comment
-export const columnResize = /*#__PURE__*/ createMiddleware(function useColumnResize<
-  T = any,
->(ctx: MiddlewareContext<T>, args?: ResizeOptions | void) {
-  const { storageKey } = args ?? {}
-  const { columns: rawColumns } = ctx
-  const [columnWidths, setColumnWidths] = useState<Record<string, number>>(() => {
-    if (storageKey == null) {
-      return {}
-    }
-    return resizeStorage.get(storageKey)
-  })
+export const columnResize = createMiddleware(
+  function useColumnResize<T = any>(ctx: MiddlewareContext<T>, args?: ResizeOptions | void) {
+    const { storageKey } = args ?? {}
+    const { columns: rawColumns } = ctx
+    const [columnWidths, setColumnWidths] = useState<Record<string, number>>(() => {
+      if (storageKey == null) {
+        return {}
+      }
+      return resizeStorage.get(storageKey)
+    })
 
-  const handleResize = useCallback(
-    (columnKey: string, newWidth: number) => {
+    const handleResize = useCallback((columnKey: string, newWidth: number) => {
       const newWidths = Math.min(1000, Math.max(100, newWidth))
       setColumnWidths((prevState) => {
         const result = {
@@ -67,20 +64,16 @@ export const columnResize = /*#__PURE__*/ createMiddleware(function useColumnRes
         }
         return result
       })
-    },
-    [storageKey],
-  )
+    }, [storageKey])
 
-  const renderHeaderCell: MiddlewareRender = useCallback(
-    (children, options) => {
+    const renderHeaderCell: MiddlewareRender = useCallback((children, options) => {
       const { column, columnIndex = 0, columnWidthList = [] } = options
 
       if (column?.disableResize) {
         return children
       }
 
-      const key =
-        'key' in column! ? (column.key as string) : (column!.dataIndex as string)
+      const key = 'key' in column! ? (column.key as string) : (column!.dataIndex as string)
 
       let width = column?.width
 
@@ -98,7 +91,7 @@ export const columnResize = /*#__PURE__*/ createMiddleware(function useColumnRes
         <Resizable
           width={width ?? 0}
           height={47}
-          handle={
+          handle={(
             <div
               className="resize-handle"
               style={{
@@ -110,26 +103,25 @@ export const columnResize = /*#__PURE__*/ createMiddleware(function useColumnRes
                 cursor: 'col-resize',
               }}
             />
-          }
+          )}
           onResize={(_e, { size }) => handleResize(key, size.width)}
         >
           {children}
         </Resizable>
       )
-    },
-    [handleResize],
-  )
+    }, [handleResize])
 
-  const columns = useMemo(() => {
-    return rawColumns.map((column) => {
-      const key = 'key' in column! ? (column.key as string) : (column.dataIndex as string)
-      const width = columnWidths?.[key]
-      if (width != null && width !== column.width) {
-        return { ...column, width }
-      }
-      return column
-    })
-  }, [columnWidths, rawColumns])
+    const columns = useMemo(() => {
+      return rawColumns.map((column) => {
+        const key = 'key' in column! ? (column.key as string) : (column.dataIndex as string)
+        const width = columnWidths?.[key]
+        if (width != null && width !== column.width) {
+          return { ...column, width }
+        }
+        return column
+      })
+    }, [columnWidths, rawColumns])
 
-  return { ...ctx, columns, renderHeaderCell }
-})
+    return { ...ctx, columns, renderHeaderCell }
+  },
+)

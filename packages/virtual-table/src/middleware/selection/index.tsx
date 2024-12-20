@@ -27,8 +27,7 @@ export function isSelectionColumn<T = any>(column: ColumnType<T>) {
 /**
  * 为 Table 实现多选、单选功能，不传入 options 则是禁用插件
  */
-// eslint-disable-next-line spaced-comment
-export const selection = /*#__PURE__*/ createMiddleware(function useSelection<T = any>(
+export const selection = createMiddleware(function useSelection<T = any>(
   ctx: MiddlewareContext<T>,
   options?: TableRowSelection<T> | void,
 ) {
@@ -71,14 +70,11 @@ export const selection = /*#__PURE__*/ createMiddleware(function useSelection<T 
     },
   )
 
-  const rowClassName = useCallback(
-    (record: T) => {
-      const key = (record as AnyObject)[rowKey]
-      const checked = selectedRowKeys.includes(key)
-      return checked ? 'virtual-table-row-selected' : ''
-    },
-    [rowKey, selectedRowKeys],
-  )
+  const rowClassName = useCallback((record: T) => {
+    const key = (record as AnyObject)[rowKey]
+    const checked = selectedRowKeys.includes(key)
+    return checked ? 'virtual-table-row-selected' : ''
+  }, [rowKey, selectedRowKeys])
 
   const selectionPropsList = useShallowMemo(() => {
     return dataSource.map((row) => {

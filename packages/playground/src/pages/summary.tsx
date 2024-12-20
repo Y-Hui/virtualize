@@ -10,26 +10,23 @@ const SummaryDemo: FC = () => {
 
   const [data, setData] = useAsyncData()
 
-  const summary = useCallback(
-    (_dataSource: readonly MockData[]) => {
-      return (
-        <VirtualTable.Summary fixed={summaryPosition}>
-          <VirtualTable.Summary.Row>
-            <VirtualTable.Summary.Cell index={0}>0</VirtualTable.Summary.Cell>
-            <VirtualTable.Summary.Cell index={1}>1</VirtualTable.Summary.Cell>
-            <VirtualTable.Summary.Cell index={2}>2</VirtualTable.Summary.Cell>
-            <VirtualTable.Summary.Cell index={3}>3</VirtualTable.Summary.Cell>
-            <VirtualTable.Summary.Cell index={4}>4</VirtualTable.Summary.Cell>
-            <VirtualTable.Summary.Cell index={5}>5</VirtualTable.Summary.Cell>
-            <VirtualTable.Summary.Cell index={6}>6</VirtualTable.Summary.Cell>
-            <VirtualTable.Summary.Cell index={7}>7</VirtualTable.Summary.Cell>
-            <VirtualTable.Summary.Cell index={8}>8</VirtualTable.Summary.Cell>
-          </VirtualTable.Summary.Row>
-        </VirtualTable.Summary>
-      )
-    },
-    [summaryPosition],
-  )
+  const summary = useCallback((_dataSource: readonly MockData[]) => {
+    return (
+      <VirtualTable.Summary fixed={summaryPosition}>
+        <VirtualTable.Summary.Row>
+          <VirtualTable.Summary.Cell index={0}>0</VirtualTable.Summary.Cell>
+          <VirtualTable.Summary.Cell index={1}>1</VirtualTable.Summary.Cell>
+          <VirtualTable.Summary.Cell index={2}>2</VirtualTable.Summary.Cell>
+          <VirtualTable.Summary.Cell index={3}>3</VirtualTable.Summary.Cell>
+          <VirtualTable.Summary.Cell index={4}>4</VirtualTable.Summary.Cell>
+          <VirtualTable.Summary.Cell index={5}>5</VirtualTable.Summary.Cell>
+          <VirtualTable.Summary.Cell index={6}>6</VirtualTable.Summary.Cell>
+          <VirtualTable.Summary.Cell index={7}>7</VirtualTable.Summary.Cell>
+          <VirtualTable.Summary.Cell index={8}>8</VirtualTable.Summary.Cell>
+        </VirtualTable.Summary.Row>
+      </VirtualTable.Summary>
+    )
+  }, [summaryPosition])
 
   const isOnlyOneData = data.length === 1
   const columns = useMemo((): ColumnType<MockData>[] => {
