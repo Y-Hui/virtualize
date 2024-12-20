@@ -5,11 +5,16 @@ import {
   type FC,
   Fragment,
   type Key,
+  type RefObject,
+  type UIEventHandler,
   useLayoutEffect,
   useRef,
 } from 'react'
 
 import { findLastIndex } from '../utils/find-last-index'
+import { composeRef } from '../utils/ref'
+import Colgroup from './colgroup'
+import { useHorizontalScrollContext } from './context/horizontal-scroll'
 import { useTableSticky } from './context/sticky'
 import { useTableColumns } from './context/table-columns'
 import { type ColumnType, type PipelineRender } from './types'
@@ -19,6 +24,9 @@ import { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verif
 export interface TableHeaderProps {
   className?: string
   style?: CSSProperties
+
+  wrapperRef?: RefObject<HTMLDivElement>
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   columns: ColumnType<any>[]
 
@@ -28,12 +36,15 @@ export interface TableHeaderProps {
   headerRender?: PipelineRender
   headerRowRender?: PipelineRender
   cellRender?: PipelineRender
+
+  onScroll?: UIEventHandler<HTMLDivElement>
 }
 
 const TableHeader: FC<TableHeaderProps> = (props) => {
   const {
     className,
     style,
+    wrapperRef,
     columns,
     stickyHeader,
     headerRender,
@@ -109,40 +120,40 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
     { columns },
   )
 
+  const { addShouldSyncElement } = useHorizontalScrollContext()
+
   return (
-    <table
-      className={clsx('virtual-table-header-wrapper', className, {
-        'virtual-table-sticky-header': stickyHeader,
+    <div
+      ref={composeRef(wrapperRef, (node) => {
+        if (node == null) {
+          return
+        }
+        addShouldSyncElement('virtual-table-header', node)
       })}
-      style={{
-        ...style,
-        top: Number.isFinite(stickyHeader) ? (stickyHeader as number) : undefined,
-      }}
+      className={clsx('virtual-table-header', className, {
+        'virtual-table-header-sticky': stickyHeader,
+      })}
     >
-      <colgroup>
-        {columns.map((column, index) => {
-          const key = 'key' in column ? (column.key as Key) : column.dataIndex
-          return (
-            <col
-              key={typeof key === 'symbol' ? index : key}
-              style={{
-                width: column.width,
-                minWidth: column.minWidth,
-              }}
-              ref={(node) => {
-                if (node == null) return
-                columnsWidthRef.current[index] = node.offsetWidth
-              }}
-            />
-          )
-        })}
-      </colgroup>
-      {pipelineRender(
-        <thead className="virtual-table-header">{row}</thead>,
-        headerRender,
-        { columns },
-      )}
-    </table>
+      <table
+        style={{
+          ...style,
+          top: Number.isFinite(stickyHeader) ? (stickyHeader as number) : undefined,
+        }}
+      >
+        <Colgroup
+          columns={columns}
+          colRef={(node, index) => {
+            if (node == null) return
+            columnsWidthRef.current[index] = node.offsetWidth
+          }}
+        />
+        {pipelineRender(
+          <thead className="virtual-table-thead">{row}</thead>,
+          headerRender,
+          { columns },
+        )}
+      </table>
+    </div>
   )
 }
 

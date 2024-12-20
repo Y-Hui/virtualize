@@ -3,6 +3,8 @@ import { createContext, useContext } from 'react'
 export interface ContainerSizeState {
   width: number
   height: number
+  tableWidth: number
+  tableHeight: number
   container: () => HTMLElement | null
 }
 

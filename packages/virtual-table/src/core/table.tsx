@@ -2,15 +2,12 @@
 import clsx from 'classnames'
 import {
   type CSSProperties,
-  type DetailedHTMLProps,
   type ForwardedRef,
   forwardRef,
-  type Key,
   memo,
   type ReactElement,
   type ReactNode,
   type RefAttributes,
-  type TableHTMLAttributes,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -24,9 +21,11 @@ import { getScrollElement, getScrollParent, isRoot, isWindow } from '../utils/do
 import { composeRef } from '../utils/ref'
 import TableBody, { type TableBodyProps } from './body'
 import { ContainerSize, type ContainerSizeState } from './context/container-size'
+import { HorizontalScrollContext } from './context/horizontal-scroll'
 import { TableShared, type TableSharedContextType } from './context/shared'
 import { TableColumnsContext } from './context/table-columns'
 import TableHeader from './header'
+import { useCalcSize } from './hooks/useCalcSize'
 import {
   type RowRect,
   useRowRectManager,
@@ -37,16 +36,10 @@ import TableRoot from './root'
 import { type OnRowType } from './types'
 import { pipelineRender } from './utils/render-pipeline'
 
-type DefaultTableProps = DetailedHTMLProps<
-  TableHTMLAttributes<HTMLTableElement>,
-  HTMLTableElement
->
-
 export type VirtualTableCoreRef = HTMLTableElement
 
 export interface VirtualTableCoreProps<T>
-  extends Omit<DefaultTableProps, 'children'>,
-    Pick<UseRowRectManagerOptions, 'estimatedRowHeight'>,
+  extends Pick<UseRowRectManagerOptions, 'estimatedRowHeight'>,
     Omit<
       TableBodyProps<T>,
       | 'startIndex'
@@ -55,8 +48,8 @@ export interface VirtualTableCoreProps<T>
       | 'rowPipelineRender'
       | 'cellPipelineRender'
     > {
-  rootClassName?: string
-  rootStyle?: CSSProperties
+  tableBodyClassName?: string
+  tableBodyStyle?: CSSProperties
 
   /** 开启表头 sticky，设置为 true 则默认 top 为 0，为 number 则是偏移量 */
   stickyHeader?: number | boolean
@@ -72,10 +65,10 @@ function VirtualTableCore<T>(
   ref: ForwardedRef<VirtualTableCoreRef>,
 ) {
   const {
-    rootClassName,
-    rootStyle,
     className,
     style,
+    tableBodyClassName,
+    tableBodyStyle,
     columns: rawColumns,
     dataSource: rawData,
     rowKey: rawRowKey = 'key',
@@ -85,7 +78,6 @@ function VirtualTableCore<T>(
     pipeline = (TablePipeline.defaultPipeline as TablePipeline<T>).use,
     rowClassName: rawRowClassName,
     onRow,
-    ...rest
   } = props
 
   const {
@@ -125,41 +117,29 @@ function VirtualTableCore<T>(
   )
 
   const tableNode = useRef<HTMLTableElement>(null)
-  const [scrollContainerWidth, setScrollContainerWidth] = useState(0)
-  const [scrollContainerHeight, setScrollContainerHeight] = useState(0)
+  const rootNode = useRef<HTMLDivElement>(null)
   const scrollerContainerRef = useRef<HTMLElement | null>(null)
+
+  const getScroller = useCallback(() => {
+    const root = rootNode.current
+    if (root == null) return
+    return getScrollParent(root)
+  }, [])
+
+  const { scrollContainerHeight, scrollContainerWidth, tableHeight, tableWidth } =
+    useCalcSize({ getScroller, root: rootNode })
 
   const containerSize = useMemo((): ContainerSizeState => {
     return {
       width: scrollContainerWidth,
       height: scrollContainerHeight,
+      tableWidth,
+      tableHeight,
       container() {
         return scrollerContainerRef.current
       },
     }
-  }, [scrollContainerWidth, scrollContainerHeight])
-
-  useLayoutEffect(() => {
-    const table = tableNode.current
-    if (table == null) return
-    const scrollerContainer = getScrollParent(table)
-    let scroller: HTMLElement
-    if (isWindow(scrollerContainer)) {
-      scroller = document.scrollingElement as HTMLElement
-    } else {
-      scroller = scrollerContainer
-    }
-    scrollerContainerRef.current = scroller
-    const observer = new ResizeObserver((entries) => {
-      const { width, height } = entries[0].contentRect
-      setScrollContainerWidth(width)
-      setScrollContainerHeight(height)
-    })
-    observer.observe(scroller)
-    return () => {
-      observer.disconnect()
-    }
-  }, [])
+  }, [scrollContainerWidth, scrollContainerHeight, tableWidth, tableHeight])
 
   // 滚动容器内可见数据条数
   const visibleCount = useRef(0)
@@ -176,10 +156,8 @@ function VirtualTableCore<T>(
 
   // 初始化时根据滚动容器计算 visibleCount
   useLayoutEffect(() => {
-    const container = tableNode.current
-    if (container == null) return
-
-    const scrollerContainer = getScrollParent(container)
+    const scrollerContainer = getScroller()
+    if (scrollerContainer == null) return
     let containerHeight = 0
     if (isWindow(scrollerContainer) || isRoot(scrollerContainer)) {
       containerHeight = window.innerHeight
@@ -196,7 +174,7 @@ function VirtualTableCore<T>(
 
     containerHeightRef.current = containerHeight
     visibleCount.current = count
-  }, [estimatedRowHeight, hasData, overscanCount])
+  }, [estimatedRowHeight, getScroller, hasData, overscanCount])
 
   const scrollTopRef = useRef(0)
 
@@ -219,9 +197,8 @@ function VirtualTableCore<T>(
   })
 
   useEffect(() => {
-    const node = tableNode.current
-    if (node == null) return
-    const container = getScrollParent(node)
+    const container = getScroller()
+    if (container == null) return
 
     const updateBoundary = (scrollTop: number) => {
       // TODO: 考虑二分法查找
@@ -256,7 +233,7 @@ function VirtualTableCore<T>(
     return () => {
       container.removeEventListener('scroll', onScroll)
     }
-  }, [overscanCount, rects])
+  }, [getScroller, overscanCount, rects])
 
   const topBlank = sum(0, startIndex)
   const bottomBlank = sum(endIndex)
@@ -274,8 +251,9 @@ function VirtualTableCore<T>(
 
   const table: ReactNode = (
     <TableRoot
-      className={rootClassName}
-      style={rootStyle}
+      ref={rootNode}
+      className={className}
+      style={style}
       hasFixedLeftColumn={hasFixedLeftColumn}
       hasFixedRightColumn={hasFixedRightColumn}
     >
@@ -286,42 +264,25 @@ function VirtualTableCore<T>(
         headerRowRender={renderHeaderRow}
         cellRender={renderHeaderCell}
       />
-      {pipelineRender(
-        <table
-          {...rest}
-          className={clsx(className, 'virtual-table-body')}
-          style={{ ...style, paddingBottom: bottomBlank, paddingTop: topBlank }}
-          ref={composeRef(tableNode, ref)}
-        >
-          <colgroup>
-            {columns.map((item, index) => {
-              const key = 'key' in item ? (item.key as Key) : item.dataIndex
-              return (
-                <col
-                  key={typeof key === 'symbol' ? index : key}
-                  style={{
-                    width: item.width,
-                    minWidth: item.minWidth,
-                  }}
-                />
-              )
-            })}
-          </colgroup>
-          <TableBody
-            columns={columns}
-            rowKey={rowKey}
-            dataSource={dataSlice}
-            startIndex={startIndex}
-            rowClassName={onRowClassName}
-            onRow={onRowProps}
-            bodyRender={renderBody}
-            rowPipelineRender={renderRow}
-            cellPipelineRender={renderCell}
-          />
-        </table>,
-        renderTable,
-        { columns },
-      )}
+      <TableBody
+        tableRef={composeRef(tableNode, ref)}
+        className={tableBodyClassName}
+        style={{
+          ...tableBodyStyle,
+          paddingBottom: bottomBlank,
+          paddingTop: topBlank,
+        }}
+        columns={columns}
+        rowKey={rowKey}
+        dataSource={dataSlice}
+        startIndex={startIndex}
+        rowClassName={onRowClassName}
+        onRow={onRowProps}
+        tableRender={renderTable}
+        bodyRender={renderBody}
+        rowRender={renderRow}
+        cellRender={renderCell}
+      />
     </TableRoot>
   )
 
@@ -329,7 +290,9 @@ function VirtualTableCore<T>(
     <TableShared.Provider value={shared}>
       <TableColumnsContext columns={columns}>
         <ContainerSize.Provider value={containerSize}>
-          {pipelineRender(table, render, { columns })}
+          <HorizontalScrollContext>
+            {pipelineRender(table, render, { columns })}
+          </HorizontalScrollContext>
         </ContainerSize.Provider>
       </TableColumnsContext>
     </TableShared.Provider>

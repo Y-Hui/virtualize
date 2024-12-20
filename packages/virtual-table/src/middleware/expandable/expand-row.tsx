@@ -19,7 +19,7 @@ const ExpandRow: FC<ExpandRowProps> = (props) => {
   const { className, style, rowIndex, isExpanded, colSpan, children, fixed } = props
 
   const { getRowHeightList, updateRowHeight } = useTableShared()
-  const { width } = useContainerSize()
+  const { tableWidth } = useContainerSize()
 
   const currentNodeHeight = useRef(0)
 
@@ -45,7 +45,7 @@ const ExpandRow: FC<ExpandRowProps> = (props) => {
             'virtual-table-cell',
             fixed && 'virtual-table-expanded-row-fixed',
           )}
-          style={{ width: width <= 0 ? undefined : width }}
+          style={{ width: tableWidth <= 0 ? undefined : tableWidth }}
         >
           {children}
         </div>

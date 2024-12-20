@@ -9,7 +9,7 @@ export interface EmptyRowProps {
 
 const EmptyRow: FC<EmptyRowProps> = (props) => {
   const { colSpan } = props
-  const { width } = useContainerSize()
+  const { tableWidth } = useContainerSize()
 
   return (
     <tr>
@@ -21,7 +21,7 @@ const EmptyRow: FC<EmptyRowProps> = (props) => {
             left: 0,
             top: 0,
             padding: 16,
-            width: width <= 0 ? undefined : width,
+            width: tableWidth <= 0 ? undefined : tableWidth,
           }}
         >
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />

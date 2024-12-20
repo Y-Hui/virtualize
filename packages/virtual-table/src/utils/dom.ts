@@ -1,6 +1,6 @@
 export type ScrollElement = HTMLElement | Window
 
-const overflowStylePatterns = ['scroll', 'auto', 'overlay']
+const overflowStylePatterns = /auto|scroll|overlay|hidden/
 
 function isElement(node: unknown): node is Node {
   if (!(node instanceof Node)) {
@@ -20,8 +20,8 @@ export function getScrollParent(
     if (node === document.body) {
       return root as HTMLElement
     }
-    const { overflowY } = window.getComputedStyle(node)
-    if (overflowStylePatterns.includes(overflowY)) {
+    const { overflow, overflowY, overflowX } = window.getComputedStyle(node)
+    if (overflowStylePatterns.test(overflow + overflowY + overflowX)) {
       return node as HTMLElement
     }
     node = node.parentNode as Element

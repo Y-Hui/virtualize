@@ -55,6 +55,7 @@ function VirtualTable<T>(
   ref: ForwardedRef<VirtualTableCoreRef>,
 ) {
   const {
+    className,
     size = 'middle',
     estimatedRowHeight: rowHeight,
     sticky,
@@ -85,7 +86,11 @@ function VirtualTable<T>(
     <Table
       {...rest}
       pipeline={pipeline}
-      rootClassName={clsx(`virtual-table-${size}`, bordered && 'virtual-table-bordered')}
+      className={clsx(
+        `virtual-table-${size}`,
+        bordered && 'virtual-table-bordered',
+        className,
+      )}
       ref={ref}
       estimatedRowHeight={estimatedRowHeight}
       stickyHeader={typeof sticky === 'boolean' ? sticky : sticky?.offsetHeader}

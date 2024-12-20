@@ -24,8 +24,8 @@ export interface RowProps<T> extends NativeProps {
   rowData: T
   columns: ColumnType<T>[]
   onRow?: OnRowType<T>
-  rowPipelineRender?: PipelineRender
-  cellPipelineRender?: PipelineRender
+  rowRender?: PipelineRender
+  cellRender?: PipelineRender
 }
 
 function Row<T>(props: RowProps<T>) {
@@ -36,8 +36,8 @@ function Row<T>(props: RowProps<T>) {
     rowData,
     columns,
     onRow,
-    rowPipelineRender,
-    cellPipelineRender,
+    rowRender,
+    cellRender,
     ...rest
   } = props
 
@@ -74,12 +74,12 @@ function Row<T>(props: RowProps<T>) {
             rowIndex={rowIndex}
             rowData={rowData}
             columnIndex={index}
-            cellPipelineRender={cellPipelineRender}
+            cellRender={cellRender}
           />
         )
       })}
     </tr>,
-    rowPipelineRender,
+    rowRender,
     { columns, rowIndex, rowData },
   )
 }

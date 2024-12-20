@@ -4,7 +4,9 @@ import { __DEV__ } from '../../utils/dev'
 import { type FixedType } from '../types'
 
 export interface StickyContextState {
+  /** 每一列的宽度 */
   size: number[]
+  /** 每一列设置的 fixed 值 */
   fixed: (FixedType | undefined)[]
 }
 

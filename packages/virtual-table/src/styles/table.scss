@@ -20,14 +20,22 @@
     border-collapse: separate;
   }
 
-  &-header-wrapper {
-    border-spacing: 0;
-    table-layout: fixed;
-    width: 100%;
-    min-width: 100%;
+  &-header {
+    overflow: auto hidden;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    > table {
+      border-spacing: 0;
+      table-layout: fixed;
+      width: 100%;
+    }
   }
 
-  &-sticky-header {
+  &-header-sticky {
     position: sticky;
     top: 0;
     left: 0;
@@ -35,7 +43,7 @@
     background-color: #fff;
   }
 
-  &-header {
+  &-thead {
   }
 
   &-header-cell {
@@ -62,10 +70,18 @@
     }
   }
 
+  &-body-wrapper {
+    overflow: auto hidden;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
   &-body {
     table-layout: fixed;
     width: 100%;
-    min-width: 100%;
     border-spacing: 0;
   }
 

@@ -23,7 +23,7 @@ export interface CellProps<T> extends NativeProps {
   columnIndex: number
   rowIndex: number
   rowData: T
-  cellPipelineRender?: PipelineRender
+  cellRender?: PipelineRender
 }
 
 function getTableCellContent<T extends AnyObject>(
@@ -52,7 +52,7 @@ function Cell<T>(props: CellProps<T>) {
     rowData,
     rowIndex,
     columnIndex,
-    cellPipelineRender,
+    cellRender,
     ...restProps
   } = props
 
@@ -94,7 +94,7 @@ function Cell<T>(props: CellProps<T>) {
     >
       {getTableCellContent(rowIndex, rowData as AnyObject, column)}
     </td>,
-    cellPipelineRender,
+    cellRender,
     { column, columnIndex },
   )
 }
