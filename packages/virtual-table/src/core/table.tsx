@@ -160,15 +160,23 @@ function VirtualTableCore<T>(
     const scrollerContainer = getScroller()
     if (scrollerContainer == null) return
     let containerHeight = 0
+    let scrollTop = 0
     if (isWindow(scrollerContainer) || isRoot(scrollerContainer)) {
       containerHeight = window.innerHeight
+      scrollTop = window.scrollY
     } else {
-      containerHeight = getScrollElement(scrollerContainer).getBoundingClientRect().height
+      const element = getScrollElement(scrollerContainer)
+      containerHeight = element.getBoundingClientRect().height
+      scrollTop = element.scrollTop
     }
     const count = Math.ceil(containerHeight / estimatedRowHeight)
 
     if (visibleCount.current === 0) {
-      const nextStartIndex = 0
+      // 判断一下当前滚动位置，计算 startIndex（场景：SPA 页面切换且渲染非异步数据）
+      let nextStartIndex = 0
+      if (scrollTop >= estimatedRowHeight) {
+        nextStartIndex = Math.max(Math.floor(scrollTop / estimatedRowHeight) - 1 - overscanCount, 0)
+      }
       setStartIndex(nextStartIndex)
       setEndIndex(nextStartIndex + count + overscanCount)
     }
