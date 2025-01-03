@@ -21,10 +21,10 @@ import { type SizeType } from './types'
 
 export interface VirtualTableProps<T>
   extends Omit<
-      VirtualTableCoreProps<T>,
+    VirtualTableCoreProps<T>,
       'estimatedRowHeight' | 'stickyHeader' | 'summary'
-    >,
-    Partial<TableSummaryOptions<T>> {
+  >,
+  Partial<TableSummaryOptions<T>> {
   size?: SizeType
   bordered?: boolean
   loading?: boolean

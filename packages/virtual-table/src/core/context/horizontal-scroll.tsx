@@ -67,17 +67,25 @@ export function HorizontalScrollContext(props: PropsWithChildren) {
   useLayoutEffect(() => {
     const nodes = Object.values(elements)
 
+    const disabledElement = new Set<HTMLElement>()
     const updateScrollLeft = (currentElement: HTMLElement, scrollLeft: number) => {
       nodes.forEach((el) => {
         if (el === currentElement) return
+        disabledElement.add(el)
         // eslint-disable-next-line no-param-reassign
         el.scrollLeft = scrollLeft
       })
     }
 
     const onScroll = (e: Event) => {
+      const target = e.target as HTMLElement
+
+      if (disabledElement.has(target)) {
+        disabledElement.delete(target)
+        return
+      }
+
       const sync = () => {
-        const target = e.target as HTMLElement
         const { scrollLeft } = target
         updateScrollLeft(target, scrollLeft)
       }
