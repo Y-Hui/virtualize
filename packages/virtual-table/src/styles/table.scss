@@ -3,7 +3,9 @@
   --virtual-table-border-color: #f0f0f0;
   --virtual-table-row-hover-bg: #fafafa;
   --virtual-table-font-size: 14px;
-  --virtual-table-color-split: rgba(5, 5, 5, 0.06);
+  --virtual-table-split-shadow: rgba(5, 5, 5, 0.06);
+  --virtual-table-header-split: #c2c2c2;
+  --virtual-table-fixed-cell-background: #fff;
 }
 
 [class^='virtual-table'] {
@@ -40,7 +42,7 @@
     top: 0;
     left: 0;
     z-index: 3;
-    background-color: #fff;
+    background-color: var(--virtual-table-fixed-cell-background);
   }
 
   &-thead {
@@ -54,19 +56,16 @@
     font-weight: 600;
     font-size: 14px;
 
-    &:not(.virtual-table-selection-column)
-      + &:not(.virtual-table-selection-column):not(:last-child) {
-      &::before {
-        position: absolute;
-        top: 50%;
-        inset-inline-end: 0;
-        width: 1px;
-        height: 1.2em;
-        background-color: #c2c2c2;
-        transform: translateY(-50%);
-        transition: background-color 0.2s;
-        content: '';
-      }
+    &:not(:last-child, :first-child.virtual-table-selection-column, .no-split)::before {
+      position: absolute;
+      top: 50%;
+      inset-inline-end: 0;
+      width: 1px;
+      height: 1.2em;
+      background-color: var(--virtual-table-header-split);
+      transform: translateY(-50%);
+      transition: background-color 0.2s;
+      content: '';
     }
   }
 
@@ -97,6 +96,7 @@
       background 0.2s,
       border-color 0.2s;
     border-bottom: 1px solid var(--virtual-table-border-color);
+    overflow-wrap: break-word;
   }
 
   &-sticky-cell {
@@ -104,7 +104,7 @@
     z-index: 2;
 
     &:not(.virtual-table-header-cell) {
-      background-color: #fff;
+      background-color: var(--virtual-table-fixed-cell-background);
     }
   }
 
@@ -138,11 +138,11 @@
 
   &-has-fix-left {
     .virtual-table-sticky-cell:not(.virtual-table-header-cell) {
-      background-color: #fff;
+      background-color: var(--virtual-table-fixed-cell-background);
     }
 
     .virtual-table-cell-fix-left-last::after {
-      box-shadow: inset 10px 0 8px -8px var(--virtual-table-color-split);
+      box-shadow: inset 10px 0 8px -8px var(--virtual-table-split-shadow);
     }
 
     .virtual-table-cell-fix-left-last::before {
@@ -152,10 +152,10 @@
 
   &-has-fix-right {
     .virtual-table-cell-fix-right-first::after {
-      box-shadow: inset -10px 0 8px -8px var(--virtual-table-color-split);
+      box-shadow: inset -10px 0 8px -8px var(--virtual-table-split-shadow);
     }
 
-    .virtual-table-cell-fix-right-first::before {
+    .virtual-table-cell-fix-right-first::after {
       background-color: transparent;
     }
   }
