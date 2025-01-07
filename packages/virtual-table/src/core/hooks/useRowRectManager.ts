@@ -89,3 +89,26 @@ export function useRowRectManager(options: UseRowRectManagerOptions) {
     rects: useCallback(() => rectList.current, []),
   }
 }
+
+export function anchorQuery(rects: RowRect[], scrollTop: number) {
+  let left = 0
+  let right = rects.length - 1
+  let index = -1
+
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2)
+
+    if (rects[mid].bottom > scrollTop) {
+      index = mid
+      right = mid - 1
+    } else {
+      left = mid + 1
+    }
+  }
+
+  if (index === -1) {
+    return undefined
+  }
+
+  return rects[index]
+}

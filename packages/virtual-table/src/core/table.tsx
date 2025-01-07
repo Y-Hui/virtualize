@@ -28,6 +28,7 @@ import { TableColumnsContext } from './context/table-columns'
 import TableHeader from './header'
 import { useCalcSize } from './hooks/useCalcSize'
 import {
+  anchorQuery,
   type RowRect,
   useRowRectManager,
   type UseRowRectManagerOptions,
@@ -212,8 +213,7 @@ function VirtualTableCore<T>(
     if (container == null) return
 
     const updateBoundary = (scrollTop: number) => {
-      // TODO: 考虑二分法查找
-      const anchor = rects().find((x) => x.bottom > scrollTop)
+      const anchor = anchorQuery(rects(), scrollTop)
       if (anchor != null) {
         anchorRef.current = anchor
         setStartIndex(Math.max(0, anchor.index - overscanCount))
