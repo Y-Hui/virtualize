@@ -1,5 +1,5 @@
 /* eslint-disable @eslint-react/hooks-extra/no-direct-set-state-in-use-layout-effect */
-import clsx from 'classnames'
+import clsx from 'clsx'
 import {
   type CSSProperties,
   type ForwardedRef,
@@ -33,10 +33,10 @@ import {
   useRowRectManager,
   type UseRowRectManagerOptions,
 } from './hooks/useRowRectManager'
-import { type Middleware, TablePipeline } from './hooks/useTablePipeline'
+import { pipelineRender } from './pipeline/render-pipeline'
+import { TablePipeline } from './pipeline/useTablePipeline'
 import TableRoot from './root'
 import { type OnRowType } from './types'
-import { pipelineRender } from './utils/render-pipeline'
 import { isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 export type VirtualTableCoreRef = HTMLTableElement
@@ -60,7 +60,7 @@ export interface VirtualTableCoreProps<T>
   /** 在头和尾额外渲染多少条 @default 5 */
   overscanCount?: number
 
-  pipeline?: Middleware<T>
+  pipeline?: TablePipeline<T>
 }
 
 function VirtualTableCore<T>(
@@ -78,7 +78,7 @@ function VirtualTableCore<T>(
     estimatedRowHeight,
     overscanCount = 5,
     stickyHeader,
-    pipeline = (TablePipeline.defaultPipeline as TablePipeline<T>).use,
+    pipeline = (TablePipeline.defaultPipeline as TablePipeline<T>),
     rowClassName: rawRowClassName,
     onRow,
   } = props
@@ -104,7 +104,7 @@ function VirtualTableCore<T>(
     renderCell,
 
     onRow: onPipelineRow,
-  } = pipeline({
+  } = pipeline.use({
     dataSource: rawData,
     rowKey: rawRowKey,
     columns: rawColumns,

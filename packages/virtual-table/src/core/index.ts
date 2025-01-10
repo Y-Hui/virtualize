@@ -13,15 +13,15 @@ export type { TableColumnsContextType } from './context/table-columns'
 export { useTableColumns } from './context/table-columns'
 export { useEvent } from './hooks/useEvent'
 export { useShallowMemo } from './hooks/useShallowMemo'
-export type { UseTablePipelineOptions } from './hooks/useTablePipeline'
+export type { UseTablePipelineOptions } from './pipeline/useTablePipeline'
 export type {
   Middleware,
   MiddlewareContext,
   MiddlewareRender,
   MiddlewareResult,
   TablePipeline,
-} from './hooks/useTablePipeline'
-export { useTablePipeline } from './hooks/useTablePipeline'
+} from './pipeline/useTablePipeline'
+export { useTablePipeline } from './pipeline/useTablePipeline'
 export type { RowProps as VirtualTableRowProps } from './row'
 export { default as VirtualTableRow } from './row'
 export type { VirtualTableCoreProps as VirtualTableProps } from './table'

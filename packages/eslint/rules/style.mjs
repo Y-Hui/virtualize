@@ -470,7 +470,7 @@ export default {
         ObjectExpression: { minProperties: 5, multiline: true, consistent: true },
         ObjectPattern: { minProperties: 4, multiline: true, consistent: true },
         ImportDeclaration: { minProperties: 8, multiline: true, consistent: true },
-        ExportDeclaration: { minProperties: 4, multiline: true, consistent: true },
+        ExportDeclaration: { minProperties: 8, multiline: true, consistent: true },
       },
     ],
 

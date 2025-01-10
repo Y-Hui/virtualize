@@ -1,4 +1,4 @@
-import clsx from 'classnames'
+import clsx from 'clsx'
 import { type DetailedHTMLProps, type HTMLAttributes, memo, useMemo } from 'react'
 
 import {

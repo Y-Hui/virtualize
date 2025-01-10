@@ -3,8 +3,8 @@ import './style.scss'
 
 import { isValidElement, type ReactNode, useCallback } from 'react'
 
+import { createMiddleware } from '../../core/pipeline/create'
 import { type MiddlewareContext } from '../../types'
-import { createMiddleware } from '../index'
 import Footer from './footer'
 import Summary, { type SummaryProps } from './summary'
 

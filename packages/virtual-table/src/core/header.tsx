@@ -1,4 +1,4 @@
-import clsx from 'classnames'
+import clsx from 'clsx'
 import {
   createElement,
   type CSSProperties,
@@ -16,8 +16,8 @@ import Colgroup from './colgroup'
 import { useHorizontalScrollContext } from './context/horizontal-scroll'
 import { useTableSticky } from './context/sticky'
 import { useTableColumns } from './context/table-columns'
+import { pipelineRender } from './pipeline/render-pipeline'
 import { type ColumnType, type PipelineRender } from './types'
-import { pipelineRender } from './utils/render-pipeline'
 import { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 export interface TableHeaderProps {

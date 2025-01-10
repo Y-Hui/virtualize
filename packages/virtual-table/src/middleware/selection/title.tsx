@@ -9,7 +9,7 @@ import {
   type MenuProps,
   Table,
 } from 'antd'
-import clsx from 'classnames'
+import clsx from 'clsx'
 import { type Key, useContext } from 'react'
 
 import { type TableRowSelection } from './types'

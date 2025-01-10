@@ -5,7 +5,7 @@ export const fillRef = <T>(ref: Ref<T>, node: T) => {
     ref(node)
   } else if (typeof ref === 'object' && ref && 'current' in ref) {
     // eslint-disable-next-line no-param-reassign
-    ;(ref as MutableRefObject<unknown>).current = node
+    (ref as MutableRefObject<unknown>).current = node
   }
 }
 

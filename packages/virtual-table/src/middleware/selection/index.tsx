@@ -10,8 +10,8 @@ import {
 } from 'react'
 
 import { type MiddlewareContext, useShallowMemo } from '../../core'
+import { createMiddleware } from '../../core/pipeline/create'
 import { type AnyObject, type ColumnType } from '../../types'
-import { createMiddleware } from '../index'
 import SelectionCell from './cell'
 import SelectionTitle from './title'
 import { type TableRowSelection } from './types'

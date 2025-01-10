@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import clsx from 'classnames'
+import clsx from 'clsx'
 import {
   type DetailedHTMLProps,
   type HTMLAttributes,
@@ -9,8 +9,8 @@ import {
 
 import { type AnyObject } from '../types'
 import { useTableSticky } from './context/sticky'
+import { pipelineRender } from './pipeline/render-pipeline'
 import { type ColumnType, type PipelineRender } from './types'
-import { pipelineRender } from './utils/render-pipeline'
 import { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 type NativeProps = DetailedHTMLProps<

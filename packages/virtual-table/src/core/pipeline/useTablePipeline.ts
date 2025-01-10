@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import clsx from 'classnames'
-import { type ReactNode, useRef } from 'react'
+import { useMemo } from 'react'
 
 import { shallowEqualArrays } from '../../utils/equal'
 import { type NecessaryProps } from '../internal'
 import { type OnRowType, type PipelineRender } from '../types'
+import { type Hook, shakeUnsafeHooks, TablePipeline } from './table-pipeline'
 
 export interface MiddlewareContext<T> extends NecessaryProps<T> {}
 
@@ -108,132 +108,29 @@ export interface MiddlewareResult<T> extends MiddlewareContext<T>, MiddlewareRen
 
 export type Middleware<T> = (context: MiddlewareContext<T>) => MiddlewareResult<T>
 
-export class TablePipeline<T> {
-  constructor() {
-    this.use = this.use.bind(this)
-  }
-
-  hooks: Middleware<T>[] = []
-
-  // eslint-disable-next-line @eslint-react/hooks-extra/ensure-custom-hooks-using-other-hooks
-  use(options: MiddlewareContext<T>): MiddlewareResult<T> {
-    if (this.hooks.length === 0) {
-      return options
-    }
-
-    const context: { current: MiddlewareResult<T> } = { current: options }
-
-    const renderFunctionMap: Record<keyof MiddlewareRenders, MiddlewareRender[]> = {
-      render: [],
-      renderRoot: [],
-      renderContent: [],
-      renderHeaderWrapper: [],
-      renderHeaderRoot: [],
-      renderHeader: [],
-      renderHeaderRow: [],
-      renderHeaderCell: [],
-      renderBodyWrapper: [],
-      renderBodyRoot: [],
-      renderBody: [],
-      renderRow: [],
-      renderCell: [],
-    } as const
-
-    const rowClassNameFunctions: ((record: T, index: number) => string)[] = []
-    const onRowFunctions: OnRowType<T>[] = []
-
-    this.hooks.forEach((hook) => {
-      const nextCtx = hook(context.current)
-      const {
-        render: _render,
-        renderRoot: _renderRoot,
-        renderContent: _renderContent,
-        renderHeaderWrapper: _renderHeaderWrapper,
-        renderHeaderRoot: _renderHeaderRoot,
-        renderHeader: _renderHeader,
-        renderHeaderRow: _renderHeaderRow,
-        renderHeaderCell: _renderHeaderCell,
-        renderBodyWrapper: _renderBodyWrapper,
-        renderBodyRoot: _renderBodyRoot,
-        renderBody: _renderBody,
-        renderRow: _renderRow,
-        renderCell: _renderCell,
-
-        rowClassName,
-        onRow,
-        ...rest
-      } = nextCtx
-
-      Object.entries(renderFunctionMap).forEach(([key, value]) => {
-        const target = nextCtx[key as keyof MiddlewareRenders]
-        if (typeof target === 'function') {
-          value.push(target)
-        }
-      })
-
-      if (typeof rowClassName === 'function') {
-        rowClassNameFunctions.push(rowClassName)
-      }
-      if (typeof onRow === 'function') {
-        onRowFunctions.push(onRow)
-      }
-      context.current = rest
-    })
-
-    Object.entries(renderFunctionMap).forEach(([key, renders]) => {
-      if (renders.length > 0) {
-        context.current[key as keyof MiddlewareRenders] = (children, args) => {
-          // reduce 把 [render1, render2] 转为 render1(render2(children))
-          return renders.reduce<ReactNode>((node, render) => {
-            return render(node, args)
-          }, children)
-        }
-      }
-    })
-
-    if (rowClassNameFunctions.length > 0) {
-      context.current.rowClassName = (record, index) => {
-        return clsx(...rowClassNameFunctions.map((fn) => fn(record, index)))
-      }
-    }
-
-    if (onRowFunctions.length > 0) {
-      context.current.onRow = (record, index) => {
-        return onRowFunctions.reduce((result, item) => {
-          return { ...result, ...item(record, index) }
-        }, {})
-      }
-    }
-
-    return context.current
-  }
-
-  static defaultPipeline = new TablePipeline()
-}
-
 export interface UseTablePipelineOptions<T = any> {
-  pipeline?: Middleware<T>
-  use?: (Middleware<T> | undefined | null)[]
+  pipeline?: TablePipeline<T>
+  use?: (Middleware<T> | Hook<T>)[]
 }
+
+export { TablePipeline }
+export type { Hook }
 
 export function useTablePipeline<T = any>(options: UseTablePipelineOptions<T>) {
   const { use, pipeline: extraPipeline } = options
 
-  const prevPipeline = useRef<TablePipeline<T> | null>(null)
+  const cached = useMemo(() => ({ current: new TablePipeline<T>() }), [])
 
   if (use != null) {
-    const nextHooks = [...use, extraPipeline].filter((x) => x != null)
+    const nextHooks = shakeUnsafeHooks([...use, ...(extraPipeline?.hooks ?? [])])
 
-    // eslint-disable-next-line react-compiler/react-compiler
-    if (!shallowEqualArrays(prevPipeline.current?.hooks, nextHooks)) {
+    if (!shallowEqualArrays(cached.current?.hooks, nextHooks)) {
       const pipeline = new TablePipeline<T>()
-      pipeline.hooks = nextHooks.filter((x) => x != null)
-      // eslint-disable-next-line react-compiler/react-compiler
-      prevPipeline.current = pipeline
-      return pipeline.use
+      pipeline.setHooks(nextHooks)
+      cached.current = pipeline
+      return pipeline
     }
   }
 
-  // eslint-disable-next-line react-compiler/react-compiler
-  return prevPipeline.current?.use
+  return cached.current
 }

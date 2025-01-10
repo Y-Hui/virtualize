@@ -1,12 +1,13 @@
 import Summary from './middleware/summary/summary'
 import Table from './table'
 
+export { createMiddleware } from './core/pipeline/create'
 export type {
   Middleware,
   TablePipeline,
   UseTablePipelineOptions,
-} from './core/hooks/useTablePipeline'
-export { useTablePipeline } from './core/hooks/useTablePipeline'
+} from './core/pipeline/useTablePipeline'
+export { useTablePipeline } from './core/pipeline/useTablePipeline'
 export type { ExpandableConfig } from './middleware/expandable'
 export type { TableRowSelection } from './middleware/selection/types'
 export type * from './types'

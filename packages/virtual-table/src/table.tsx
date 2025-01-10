@@ -1,6 +1,6 @@
 import './styles/table.scss'
 
-import clsx from 'classnames'
+import clsx from 'clsx'
 import {
   type ForwardedRef,
   forwardRef,
@@ -8,7 +8,7 @@ import {
   type RefAttributes,
 } from 'react'
 
-import { useTablePipeline } from './core/hooks/useTablePipeline'
+import { useTablePipeline } from './core/pipeline/useTablePipeline'
 import Table, { type VirtualTableCoreProps, type VirtualTableCoreRef } from './core/table'
 import { columnResize } from './middleware/column-resize'
 import { tableEmpty } from './middleware/empty'
@@ -33,6 +33,7 @@ export interface VirtualTableProps<T>
   sticky?: boolean | { offsetHeader: number }
   rowSelection?: TableRowSelection<T>
   expandable?: ExpandableConfig<T>
+  storageKey?: string
 }
 
 function getDefaultEstimatedRowHeight(size: SizeType, height?: number) {
@@ -77,10 +78,10 @@ function VirtualTable<T>(
       selection(rowSelection),
       tableExpandable(expandable),
       columnResize(),
-      tableEmpty(),
-      tableSummary(summary == null ? undefined : { summary }),
       horizontalScrollBar(),
-      tableLoading({ loading }),
+      { priority: 200, hook: tableLoading({ loading }) },
+      { priority: 200, hook: tableEmpty() },
+      { priority: 200, hook: tableSummary(summary == null ? undefined : { summary }) },
     ],
   })
 

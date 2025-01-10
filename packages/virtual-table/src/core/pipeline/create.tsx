@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { type Middleware, type MiddlewareContext, type MiddlewareResult } from '../types'
-import { isShallowEqual } from '../utils/equal'
+import { isShallowEqual } from '../../utils/equal'
+import { type Middleware, type MiddlewareContext, type MiddlewareResult } from './useTablePipeline'
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 type MiddlewareWithOptions<T, P = undefined> = (
   ctx: MiddlewareContext<T>,
   options: P,

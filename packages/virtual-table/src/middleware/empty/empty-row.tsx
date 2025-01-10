@@ -1,14 +1,14 @@
-import { Empty } from 'antd'
-import type { FC } from 'react'
+import type { FC, ReactNode } from 'react'
 
 import { useContainerSize } from '../../core'
 
 export interface EmptyRowProps {
   colSpan: number
+  children?: ReactNode
 }
 
 const EmptyRow: FC<EmptyRowProps> = (props) => {
-  const { colSpan } = props
+  const { colSpan, children } = props
   const { tableWidth } = useContainerSize()
 
   return (
@@ -24,7 +24,7 @@ const EmptyRow: FC<EmptyRowProps> = (props) => {
             width: tableWidth <= 0 ? undefined : tableWidth,
           }}
         >
-          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          {children}
         </div>
       </td>
     </tr>

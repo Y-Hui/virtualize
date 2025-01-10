@@ -1,4 +1,4 @@
-import clsx from 'classnames'
+import clsx from 'clsx'
 import {
   type DetailedHTMLProps,
   type HTMLAttributes,
@@ -10,8 +10,8 @@ import {
 import { findLastIndex } from '../utils/find-last-index'
 import Cell from './cell'
 import { useTableShared } from './context/shared'
+import { pipelineRender } from './pipeline/render-pipeline'
 import { type ColumnType, type OnRowType, type PipelineRender } from './types'
-import { pipelineRender } from './utils/render-pipeline'
 import { isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 type NativeProps = DetailedHTMLProps<

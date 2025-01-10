@@ -1,0 +1,27 @@
+$master-skeleton-color: var(--master-skeleton-color, hsla(0, 0%, 74.5%, 0.2));
+$master-skeleton-flash: var(--master-skeleton-flash, hsla(0, 0%, 50.6%, 0.24));
+
+.virtual-table-loading {
+  &-skeleton {
+    width: 100%;
+    min-height: 12px;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      $master-skeleton-color 25%,
+      $master-skeleton-flash 37%,
+      $master-skeleton-color 63%
+    );
+    background-size: 400% 100%;
+    animation: virtual-table-skeleton-animation 3s ease infinite;
+  }
+}
+
+@keyframes virtual-table-skeleton-animation {
+  from {
+    background-position: 100% 50%;
+  }
+  to {
+    background-position: 0 50%;
+  }
+}

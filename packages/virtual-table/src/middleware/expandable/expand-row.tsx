@@ -1,6 +1,6 @@
 import './style.scss'
 
-import clsx from 'classnames'
+import clsx from 'clsx'
 import { type CSSProperties, type FC, type ReactNode, useRef } from 'react'
 
 import { useContainerSize, useTableShared } from '../../core'

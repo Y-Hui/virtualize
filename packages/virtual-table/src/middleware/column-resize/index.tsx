@@ -4,9 +4,9 @@ import 'react-resizable/css/styles.css'
 import { isValidElement, useCallback, useMemo, useState } from 'react'
 import { Resizable } from 'react-resizable'
 
+import { createMiddleware } from '../../core/pipeline/create'
 import { type MiddlewareContext, type MiddlewareRender } from '../../types'
 import { __DEV__ } from '../../utils/dev'
-import { createMiddleware } from '../index'
 
 declare module '../../types' {
   interface ColumnExtra {
@@ -83,7 +83,7 @@ export const columnResize = createMiddleware(
 
       if (__DEV__) {
         if (isValidElement(children) && children.type === Resizable) {
-          throw Error('columnResize 插件重复使用')
+          throw Error('The columnResize plugin was registered multiple times.')
         }
       }
 

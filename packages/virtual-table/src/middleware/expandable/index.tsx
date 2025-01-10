@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useControllableValue, useMemoizedFn } from 'ahooks'
-import { type ExpandableConfig as RawExpandableConfig } from 'antd/es/table/interface'
-import clsx from 'classnames'
-import { type Key, useCallback, useMemo, useRef } from 'react'
+import clsx from 'clsx'
+import { type Key, type MouseEvent, type ReactNode, useCallback, useMemo, useRef } from 'react'
 
 import { isValidFixed, type OnRowType, useShallowMemo } from '../../core'
+import { createMiddleware } from '../../core/pipeline/create'
 import {
   type AnyObject,
   type ColumnType,
@@ -12,10 +12,36 @@ import {
   type MiddlewareContext,
   type MiddlewareRender,
 } from '../../types'
-import { createMiddleware } from '../index'
 import ExpandRow from './expand-row'
 
-export type ExpandableConfig<T> = Omit<RawExpandableConfig<T>, 'fixed'> & {
+type TriggerEventHandler<RecordType> = (record: RecordType, event: MouseEvent<HTMLElement>) => void
+interface RenderExpandIconProps<RecordType> {
+  prefixCls: string
+  expanded: boolean
+  record: RecordType
+  expandable: boolean
+  onExpand: TriggerEventHandler<RecordType>
+}
+type RowClassName<RecordType> = (record: RecordType, index: number, indent: number) => string
+type RenderExpandIcon<RecordType> = (props: RenderExpandIconProps<RecordType>) => React.ReactNode
+type ExpandedRowRender<ValueType> = (record: ValueType, index: number, indent: number, expanded: boolean) => ReactNode
+
+export type ExpandableConfig<T> = {
+  expandedRowKeys?: readonly Key[]
+  defaultExpandedRowKeys?: readonly Key[]
+  expandedRowRender?: ExpandedRowRender<T>
+  columnTitle?: React.ReactNode
+  expandRowByClick?: boolean
+  expandIcon?: RenderExpandIcon<T>
+  onExpand?: (expanded: boolean, record: T) => void
+  onExpandedRowsChange?: (expandedKeys: readonly Key[]) => void
+  defaultExpandAllRows?: boolean
+  // indentSize?: number
+  showExpandColumn?: boolean
+  expandedRowClassName?: string | RowClassName<T>
+  childrenColumnName?: string
+  rowExpandable?: (record: T) => boolean
+  columnWidth?: number | string
   fixed?: FixedType
 }
 
@@ -46,7 +72,7 @@ export const tableExpandable = createMiddleware(
       defaultExpandAllRows = false,
 
       // TODO: 未实现
-      indentSize: _indentSize,
+      // indentSize: _indentSize,
 
       showExpandColumn = true,
       expandedRowClassName,

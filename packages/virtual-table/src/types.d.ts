@@ -10,7 +10,7 @@ export type {
   MiddlewareRender,
   MiddlewareRenders,
   MiddlewareResult,
-} from './core/hooks/useTablePipeline'
+} from './core/pipeline/useTablePipeline'
 export type {
   AlignType,
   ColumnExtra,
