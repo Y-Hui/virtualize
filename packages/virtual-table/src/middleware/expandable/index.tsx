@@ -220,6 +220,9 @@ export const tableExpandable = createMiddleware(
               />
             )
           },
+          onHeaderCell() {
+            return { className: 'virtual-table-expand-column' }
+          },
         },
         ...rawColumns,
       ]

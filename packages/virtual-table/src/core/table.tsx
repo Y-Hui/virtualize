@@ -37,6 +37,7 @@ import { type Middleware, TablePipeline } from './hooks/useTablePipeline'
 import TableRoot from './root'
 import { type OnRowType } from './types'
 import { pipelineRender } from './utils/render-pipeline'
+import { isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 export type VirtualTableCoreRef = HTMLTableElement
 
@@ -248,8 +249,8 @@ function VirtualTableCore<T>(
 
   const topBlank = sum(0, startIndex)
   const bottomBlank = sum(endIndex)
-  const hasFixedLeftColumn = columns.some((x) => x.fixed === 'left')
-  const hasFixedRightColumn = columns.some((x) => x.fixed === 'right')
+  const hasFixedLeftColumn = columns.some((x) => isValidFixedLeft(x.fixed))
+  const hasFixedRightColumn = columns.some((x) => isValidFixedRight(x.fixed))
 
   const shared = useMemo(() => {
     return {
