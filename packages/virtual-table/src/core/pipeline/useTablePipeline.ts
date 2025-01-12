@@ -6,7 +6,9 @@ import { type NecessaryProps } from '../internal'
 import { type OnRowType, type PipelineRender } from '../types'
 import { type Hook, shakeUnsafeHooks, TablePipeline } from './table-pipeline'
 
-export interface MiddlewareContext<T> extends NecessaryProps<T> {}
+export interface MiddlewareContext<T> extends NecessaryProps<T> {
+  visibleCount: number
+}
 
 export type MiddlewareRender = PipelineRender
 

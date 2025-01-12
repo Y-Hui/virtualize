@@ -83,41 +83,6 @@ function VirtualTableCore<T>(
     onRow,
   } = props
 
-  const {
-    dataSource,
-    columns,
-    rowKey,
-    rowClassName,
-
-    render,
-    renderRoot,
-    renderContent,
-    renderHeaderWrapper,
-    renderHeaderRoot,
-    renderHeader,
-    renderHeaderRow,
-    renderHeaderCell,
-    renderBodyWrapper,
-    renderBodyRoot,
-    renderBody,
-    renderRow,
-    renderCell,
-
-    onRow: onPipelineRow,
-  } = pipeline.use({
-    dataSource: rawData,
-    rowKey: rawRowKey,
-    columns: rawColumns,
-  })
-
-  const onRowClassName = useCallback((record: T, index: number) => {
-    return clsx(rawRowClassName?.(record, index), rowClassName?.(record, index))
-  }, [rawRowClassName, rowClassName])
-
-  const onRowProps: OnRowType<T> = useCallback((record, index) => {
-    return { ...onRow?.(record, index), ...onPipelineRow?.(record, index) }
-  }, [onPipelineRow, onRow])
-
   const tableNode = useRef<HTMLTableElement>(null)
   const rootNode = useRef<HTMLDivElement>(null)
   const scrollerContainerRef = useRef<HTMLElement | null>(null)
@@ -150,6 +115,42 @@ function VirtualTableCore<T>(
 
   const [startIndex, setStartIndex] = useState(0)
   const [endIndex, setEndIndex] = useState(0)
+
+  const {
+    dataSource,
+    columns,
+    rowKey,
+    rowClassName,
+
+    render,
+    renderRoot,
+    renderContent,
+    renderHeaderWrapper,
+    renderHeaderRoot,
+    renderHeader,
+    renderHeaderRow,
+    renderHeaderCell,
+    renderBodyWrapper,
+    renderBodyRoot,
+    renderBody,
+    renderRow,
+    renderCell,
+
+    onRow: onPipelineRow,
+  } = pipeline.use({
+    dataSource: rawData,
+    rowKey: rawRowKey,
+    columns: rawColumns,
+    visibleCount: endIndex - startIndex,
+  })
+
+  const onRowClassName = useCallback((record: T, index: number) => {
+    return clsx(rawRowClassName?.(record, index), rowClassName?.(record, index))
+  }, [rawRowClassName, rowClassName])
+
+  const onRowProps: OnRowType<T> = useCallback((record, index) => {
+    return { ...onRow?.(record, index), ...onPipelineRow?.(record, index) }
+  }, [onPipelineRow, onRow])
 
   const dataSlice = useMemo(() => {
     return (dataSource ?? []).slice(startIndex, endIndex)

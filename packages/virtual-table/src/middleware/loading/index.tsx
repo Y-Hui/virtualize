@@ -7,10 +7,10 @@ import { type ColumnType, createMiddleware, type MiddlewareContext, type Middlew
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function useTableLoading<T = any>(
   ctx: MiddlewareContext<T>,
-  options?: { loading?: boolean, lines?: number },
+  options?: { loading?: boolean },
 ): MiddlewareResult<T> {
-  const { loading = false, lines = 10 } = options ?? {}
-  const { columns: rawColumns } = ctx
+  const { loading = false } = options ?? {}
+  const { columns: rawColumns, visibleCount: lines } = ctx
 
   const fakeDataSource = useMemo(() => {
     return Array.from({ length: lines }, (_, index) => {
@@ -26,6 +26,9 @@ function useTableLoading<T = any>(
     return rawColumns.map((column): ColumnType<T> => {
       return {
         ...column,
+        onCell() {
+          return { className: 'virtual-table-loading-cell' }
+        },
         render() {
           return <div className="virtual-table-loading-skeleton" />
         },
