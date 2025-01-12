@@ -4,7 +4,7 @@ import { useContainerSize } from '../../core'
 
 export interface EmptyRowProps {
   colSpan: number
-  children?: ReactNode
+  children: ReactNode
 }
 
 const EmptyRow: FC<EmptyRowProps> = (props) => {

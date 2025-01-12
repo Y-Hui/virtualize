@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @eslint-react/no-clone-element */
 import { cloneElement, type ComponentType, createElement, isValidElement, type ReactNode, useCallback, useMemo } from 'react'
 
@@ -5,13 +6,11 @@ import { createMiddleware, type MiddlewareContext, type MiddlewareRender, type M
 import EmptyRow from './empty-row'
 
 export interface EmptyOptions {
-  component?: ComponentType
-  children?: ReactNode
+  children: ReactNode | ComponentType
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function useTableEmpty<T = any>(ctx: MiddlewareContext<T>, args?: EmptyOptions): MiddlewareResult<T> {
-  const { children: emptyNode, component } = args ?? {}
+function useTableEmpty<T = any>(ctx: MiddlewareContext<T>, args: EmptyOptions): MiddlewareResult<T> {
+  const { children: component } = args
   const { dataSource } = ctx
 
   const showEmpty = dataSource == null ? true : dataSource.length === 0
@@ -20,8 +19,8 @@ function useTableEmpty<T = any>(ctx: MiddlewareContext<T>, args?: EmptyOptions):
     if (typeof component === 'function') {
       return createElement(component)
     }
-    return emptyNode
-  }, [component, emptyNode])
+    return component
+  }, [component])
 
   const renderBody: MiddlewareRender = useCallback((children, options) => {
     if (!showEmpty) {
