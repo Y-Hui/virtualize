@@ -1,4 +1,5 @@
 import importPlugin from 'eslint-plugin-import-x'
+
 import bestPractices from './rules/best-practices.mjs'
 import errors from './rules/errors.mjs'
 import es6 from './rules/es6.mjs'

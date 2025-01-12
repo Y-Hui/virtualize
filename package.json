@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "play": "pnpm -C packages/playground dev",
+    "lint": "eslint .",
     "build:demo": "esno ./scripts/build-demo/index.ts"
   },
   "dependencies": {

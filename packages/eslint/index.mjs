@@ -1,14 +1,14 @@
 import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import tseslint from 'typescript-eslint'
-// import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
-
-import reactCompiler from 'eslint-plugin-react-compiler'
-import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import react from '@eslint-react/eslint-plugin'
 import stylistic from '@stylistic/eslint-plugin'
+// import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
+import reactCompiler from 'eslint-plugin-react-compiler'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import simpleImportSort from 'eslint-plugin-simple-import-sort'
+import globals from 'globals'
+import tseslint from 'typescript-eslint'
+
 import airbnb from './airbnb.mjs'
 
 /**
@@ -31,20 +31,23 @@ export default function eslintConfig(...overrides) {
       braceStyle: '1tbs',
     }),
     {
-      files: ['**/*.{ts,tsx,js,jsx}'],
+      files: ['**/*.{js,jsx,mjs,cjs}'],
+      extends: [tseslint.configs.disableTypeChecked],
+    },
+    {
+      files: ['**/*.{ts,tsx,js,jsx,mjs,cjs}'],
       languageOptions: {
         ecmaVersion: 2020,
         globals: globals.browser,
       },
       plugins: {
-        '@typescript-eslint': tseslint.plugin,
         'react-hooks': reactHooks,
         'react-refresh': reactRefresh,
         'simple-import-sort': simpleImportSort,
         'react-compiler': reactCompiler,
       },
       rules: {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
         ...reactHooks.configs.recommended.rules,
         'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
         'simple-import-sort/imports': 'error',

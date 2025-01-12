@@ -21,6 +21,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "allowJs": true,
+    "checkJs": false
   },
-  "include": ["packages/*/src", "scripts/**/*"]
+  "include": ["packages/virtual-table/**/*", "packages/eslint/**/*", "scripts/**/*", "./eslint.config.mjs"],
 }
