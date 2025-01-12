@@ -9,7 +9,8 @@ import {
 
 import { useTableSticky } from './context/sticky'
 import { pipelineRender } from './pipeline/render-pipeline'
-import { type AnyObject, type ColumnType, type PipelineRender } from './types'
+import { type MiddlewareRenderCell } from './pipeline/types'
+import { type AnyObject, type ColumnType } from './types'
 import { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 type NativeProps = DetailedHTMLProps<
@@ -22,7 +23,7 @@ export interface CellProps<T> extends NativeProps {
   columnIndex: number
   rowIndex: number
   rowData: T
-  renderCell?: PipelineRender
+  renderCell?: MiddlewareRenderCell
 }
 
 function getTableCellContent<T extends AnyObject>(

@@ -14,7 +14,7 @@ import {
 import { composeRef } from '../utils/ref'
 import { useHorizontalScrollContext } from './context/horizontal-scroll'
 import { pipelineRender } from './pipeline/render-pipeline'
-import { type PipelineRender } from './types'
+import { type PipelineRender } from './pipeline/types'
 
 export interface TableRootProps {
   className?: string

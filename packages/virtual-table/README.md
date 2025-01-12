@@ -13,10 +13,10 @@
 
 ### Middleware TODO 🚧
 - [ ] useTablePipeline 实现改进，目前版本实现方式有些“脏”
-- [ ] Middleware Render 函数类型改进（使用函数重载）
+- [x] Middleware Render 函数类型改进（使用函数重载）
 - [ ] selection middleware 中 checkStrictly 未实现。
 - [ ] expandable middleware  indentSize、childrenColumnName 未实现
-- [ ] empty middleware 设置 width 为容器宽度
+- [x] empty middleware 设置 width 为容器宽度
 - [x] expandable 支持
 - [x] expandable，展开多个行再收起后，滚动出现闪烁
 - [x] Summary 总结栏 支持
@@ -26,7 +26,7 @@
 - [x] KeyboardFocus 兼容测试
 
 ### GM 定制代码（兼容 antd API）结束后 TODO 🚧
-- [ ] 清理不必要的库（classnames、antd）
+- [x] 清理不必要的库（classnames、antd）
 - [ ] 尝试移除 ahooks
 - [ ] 改进 Summary（antd Summary API 使用不便）
 

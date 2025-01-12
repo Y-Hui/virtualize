@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { isShallowEqual } from '../../utils/equal'
-import { type Middleware, type MiddlewareContext, type MiddlewareResult } from './useTablePipeline'
+import { type Middleware, type MiddlewareContext, type MiddlewareResult } from './types'
 
 /**
  * 创建中间件，内部会浅比较 options，只有 options 改变才会返回新的函数。

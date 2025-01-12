@@ -41,9 +41,4 @@ export {
   VirtualTableCell,
   VirtualTableRow,
 } from './core'
-
-// const VirtualTable = Table as typeof Table & {
-//   Summary: typeof Summary
-// }
-
-// VirtualTable.Summary = Summary
+export type * from './core/pipeline/types'

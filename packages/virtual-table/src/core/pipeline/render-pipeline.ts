@@ -1,16 +1,16 @@
 import { type ReactNode } from 'react'
 
-import { type PipelineRender, type PipelineRenderOptions } from '../types'
+import type { MergedMiddlewareRender } from './types'
 
-function pipelineRender(
+type RenderOptions<T> = T extends ((children: ReactNode, options: infer Opt) => ReactNode) ? Opt : object
+
+export function pipelineRender<T extends MergedMiddlewareRender>(
   node: ReactNode,
-  render: PipelineRender | undefined,
-  options: PipelineRenderOptions,
+  render: T | undefined,
+  options: RenderOptions<T>,
 ): ReactNode {
   if (typeof render === 'function') {
     return render(node, options)
   }
   return node
 }
-
-export { pipelineRender }

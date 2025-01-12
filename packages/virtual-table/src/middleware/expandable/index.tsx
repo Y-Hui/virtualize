@@ -10,7 +10,7 @@ import {
   type FixedType,
   isValidFixed,
   type MiddlewareContext,
-  type MiddlewareRender,
+  type MiddlewareRenderRow,
   type MiddlewareResult,
   type OnRowType, useShallowMemo,
 } from '../../core'
@@ -158,10 +158,10 @@ function useTableExpandable<T = any>(
 
   const isFixed = isValidFixed(fixed)
 
-  const renderRow: MiddlewareRender = useCallback((children, args) => {
+  const renderRow: MiddlewareRenderRow = useCallback((children, args) => {
     const { rowData, rowIndex } = args
 
-    const isExpandable = rowExpandableRecord[rowIndex!]
+    const isExpandable = rowExpandableRecord[rowIndex]
     if (isExpandable) {
       const key = getRowKey(rowData as T, rowKey)
       const isExpanded: boolean | undefined = expansion.includes(key)
@@ -171,7 +171,7 @@ function useTableExpandable<T = any>(
       if (typeof expandedRowClassName === 'string') {
         className = expandedRowClassName
       } else if (typeof expandedRowClassName === 'function') {
-        className = expandedRowClassName(rowData as T, rowIndex!, 0)
+        className = expandedRowClassName(rowData as T, rowIndex, 0)
       }
 
       return (
@@ -180,12 +180,12 @@ function useTableExpandable<T = any>(
           {isRendered && (
             <ExpandRow
               className={className}
-              rowIndex={rowIndex!}
+              rowIndex={rowIndex}
               isExpanded={isExpanded}
-              colSpan={args.columns!.length}
+              colSpan={args.columns.length}
               fixed={isFixed}
             >
-              {expandedRowRender?.(rowData as T, rowIndex!, 0, isExpanded)}
+              {expandedRowRender?.(rowData as T, rowIndex, 0, isExpanded)}
             </ExpandRow>
           )}
         </>

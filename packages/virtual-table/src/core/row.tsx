@@ -11,7 +11,8 @@ import { findLastIndex } from '../utils/find-last-index'
 import Cell from './cell'
 import { useTableShared } from './context/shared'
 import { pipelineRender } from './pipeline/render-pipeline'
-import { type ColumnType, type OnRowType, type PipelineRender } from './types'
+import { type MiddlewareRenderCell, type MiddlewareRenderRow } from './pipeline/types'
+import { type ColumnType, type OnRowType } from './types'
 import { isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 type NativeProps = DetailedHTMLProps<
@@ -24,8 +25,8 @@ export interface RowProps<T> extends NativeProps {
   rowData: T
   columns: ColumnType<T>[]
   onRow?: OnRowType<T>
-  renderRow?: PipelineRender
-  renderCell?: PipelineRender
+  renderRow?: MiddlewareRenderRow
+  renderCell?: MiddlewareRenderCell
 }
 
 function Row<T>(props: RowProps<T>) {

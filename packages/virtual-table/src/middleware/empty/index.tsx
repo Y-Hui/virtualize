@@ -2,7 +2,7 @@
 /* eslint-disable @eslint-react/no-clone-element */
 import { cloneElement, type ComponentType, createElement, isValidElement, type ReactNode, useCallback, useMemo } from 'react'
 
-import { createMiddleware, type MiddlewareContext, type MiddlewareRender, type MiddlewareResult } from '../../core'
+import { createMiddleware, type MiddlewareContext, type MiddlewareRenderBody, type MiddlewareResult } from '../../core'
 import EmptyRow from './empty-row'
 
 export interface EmptyOptions {
@@ -22,7 +22,7 @@ function useTableEmpty<T = any>(ctx: MiddlewareContext<T>, args: EmptyOptions): 
     return component
   }, [component])
 
-  const renderBody: MiddlewareRender = useCallback((children, options) => {
+  const renderBody: MiddlewareRenderBody = useCallback((children, options) => {
     if (!showEmpty) {
       return children
     }
@@ -33,7 +33,7 @@ function useTableEmpty<T = any>(ctx: MiddlewareContext<T>, args: EmptyOptions): 
       const childrenProps = children.props as Record<string, unknown>
       return cloneElement(children, childrenProps, [
         ...(Array.isArray(childrenProps.children) ? childrenProps.children : []),
-        <EmptyRow key="virtual-table-placeholder$" colSpan={columns?.length ?? 0}>{node}</EmptyRow>,
+        <EmptyRow key="virtual-table-placeholder$" colSpan={columns.length}>{node}</EmptyRow>,
       ])
     }
 

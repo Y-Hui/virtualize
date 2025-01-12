@@ -2,16 +2,14 @@ import clsx from 'clsx'
 import { type ReactNode } from 'react'
 
 import { type OnRowType } from '../types'
-import {
-  type Middleware,
-  type MiddlewareContext,
-  type MiddlewareRender,
-  type MiddlewareRenders,
-  type MiddlewareResult,
-} from './useTablePipeline'
+import { type Middleware, type MiddlewareContext, type MiddlewareRenders, type MiddlewareResult } from './types'
 
 export type Hook<T> = { priority: number, hook: Middleware<T> }
 export type UnsafeHook<T> = Middleware<T> | undefined | null | Hook<T>
+
+type RenderFunctions<T> = {
+  [K in keyof T]: (T[K])[]
+}
 
 export function shakeUnsafeHooks<T>(hooks: UnsafeHook<T>[]): Hook<T>[] {
   if (Array.isArray(hooks)) {
@@ -46,7 +44,7 @@ export class TablePipeline<T> {
 
     const context: { current: MiddlewareResult<T> } = { current: options }
 
-    const renderFunctionMap: Record<keyof MiddlewareRenders, MiddlewareRender[]> = {
+    const renderFunctionMap: RenderFunctions<Required<MiddlewareRenders>> = {
       render: [],
       renderRoot: [],
       renderContent: [],
@@ -60,7 +58,7 @@ export class TablePipeline<T> {
       renderBody: [],
       renderRow: [],
       renderCell: [],
-    } as const
+    }
 
     const rowClassNameFunctions: ((record: T, index: number) => string)[] = []
     const onRowFunctions: OnRowType<T>[] = []

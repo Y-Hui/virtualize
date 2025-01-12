@@ -6,8 +6,9 @@ import Colgroup from './colgroup'
 import { useHorizontalScrollContext } from './context/horizontal-scroll'
 import { type NecessaryProps } from './internal'
 import { pipelineRender } from './pipeline/render-pipeline'
+import { type MiddlewareRenderBody, type MiddlewareRenderBodyRoot, type MiddlewareRenderBodyWrapper } from './pipeline/types'
 import Row, { type RowProps } from './row'
-import { type AnyObject, type PipelineRender } from './types'
+import { type AnyObject } from './types'
 
 export interface TableBodyProps<T>
   extends NecessaryProps<T>,
@@ -18,9 +19,9 @@ export interface TableBodyProps<T>
   wrapperRef?: Ref<HTMLDivElement>
   tableRef?: Ref<HTMLTableElement>
   rowClassName?: (record: T, index: number) => string
-  renderBodyWrapper?: PipelineRender
-  renderBodyRoot?: PipelineRender
-  renderBody?: PipelineRender
+  renderBodyWrapper?: MiddlewareRenderBodyWrapper
+  renderBodyRoot?: MiddlewareRenderBodyRoot
+  renderBody?: MiddlewareRenderBody
 }
 
 function TableBody<T>(props: TableBodyProps<T>) {

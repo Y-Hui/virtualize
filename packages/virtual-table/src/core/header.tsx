@@ -17,7 +17,8 @@ import { useHorizontalScrollContext } from './context/horizontal-scroll'
 import { useTableSticky } from './context/sticky'
 import { useTableColumns } from './context/table-columns'
 import { pipelineRender } from './pipeline/render-pipeline'
-import { type ColumnType, type PipelineRender } from './types'
+import { type MiddlewareRenderHeader, type MiddlewareRenderHeaderCell, type MiddlewareRenderHeaderRoot, type MiddlewareRenderHeaderRow, type MiddlewareRenderHeaderWrapper } from './pipeline/types'
+import { type ColumnType } from './types'
 import { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 export interface TableHeaderProps {
@@ -32,11 +33,11 @@ export interface TableHeaderProps {
   /** 开启表头 sticky，设置为 true 则默认 top 为 0，为 number 则是偏移量 */
   stickyHeader?: number | boolean
 
-  renderHeaderWrapper?: PipelineRender
-  renderHeaderRoot?: PipelineRender
-  renderHeader?: PipelineRender
-  renderHeaderRow?: PipelineRender
-  renderHeaderCell?: PipelineRender
+  renderHeaderWrapper?: MiddlewareRenderHeaderWrapper
+  renderHeaderRoot?: MiddlewareRenderHeaderRoot
+  renderHeader?: MiddlewareRenderHeader
+  renderHeaderRow?: MiddlewareRenderHeaderRow
+  renderHeaderCell?: MiddlewareRenderHeaderCell
 }
 
 const TableHeader: FC<TableHeaderProps> = (props) => {

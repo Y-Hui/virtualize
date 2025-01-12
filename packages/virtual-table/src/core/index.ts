@@ -14,12 +14,28 @@ export { useTableColumns } from './context/table-columns'
 export { useEvent } from './hooks/useEvent'
 export { useShallowMemo } from './hooks/useShallowMemo'
 export { createMiddleware } from './pipeline/create-middleware'
-export type { UseTablePipelineOptions } from './pipeline/useTablePipeline'
 export type {
   Middleware,
   MiddlewareContext,
   MiddlewareRender,
+  MiddlewareRenderBody,
+  MiddlewareRenderBodyRoot,
+  MiddlewareRenderBodyWrapper,
+  MiddlewareRenderCell,
+  MiddlewareRenderContent,
+  MiddlewareRenderHeader,
+  MiddlewareRenderHeaderCell,
+  MiddlewareRenderHeaderRoot,
+  MiddlewareRenderHeaderRow,
+  MiddlewareRenderHeaderWrapper,
+  MiddlewareRenderRoot,
+  MiddlewareRenderRow,
   MiddlewareResult,
+  PipelineRender,
+  PipelineRenderOptions,
+} from './pipeline/types'
+export type { UseTablePipelineOptions } from './pipeline/useTablePipeline'
+export type {
   TablePipeline,
 } from './pipeline/useTablePipeline'
 export { useTablePipeline } from './pipeline/useTablePipeline'
@@ -34,8 +50,6 @@ export type {
   ColumnType,
   FixedType,
   OnRowType,
-  PipelineRender,
-  PipelineRenderOptions,
   SizeType,
 } from './types'
 export { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verification'

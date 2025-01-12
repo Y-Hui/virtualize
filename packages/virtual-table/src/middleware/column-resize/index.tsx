@@ -4,7 +4,7 @@ import 'react-resizable/css/styles.css'
 import { isValidElement, useCallback, useMemo, useState } from 'react'
 import { Resizable } from 'react-resizable'
 
-import { createMiddleware, type MiddlewareContext, type MiddlewareRender, type MiddlewareResult } from '../../core'
+import { createMiddleware, type MiddlewareContext, type MiddlewareRenderHeaderCell, type MiddlewareResult } from '../../core'
 import { __DEV__ } from '../../utils/dev'
 
 declare module '../../core' {
@@ -74,16 +74,16 @@ function useColumnResize<T = any>(
     })
   }, [storageKey])
 
-  const renderHeaderCell: MiddlewareRender = useCallback((children, options) => {
+  const renderHeaderCell: MiddlewareRenderHeaderCell = useCallback((children, options) => {
     const { column, columnIndex = 0, columnWidthList = [] } = options
 
-    if (column?.disableResize) {
+    if (column.disableResize) {
       return children
     }
 
-    const key = 'key' in column! ? (column.key as string) : (column!.dataIndex as string)
+    const key = 'key' in column ? (column.key as string) : (column.dataIndex as string)
 
-    let width = column?.width
+    let { width } = column
 
     if (typeof width === 'string') {
       width = columnWidthList[columnIndex]
