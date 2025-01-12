@@ -9,6 +9,7 @@ import {
 
 import { type FixedType } from './utils/verification'
 
+export type AnyObject = Record<string, any>
 export type OnRowType<T = any> = (
   record: T,
   index: number,

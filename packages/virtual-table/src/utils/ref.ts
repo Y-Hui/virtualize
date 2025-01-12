@@ -12,7 +12,7 @@ export const fillRef = <T>(ref: Ref<T>, node: T) => {
 /**
  * Merge refs into one ref function to support ref passing.
  */
-export const composeRef = <T>(...refs: (Ref<T> | void)[]): Ref<T> => {
+export const composeRef = <T>(...refs: (Ref<T> | undefined | null)[]): Ref<T> => {
   const refList = refs.filter(Boolean) as Ref<T>[]
   if (refList.length <= 1) {
     return refList[0]

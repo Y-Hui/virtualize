@@ -1,14 +1,13 @@
 import clsx from 'clsx'
 import { type CSSProperties, type Ref } from 'react'
 
-import { type AnyObject } from '../types'
 import { composeRef } from '../utils/ref'
 import Colgroup from './colgroup'
 import { useHorizontalScrollContext } from './context/horizontal-scroll'
 import { type NecessaryProps } from './internal'
 import { pipelineRender } from './pipeline/render-pipeline'
 import Row, { type RowProps } from './row'
-import { type PipelineRender } from './types'
+import { type AnyObject, type PipelineRender } from './types'
 
 export interface TableBodyProps<T>
   extends NecessaryProps<T>,

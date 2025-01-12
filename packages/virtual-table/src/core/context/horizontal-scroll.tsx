@@ -8,6 +8,7 @@ import {
 } from 'react'
 
 import { __DEV__ } from '../../utils/dev'
+import { get } from '../utils/get'
 
 export interface HorizontalScrollContextState {
   getElements: () => HTMLElement[]
@@ -41,7 +42,7 @@ export function HorizontalScrollContext(props: PropsWithChildren) {
         })
         return () => {
           setElements((prevState) => {
-            if (prevState[key] != null) {
+            if (get(prevState, key) != null) {
               const result = { ...prevState }
               delete result[key]
               return result
@@ -52,7 +53,7 @@ export function HorizontalScrollContext(props: PropsWithChildren) {
       },
       removeShouldSyncElement(key) {
         setElements((prevState) => {
-          if (prevState[key] != null) {
+          if (get(prevState, key) != null) {
             const result = { ...prevState }
             delete result[key]
             return result
@@ -90,7 +91,7 @@ export function HorizontalScrollContext(props: PropsWithChildren) {
         updateScrollLeft(target, scrollLeft)
       }
 
-      const rAF = window.requestAnimationFrame
+      const rAF = window.requestAnimationFrame as typeof window.requestAnimationFrame | undefined
       if (rAF != null) {
         rAF(sync)
       } else {

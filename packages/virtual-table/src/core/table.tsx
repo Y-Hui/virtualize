@@ -152,7 +152,7 @@ function VirtualTableCore<T>(
   const [endIndex, setEndIndex] = useState(0)
 
   const dataSlice = useMemo(() => {
-    return (dataSource ?? [])?.slice(startIndex, endIndex)
+    return (dataSource ?? []).slice(startIndex, endIndex)
   }, [dataSource, startIndex, endIndex])
 
   const hasData = dataSource == null ? false : dataSource.length > 0

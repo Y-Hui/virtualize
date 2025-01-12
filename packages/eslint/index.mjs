@@ -4,7 +4,7 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 // import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
-// eslint-disable-next-line import/no-named-as-default, import/no-named-as-default-member
+
 import reactCompiler from 'eslint-plugin-react-compiler'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import react from '@eslint-react/eslint-plugin'
@@ -17,6 +17,9 @@ import airbnb from './airbnb.mjs'
 export default function eslintConfig(...overrides) {
   return tseslint.config(
     { ignores: ['**/dist/**/*', '**/node_modules/', '.git/', '**/*.svg'] },
+    js.configs.recommended,
+    tseslint.configs.strictTypeChecked,
+    tseslint.configs.stylisticTypeChecked,
     airbnb,
     react.configs.all,
     stylistic.configs.customize({
@@ -28,10 +31,8 @@ export default function eslintConfig(...overrides) {
       braceStyle: '1tbs',
     }),
     {
-      extends: [js.configs.recommended, ...tseslint.configs.recommended],
       files: ['**/*.{ts,tsx,js,jsx}'],
       languageOptions: {
-        parser: tseslint.parser,
         ecmaVersion: 2020,
         globals: globals.browser,
       },
@@ -41,15 +42,18 @@ export default function eslintConfig(...overrides) {
         'react-refresh': reactRefresh,
         'simple-import-sort': simpleImportSort,
         'react-compiler': reactCompiler,
-        // '@stylistic': stylistic,
       },
       rules: {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         ...reactHooks.configs.recommended.rules,
         'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
         'simple-import-sort/imports': 'error',
         'simple-import-sort/exports': 'error',
         'react-compiler/react-compiler': 'error',
-
+      },
+    },
+    {
+      rules: {
         'no-unused-vars': 'off',
         '@typescript-eslint/no-unused-vars': [
           1,
@@ -93,17 +97,6 @@ export default function eslintConfig(...overrides) {
             allowInterfaces: 'always',
           },
         ],
-      },
-    },
-    {
-      files: ['**/*.{ts,tsx,js,jsx}'],
-      languageOptions: {
-        parser: tseslint.parser,
-      },
-      plugins: {
-        '@typescript-eslint': tseslint.plugin,
-      },
-      rules: {
         '@eslint-react/naming-convention/filename-extension': [
           'warn',
           { allow: 'always', extensions: ['.js', '.jsx', '.ts', '.tsx', '.d.ts'] },
@@ -111,17 +104,33 @@ export default function eslintConfig(...overrides) {
         '@eslint-react/naming-convention/filename': 'off',
         '@eslint-react/prefer-destructuring-assignment': 'error',
         'no-underscore-dangle': 'off',
-        'camelcase': 'off',
-        'comma-dangle': ['error', 'only-multiline'],
         '@eslint-react/avoid-shorthand-fragment': 'off',
         '@eslint-react/avoid-shorthand-boolean': 'off',
         '@eslint-react/naming-convention-use-state': 'off',
         'import/prefer-default-export': 'off',
         'react-refresh/only-export-components': 'off',
         '@eslint-react/hooks-extra/ensure-use-memo-has-non-empty-deps': 'off',
+        'consistent-return': 'off',
+        'jsx-a11y/no-static-element-interactions': 'off',
+        'jsx-a11y/click-events-have-key-events': 'off',
+        '@typescript-eslint/no-non-null-assertion': 'warn',
+        'import/no-absolute-path': 'off',
+        '@typescript-eslint/restrict-template-expressions': ['error', {
+          allowAny: true,
+          allowNumber: true,
+          allowBoolean: true,
+        }],
+        '@typescript-eslint/no-misused-promises': 'off',
+        '@typescript-eslint/no-floating-promises': 'off',
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-dynamic-delete': 'off',
+        '@typescript-eslint/consistent-type-definitions': 'off',
+        '@typescript-eslint/no-unnecessary-type-parameters': 'off',
+        '@eslint-react/hooks-extra/no-unnecessary-use-memo': 'off',
+        '@typescript-eslint/no-confusing-void-expression': 'off',
+        '@typescript-eslint/no-unsafe-argument': 'warn',
       },
     },
-    // eslintPluginPrettierRecommended,
     ...overrides,
   )
 }

@@ -22,7 +22,7 @@ export function useRowRectManager(options: UseRowRectManagerOptions) {
 
   const calc = () => {
     for (let i = 0; i < itemCount; i += 1) {
-      const target = rowHeightList.current[i]
+      const target = rowHeightList.current[i] as number | undefined
       if (target == null) {
         rowHeightList.current[i] = estimatedRowHeight
       }

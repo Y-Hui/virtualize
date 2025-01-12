@@ -21,7 +21,7 @@ export function shakeUnsafeHooks<T>(hooks: UnsafeHook<T>[]): Hook<T>[] {
       if (typeof hook === 'function') {
         return { priority: 100, hook }
       }
-      return hook as Hook<T>
+      return hook!
     })
   }
   return []
@@ -38,7 +38,7 @@ export class TablePipeline<T> {
     this.hooks = value
   }
 
-  // eslint-disable-next-line @eslint-react/hooks-extra/ensure-custom-hooks-using-other-hooks
+  // eslint-disable-next-line @eslint-react/hooks-extra/no-useless-custom-hooks
   use(options: MiddlewareContext<T>): MiddlewareResult<T> {
     if (this.hooks.length === 0) {
       return options

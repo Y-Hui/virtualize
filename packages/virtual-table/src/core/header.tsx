@@ -78,7 +78,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
           className: thClassName,
           style: thStyle,
           ...rest
-        } = column.onHeaderCell?.(column, index) || {}
+        } = column.onHeaderCell?.(column, index) ?? {}
 
         return (
           <Fragment key={typeof key === 'symbol' ? index : key}>
@@ -108,7 +108,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
                 },
                 column.title,
               ),
-              renderHeaderCell || undefined,
+              renderHeaderCell,
               { column, columns, columnIndex: index, columnWidthList: widthList },
             )}
           </Fragment>

@@ -2,6 +2,7 @@
 import clsx from 'clsx'
 import {
   type CSSProperties,
+  type ForwardedRef,
   forwardRef,
   type ReactNode,
   useEffect,
@@ -24,70 +25,68 @@ export interface TableRootProps {
   renderRoot?: PipelineRender
 }
 
-const TableRoot = forwardRef<HTMLDivElement, TableRootProps>(
-  function TableRoot(props, ref) {
-    const {
-      className,
-      style,
-      children,
-      hasFixedLeftColumn,
-      hasFixedRightColumn,
-      renderRoot,
-    } = props
+function TableRoot(props: TableRootProps, ref: ForwardedRef<HTMLDivElement>) {
+  const {
+    className,
+    style,
+    children,
+    hasFixedLeftColumn,
+    hasFixedRightColumn,
+    renderRoot,
+  } = props
 
-    const rootNode = useRef<HTMLDivElement>(null)
+  const rootNode = useRef<HTMLDivElement>(null)
 
-    const [hasFixedLeft, setHasFixedLeft] = useState(false)
-    const [hasFixedRight, setHasFixedRight] = useState(false)
+  const [hasFixedLeft, setHasFixedLeft] = useState(false)
+  const [hasFixedRight, setHasFixedRight] = useState(false)
 
-    const { getElements } = useHorizontalScrollContext()
+  const { getElements } = useHorizontalScrollContext()
 
-    const elements = useMemo(() => getElements(), [getElements])
+  const elements = useMemo(() => getElements(), [getElements])
 
-    useEffect(() => {
-      const onCheckHasFixedEdge = () => {
-        const scrollElement = elements.find((x) => x != null)
-        if (scrollElement == null) return
-        const { scrollLeft, clientWidth, scrollWidth } = scrollElement
-        if (hasFixedLeftColumn) {
-          setHasFixedLeft(scrollLeft !== 0)
-        }
-        if (hasFixedRightColumn) {
-          setHasFixedRight(!(scrollLeft + clientWidth >= scrollWidth))
-        }
+  useEffect(() => {
+    const onCheckHasFixedEdge = () => {
+      const scrollElement = elements[0] as HTMLElement | undefined
+      if (scrollElement == null) return
+      const { scrollLeft, clientWidth, scrollWidth } = scrollElement
+      if (hasFixedLeftColumn) {
+        setHasFixedLeft(scrollLeft !== 0)
       }
+      if (hasFixedRightColumn) {
+        setHasFixedRight(!(scrollLeft + clientWidth >= scrollWidth))
+      }
+    }
 
-      onCheckHasFixedEdge()
+    onCheckHasFixedEdge()
 
+    elements.forEach((node) => {
+      node.addEventListener('scroll', onCheckHasFixedEdge)
+    })
+
+    return () => {
       elements.forEach((node) => {
-        node.addEventListener('scroll', onCheckHasFixedEdge)
+        node.removeEventListener('scroll', onCheckHasFixedEdge)
       })
+    }
+  }, [elements, hasFixedLeftColumn, hasFixedRightColumn])
 
-      return () => {
-        elements.forEach((node) => {
-          node.removeEventListener('scroll', onCheckHasFixedEdge)
-        })
-      }
-    }, [elements, hasFixedLeftColumn, hasFixedRightColumn])
+  return pipelineRender(
+    <div
+      // eslint-disable-next-line react-compiler/react-compiler
+      ref={composeRef(ref, rootNode)}
+      className={clsx(
+        'virtual-table',
+        hasFixedLeft && 'virtual-table-has-fix-left',
+        hasFixedRight && 'virtual-table-has-fix-right',
+        className,
+      )}
+      style={style}
+    >
+      {children}
+    </div>,
+    renderRoot,
+    {},
+  )
+}
 
-    return pipelineRender(
-      <div
-        // eslint-disable-next-line react-compiler/react-compiler
-        ref={composeRef(ref, rootNode)}
-        className={clsx(
-          'virtual-table',
-          hasFixedLeft && 'virtual-table-has-fix-left',
-          hasFixedRight && 'virtual-table-has-fix-right',
-          className,
-        )}
-        style={style}
-      >
-        {children}
-      </div>,
-      renderRoot,
-      {},
-    )
-  },
-)
-
-export default TableRoot
+export default forwardRef(TableRoot)

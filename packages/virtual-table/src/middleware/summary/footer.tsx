@@ -1,8 +1,7 @@
 import clsx from 'clsx'
 import { type FC, type Key, type ReactNode, useState } from 'react'
 
-import { useHorizontalScrollContext } from '../../core'
-import { type ColumnType } from '../../types'
+import { type ColumnType, useHorizontalScrollContext } from '../../core'
 import { getScrollbarSize } from '../horizontal-scroll-bar/getScrollbarSize'
 
 export interface FooterProps {

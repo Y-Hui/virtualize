@@ -13,6 +13,7 @@ export type { TableColumnsContextType } from './context/table-columns'
 export { useTableColumns } from './context/table-columns'
 export { useEvent } from './hooks/useEvent'
 export { useShallowMemo } from './hooks/useShallowMemo'
+export { createMiddleware } from './pipeline/create-middleware'
 export type { UseTablePipelineOptions } from './pipeline/useTablePipeline'
 export type {
   Middleware,
@@ -24,10 +25,11 @@ export type {
 export { useTablePipeline } from './pipeline/useTablePipeline'
 export type { RowProps as VirtualTableRowProps } from './row'
 export { default as VirtualTableRow } from './row'
-export type { VirtualTableCoreProps as VirtualTableProps } from './table'
+export type { VirtualTableCoreProps as VirtualTableProps, VirtualTableCoreRef as VirtualTableRef } from './table'
 export { default as VirtualTable } from './table'
 export type {
   AlignType,
+  AnyObject,
   ColumnExtra,
   ColumnType,
   FixedType,

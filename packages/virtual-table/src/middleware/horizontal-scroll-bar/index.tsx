@@ -1,11 +1,8 @@
-/* eslint-disable @eslint-react/hooks-extra/ensure-custom-hooks-using-other-hooks */
-import { createMiddleware } from '../../core/pipeline/create'
-import { type MiddlewareContext } from '../../types'
+import { createMiddleware, type MiddlewareContext, type MiddlewareResult } from '../../core'
 import ScrollBar from './scroll-bar'
 
-export const horizontalScrollBar = createMiddleware(function useHorizontalScrollBar<T>(
-  ctx: MiddlewareContext<T>,
-) {
+// eslint-disable-next-line @eslint-react/hooks-extra/no-useless-custom-hooks, @typescript-eslint/no-explicit-any
+function useHorizontalScrollBar<T = any>(ctx: MiddlewareContext<T>): MiddlewareResult<T> {
   return {
     ...ctx,
     renderContent(children) {
@@ -17,4 +14,6 @@ export const horizontalScrollBar = createMiddleware(function useHorizontalScroll
       )
     },
   }
-})
+}
+
+export const horizontalScrollBar = createMiddleware(useHorizontalScrollBar)

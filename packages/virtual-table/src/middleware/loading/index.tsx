@@ -2,14 +2,14 @@ import './index.scss'
 
 import { useMemo } from 'react'
 
-import { createMiddleware } from '../../core/pipeline/create'
-import { type ColumnType, type MiddlewareContext } from '../../types'
+import { type ColumnType, createMiddleware, type MiddlewareContext, type MiddlewareResult } from '../../core'
 
-export const tableLoading = createMiddleware(function useTableLoading<T>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function useTableLoading<T = any>(
   ctx: MiddlewareContext<T>,
-  options: { loading?: boolean, lines?: number },
-) {
-  const { loading = false, lines = 10 } = options || {}
+  options?: { loading?: boolean, lines?: number },
+): MiddlewareResult<T> {
+  const { loading = false, lines = 10 } = options ?? {}
   const { columns: rawColumns } = ctx
 
   const fakeDataSource = useMemo(() => {
@@ -43,4 +43,6 @@ export const tableLoading = createMiddleware(function useTableLoading<T>(
     rowKey: 'key',
     dataSource: fakeDataSource,
   }
-})
+}
+
+export const tableLoading = createMiddleware(useTableLoading)

@@ -124,7 +124,7 @@ export function useTablePipeline<T = any>(options: UseTablePipelineOptions<T>) {
   if (use != null) {
     const nextHooks = shakeUnsafeHooks([...use, ...(extraPipeline?.hooks ?? [])])
 
-    if (!shallowEqualArrays(cached.current?.hooks, nextHooks)) {
+    if (!shallowEqualArrays(cached.current.hooks, nextHooks)) {
       const pipeline = new TablePipeline<T>()
       pipeline.setHooks(nextHooks)
       cached.current = pipeline

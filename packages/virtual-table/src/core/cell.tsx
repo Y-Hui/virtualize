@@ -7,10 +7,9 @@ import {
   type ReactElement,
 } from 'react'
 
-import { type AnyObject } from '../types'
 import { useTableSticky } from './context/sticky'
 import { pipelineRender } from './pipeline/render-pipeline'
-import { type ColumnType, type PipelineRender } from './types'
+import { type AnyObject, type ColumnType, type PipelineRender } from './types'
 import { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 type NativeProps = DetailedHTMLProps<
@@ -30,7 +29,7 @@ function getTableCellContent<T extends AnyObject>(
   index: number,
   data: T,
   column: ColumnType<any>,
-) {
+): any {
   const { render } = column
   const rowData = data as AnyObject
   if ('dataIndex' in column) {
@@ -38,7 +37,7 @@ function getTableCellContent<T extends AnyObject>(
     if (typeof render !== 'function') {
       return rowData[dataIndex]
     }
-    return render(dataIndex == null ? data : rowData[dataIndex], data, index)
+    return render(rowData[dataIndex], data, index)
   }
   return render?.(data, data, index) ?? null
 }
@@ -65,7 +64,7 @@ function Cell<T>(props: CellProps<T>) {
     colSpan,
     rowSpan,
     ...extraProps
-  } = onCell?.(rowData, rowIndex) || {}
+  } = onCell?.(rowData, rowIndex) ?? {}
 
   if (colSpan === 0 || rowSpan === 0) {
     return null

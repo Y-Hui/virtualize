@@ -54,13 +54,13 @@ export function TableColumnsContext(
 
   const stickySizes = useShallowMemo(() => {
     let left = 0
-    const leftOffset = columnsFixedRecord.reduce((res, fixed, index) => {
+    const leftOffset = columnsFixedRecord.reduce<number[]>((res, fixed, index) => {
       if (isValidFixedLeft(fixed)) {
         res[index] = left
         left += widthList[index] ?? 0
       }
       return res
-    }, [] as number[])
+    }, [])
 
     let right = 0
     const rightOffset = columnsFixedRecord.reduceRight((res, fixed, index) => {
@@ -86,11 +86,11 @@ export function TableColumnsContext(
     return { size: stickySizes, fixed: columnsFixedRecord }
   }, [columnsFixedRecord, stickySizes])
 
-  const context = useMemo(() => {
+  const context = useMemo<TableColumnsContextType>(() => {
     return {
       widthList,
-      setWidthList: updateWidthList, // updateWidthList 函数没有使用任何 state，可以在 deps 中忽略（这是安全的）
-    } satisfies TableColumnsContextType
+      setWidthList: updateWidthList,
+    }
   }, [widthList])
 
   return (

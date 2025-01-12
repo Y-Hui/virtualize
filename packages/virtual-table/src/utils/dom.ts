@@ -16,7 +16,7 @@ export function getScrollParent(
 ): ScrollElement {
   let node = el
 
-  while (node && node !== root && isElement(node)) {
+  while (node !== root && isElement(node)) {
     if (node === document.body) {
       return root as HTMLElement
     }
@@ -26,7 +26,7 @@ export function getScrollParent(
     }
     node = node.parentNode as Element
   }
-  return el.ownerDocument.defaultView || window
+  return el.ownerDocument.defaultView ?? window
 }
 
 export function isWindow(arg: unknown): arg is Window {

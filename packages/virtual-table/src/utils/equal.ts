@@ -76,7 +76,10 @@ export function isShallowEqual(value: unknown, oldValue: unknown) {
             return shallowEqualArrays(state, oldValue[index] as unknown[])
           }
           if (typeof state === 'object' && state != null) {
-            return shallowEqualObjects(state, oldValue[index] as Record<string, unknown>)
+            return shallowEqualObjects(
+              state as Record<string, unknown>,
+              oldValue[index] as Record<string, unknown>,
+            )
           }
           return Object.is(state, oldValue[index])
         })

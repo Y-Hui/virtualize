@@ -21,7 +21,8 @@ export default {
     // 'brace-style': ['error', '1tbs', { allowSingleLine: true }],
 
     // require camel case names
-    'camelcase': ['error', { properties: 'never', ignoreDestructuring: false }],
+    // 'camelcase': ['error', { properties: 'never', ignoreDestructuring: false }],
+    'camelcase': 'off',
 
     // enforce or disallow capitalization of the first letter of a comment
     // https://eslint.org/docs/rules/capitalized-comments
@@ -43,16 +44,7 @@ export default {
     ],
 
     // require trailing commas in multiline object literals
-    'comma-dangle': [
-      'error',
-      {
-        arrays: 'always-multiline',
-        objects: 'always-multiline',
-        imports: 'always-multiline',
-        exports: 'always-multiline',
-        functions: 'always-multiline',
-      },
-    ],
+    'comma-dangle': ['error', 'only-multiline'],
 
     // enforce spacing before and after comma
     'comma-spacing': ['error', { before: false, after: true }],
@@ -243,7 +235,7 @@ export default {
     // https://eslint.org/docs/rules/max-len
     'max-len': [
       'error',
-      100,
+      150,
       2,
       {
         ignoreUrls: true,

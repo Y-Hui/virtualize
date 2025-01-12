@@ -2,12 +2,12 @@ import clsx from 'clsx'
 import { type DetailedHTMLProps, type HTMLAttributes, memo, useMemo } from 'react'
 
 import {
+  type ColumnType,
   isValidFixed,
   isValidFixedLeft,
   isValidFixedRight,
   useTableSticky,
 } from '../../core'
-import { type ColumnType } from '../../types'
 import { findLastIndex } from '../../utils/find-last-index'
 
 type NativeProps = DetailedHTMLProps<
