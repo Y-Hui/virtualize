@@ -1,9 +1,11 @@
+import type { ColumnType } from '@/components/table'
+import type { MockData } from '@/utils/mock'
+import type { FC } from 'react'
+import VirtualTable from '@/components/table'
+import { useAsyncData } from '@/utils/mock'
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons'
 import { Button, Input, InputNumber, Space, Switch } from 'antd'
-import { type FC, useMemo, useState } from 'react'
-import VirtualTable, { type ColumnType } from 'virtual-table'
-
-import { type MockData, useAsyncData } from '@/utils/mock'
+import { useMemo, useState } from 'react'
 
 const SelectionDemo: FC = () => {
   const [data, setData] = useAsyncData()
@@ -35,7 +37,6 @@ const SelectionDemo: FC = () => {
                 size="small"
                 shape="circle"
                 color="primary"
-                // @ts-ignore
                 variant="outlined"
                 onClick={() => {
                   setData((prevState) => {
@@ -184,30 +185,24 @@ const SelectionDemo: FC = () => {
         <Switch value={isRadio} onChange={setIsRadio} />
         &nbsp;单选模式
       </div>
-      <div
-        style={{
-          boxSizing: 'border-box',
-          height: 500,
-          border: '1px solid #f00',
-          overflow: 'auto',
-          overscrollBehavior: 'contain',
+      <VirtualTable
+        rowKey="key"
+        dataSource={data}
+        columns={columns}
+        estimatedRowHeight={49}
+        sticky
+        rowSelection={{
+          selections: true,
+          disableResize: true,
+          type: isRadio ? 'radio' : 'checkbox',
+          onChange(selectedRowKeys, selectedRows, info) {
+            console.log({ selectedRowKeys, selectedRows, info })
+          },
         }}
-      >
-        <VirtualTable
-          rowKey="key"
-          dataSource={data}
-          columns={columns}
-          estimatedRowHeight={49}
-          sticky
-          rowSelection={{
-            selections: true,
-            type: isRadio ? 'radio' : 'checkbox',
-            onChange(selectedRowKeys, selectedRows, info) {
-              console.log({ selectedRowKeys, selectedRows, info })
-            },
-          }}
-        />
-      </div>
+        onChange={(e) => {
+          console.log(e)
+        }}
+      />
     </div>
   )
 }

@@ -1,4 +1,5 @@
-import { type FC, Suspense } from 'react'
+import type { FC } from 'react'
+import { Suspense } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 
 const menus = [

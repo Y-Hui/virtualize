@@ -1,0 +1,18 @@
+.virtual-table-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 8px;
+  margin: 16px 0;
+
+  &-left {
+    justify-content: flex-start;
+  }
+
+  &-center {
+    justify-content: center;
+  }
+
+  &-right {
+    justify-content: flex-end;
+  }
+}

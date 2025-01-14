@@ -61,31 +61,6 @@ export type MergedMiddlewareRender = MiddlewareRender
   | MiddlewareRenderRow
   | MiddlewareRenderCell
 
-// Context
-// └── render(<TableRoot />)
-//     │
-//     └── renderRoot(<TableRoot />) div.virtual-table
-//         │
-//         └── renderContent()
-//             │
-//             ├── renderHeaderWrapper(<TableHeader />) div.virtual-table-header
-//             │   │
-//             │   └── renderHeaderRoot(<table />)
-//             │       ├── colgroup
-//             │       │
-//             │       └── renderHeader(<thead />)
-//             │           └── renderHeaderRow(<tr />)
-//             │               └── renderHeaderCell(<th />)
-//             │
-//             └── renderBodyWrapper(<TableBody />) div.virtual-table-body-wrapper
-//                 │
-//                 └── renderBodyRoot(table.virtual-table-body)
-//                     ├── colgroup
-//                     │
-//                     └── renderBody(<tbody />)
-//                         └── renderRow(<tr />)
-//                             └── renderCell(<td />)
-//
 export interface MiddlewareRenders {
   /**
    * 自定义最外层渲染，children 为 整个 VirtualTable。

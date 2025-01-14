@@ -37,7 +37,7 @@
 Context
 └── render(<TableRoot />)
     │
-    └── renderRoot(<TableRoot />) div.virtual-table
+    └── renderRoot(div.virtual-table)
         │
         └── renderContent()
             │

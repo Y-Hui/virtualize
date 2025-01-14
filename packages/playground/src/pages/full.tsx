@@ -1,13 +1,50 @@
-import { MinusOutlined, PlusOutlined } from '@ant-design/icons'
-import { Button, Input, InputNumber, Radio, Space, Switch } from 'antd'
-import { type FC, useCallback, useMemo, useState } from 'react'
-import VirtualTable, {
-  type ColumnType,
-  type ExpandableConfig,
-  type TableRowSelection,
-} from 'virtual-table'
+import 'virtual-table/src/styles/table.scss'
 
-import { type MockData, useAsyncData } from '@/utils/mock'
+import type { MockData } from '@/utils/mock'
+import type { FC } from 'react'
+import type { ColumnType } from 'virtual-table'
+import type { SelectionProps } from 'virtual-table/src/middleware/selection'
+import { useAsyncData } from '@/utils/mock'
+import { MinusOutlined, PlusOutlined } from '@ant-design/icons'
+import { Button, Checkbox, Empty, Input, InputNumber, Radio, Space, Switch } from 'antd'
+import { useMemo, useState } from 'react'
+import { useTablePipeline, VirtualTable } from 'virtual-table'
+import { columnResize } from 'virtual-table/src/middleware/column-resize'
+import { tableEmpty } from 'virtual-table/src/middleware/empty'
+import { tableExpandable } from 'virtual-table/src/middleware/expandable'
+import { horizontalScrollBar } from 'virtual-table/src/middleware/horizontal-scroll-bar'
+import { tableLoading } from 'virtual-table/src/middleware/loading'
+import { tableSelection } from 'virtual-table/src/middleware/selection'
+import { Summary, tableSummary } from 'virtual-table/src/middleware/summary'
+
+function _SelectionImpl(props: SelectionProps & { foo?: number }) {
+  const {
+    multiple,
+    value,
+    onChange,
+    indeterminate,
+    disabled,
+  } = props
+
+  if (!multiple) {
+    return (
+      <Radio
+        checked={value}
+        disabled={disabled}
+        onChange={(e) => onChange?.(e.target.checked, e.nativeEvent)}
+      />
+    )
+  }
+
+  return (
+    <Checkbox
+      checked={value}
+      indeterminate={indeterminate}
+      disabled={disabled}
+      onChange={(e) => onChange?.(e.target.checked, e.nativeEvent)}
+    />
+  )
+}
 
 const FullDemo: FC = () => {
   const [summaryPosition, setSummaryPosition] = useState<'bottom' | 'top'>('bottom')
@@ -17,16 +54,20 @@ const FullDemo: FC = () => {
 
   const [data, setData] = useAsyncData()
 
-  const selection = useMemo((): TableRowSelection<MockData> => {
-    return {
+  const selection = useMemo(() => {
+    return tableSelection<MockData>({
+      // component: SelectionImpl,
+      onSelect(record, selected, selectedRows, nativeEvent) {
+        console.log({ record, selected, selectedRows, nativeEvent })
+      },
       onChange(selectedRowKeys, selectedRows, info) {
         console.log({ selectedRowKeys, selectedRows, info })
       },
-    }
+    })
   }, [])
 
-  const expandable = useMemo((): ExpandableConfig<MockData> => {
-    return {
+  const expandable = useMemo(() => {
+    return tableExpandable<MockData>({
       fixed: 'left',
       defaultExpandAllRows: true,
       // defaultExpandedRowKeys: ['key:1'],
@@ -34,28 +75,44 @@ const FullDemo: FC = () => {
       expandedRowRender(record) {
         return record.name
       },
-    }
+    })
   }, [])
 
-  const summary = useCallback((_dataSource: readonly MockData[]) => {
-    return (
-      <VirtualTable.Summary fixed={summaryPosition}>
-        <VirtualTable.Summary.Row>
-          <VirtualTable.Summary.Cell index={0}>0</VirtualTable.Summary.Cell>
-          <VirtualTable.Summary.Cell index={1}>1</VirtualTable.Summary.Cell>
-          <VirtualTable.Summary.Cell index={2}>2</VirtualTable.Summary.Cell>
-          <VirtualTable.Summary.Cell index={3}>3</VirtualTable.Summary.Cell>
-          <VirtualTable.Summary.Cell index={4}>4</VirtualTable.Summary.Cell>
-          <VirtualTable.Summary.Cell index={5}>5</VirtualTable.Summary.Cell>
-          <VirtualTable.Summary.Cell index={6}>6</VirtualTable.Summary.Cell>
-          <VirtualTable.Summary.Cell index={7}>7</VirtualTable.Summary.Cell>
-          <VirtualTable.Summary.Cell index={8}>8</VirtualTable.Summary.Cell>
-          <VirtualTable.Summary.Cell index={9}>9</VirtualTable.Summary.Cell>
-          <VirtualTable.Summary.Cell index={10}>10</VirtualTable.Summary.Cell>
-        </VirtualTable.Summary.Row>
-      </VirtualTable.Summary>
-    )
+  const summary = useMemo(() => {
+    return tableSummary({
+      summary: () => {
+        return (
+          <Summary fixed={summaryPosition}>
+            <Summary.Row>
+              <Summary.Cell index={0}>0</Summary.Cell>
+              <Summary.Cell index={1}>1</Summary.Cell>
+              <Summary.Cell index={2}>2</Summary.Cell>
+              <Summary.Cell index={3}>3</Summary.Cell>
+              <Summary.Cell index={4}>4</Summary.Cell>
+              <Summary.Cell index={5}>5</Summary.Cell>
+              <Summary.Cell index={6}>6</Summary.Cell>
+              <Summary.Cell index={7}>7</Summary.Cell>
+              <Summary.Cell index={8}>8</Summary.Cell>
+              <Summary.Cell index={9}>9</Summary.Cell>
+              <Summary.Cell index={10}>10</Summary.Cell>
+            </Summary.Row>
+          </Summary>
+        )
+      },
+    })
   }, [summaryPosition])
+
+  const pipeline = useTablePipeline({
+    use: [
+      selection,
+      expandable,
+      columnResize({ storageKey: 'full-demo' }),
+      { priority: 200, hook: tableLoading({ loading }) },
+      { priority: 200, hook: tableEmpty({ children: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> }) },
+      { priority: 200, hook: summary },
+      { priority: 200, hook: horizontalScrollBar() },
+    ],
+  })
 
   const isOnlyOneData = data.length === 1
   const columns = useMemo((): ColumnType<MockData>[] => {
@@ -73,7 +130,6 @@ const FullDemo: FC = () => {
                 size="small"
                 shape="circle"
                 color="primary"
-                // @ts-ignore
                 variant="outlined"
                 onClick={() => {
                   setData((prevState) => {
@@ -264,7 +320,7 @@ const FullDemo: FC = () => {
           <label style={{ marginRight: 8 }}>总结栏位置</label>
           <Radio.Group
             value={summaryPosition}
-            onChange={(e) => setSummaryPosition(e.target.value)}
+            onChange={(e) => setSummaryPosition(e.target.value as 'top' | 'bottom')}
           >
             <Radio value="top">Top</Radio>
             <Radio value="bottom">Bottom</Radio>
@@ -285,6 +341,8 @@ const FullDemo: FC = () => {
       </div>
       <div>
         <VirtualTable
+          pipeline={pipeline}
+          className="virtual-table-small"
           // style={{
           //   boxSizing: 'border-box',
           //   height: 500,
@@ -296,12 +354,8 @@ const FullDemo: FC = () => {
           rowKey="key"
           dataSource={empty ? [] : data}
           columns={columns}
-          estimatedRowHeight={57}
-          rowSelection={selection}
-          expandable={expandable}
-          summary={summary}
-          sticky={sticky}
-          loading={loading}
+          estimatedRowHeight={49}
+          stickyHeader={sticky}
         />
       </div>
     </div>

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Key, ReactNode } from 'react'
 import type { AnyObject, ColumnType, MiddlewareContext, MiddlewareResult } from '../../core'
-import type { TableRowSelection } from './types'
+import type { SelectionColumnTitleProps, TableRowSelection } from './types'
 
 import { useControllableValue, useMemoizedFn } from 'ahooks'
 import { isValidElement, useCallback, useMemo, useRef } from 'react'
@@ -155,13 +155,31 @@ function useSelection<T = any>(
       setSelectedRowKeys([], [], { type: 'none' })
     }
 
+    const columnTitleProps: SelectionColumnTitleProps = {
+      indeterminate,
+      value: isSelectedAll,
+      disabled: allDisabled,
+      multiple,
+      onChange: (checked) => {
+        if (checked) {
+          onSelectAll()
+        } else {
+          onClearAll()
+        }
+      },
+      onClear: onClearAll,
+      onSelectAll,
+      onSelectInvert,
+      allKeys,
+    }
+
     const onCreateTitle = () => {
       if (!multiple) {
         if (isValidElement(columnTitle)) {
           return columnTitle
         }
         if (typeof columnTitle === 'function') {
-          return columnTitle(undefined, { onClear: onClearAll, onSelectAll, onSelectInvert, allKeys })
+          return columnTitle(undefined, columnTitleProps)
         }
         return null
       }
@@ -187,7 +205,7 @@ function useSelection<T = any>(
       if (isValidElement(columnTitle)) {
         title = columnTitle
       } else if (typeof columnTitle === 'function') {
-        title = columnTitle(title, { onClear: onClearAll, onSelectAll, onSelectInvert, allKeys })
+        title = columnTitle(title, columnTitleProps)
       }
       return title
     }

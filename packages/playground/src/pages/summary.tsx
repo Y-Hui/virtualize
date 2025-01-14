@@ -1,30 +1,32 @@
+import type { ColumnType } from '@/components/table'
+import type { MockData } from '@/utils/mock'
+import type { FC } from 'react'
+import VirtualTable, { Summary } from '@/components/table'
+import { useAsyncData } from '@/utils/mock'
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons'
 import { Button, Input, InputNumber, Radio, Space } from 'antd'
-import { type FC, useCallback, useMemo, useState } from 'react'
-import VirtualTable, { type ColumnType } from 'virtual-table'
-
-import { type MockData, useAsyncData } from '@/utils/mock'
+import { useCallback, useMemo, useState } from 'react'
 
 const SummaryDemo: FC = () => {
   const [summaryPosition, setSummaryPosition] = useState<'bottom' | 'top'>('bottom')
 
   const [data, setData] = useAsyncData()
 
-  const summary = useCallback((_dataSource: readonly MockData[]) => {
+  const summary = useCallback(() => {
     return (
-      <VirtualTable.Summary fixed={summaryPosition}>
-        <VirtualTable.Summary.Row>
-          <VirtualTable.Summary.Cell index={0}>0</VirtualTable.Summary.Cell>
-          <VirtualTable.Summary.Cell index={1}>1</VirtualTable.Summary.Cell>
-          <VirtualTable.Summary.Cell index={2}>2</VirtualTable.Summary.Cell>
-          <VirtualTable.Summary.Cell index={3}>3</VirtualTable.Summary.Cell>
-          <VirtualTable.Summary.Cell index={4}>4</VirtualTable.Summary.Cell>
-          <VirtualTable.Summary.Cell index={5}>5</VirtualTable.Summary.Cell>
-          <VirtualTable.Summary.Cell index={6}>6</VirtualTable.Summary.Cell>
-          <VirtualTable.Summary.Cell index={7}>7</VirtualTable.Summary.Cell>
-          <VirtualTable.Summary.Cell index={8}>8</VirtualTable.Summary.Cell>
-        </VirtualTable.Summary.Row>
-      </VirtualTable.Summary>
+      <Summary fixed={summaryPosition}>
+        <Summary.Row>
+          <Summary.Cell index={0}>0</Summary.Cell>
+          <Summary.Cell index={1}>1</Summary.Cell>
+          <Summary.Cell index={2}>2</Summary.Cell>
+          <Summary.Cell index={3}>3</Summary.Cell>
+          <Summary.Cell index={4}>4</Summary.Cell>
+          <Summary.Cell index={5}>5</Summary.Cell>
+          <Summary.Cell index={6}>6</Summary.Cell>
+          <Summary.Cell index={7}>7</Summary.Cell>
+          <Summary.Cell index={8}>8</Summary.Cell>
+        </Summary.Row>
+      </Summary>
     )
   }, [summaryPosition])
 
@@ -44,7 +46,6 @@ const SummaryDemo: FC = () => {
                 size="small"
                 shape="circle"
                 color="primary"
-                // @ts-ignore
                 variant="outlined"
                 onClick={() => {
                   setData((prevState) => {
@@ -238,31 +239,21 @@ const SummaryDemo: FC = () => {
           <Radio.Group
             id="summaryPosition"
             value={summaryPosition}
-            onChange={(e) => setSummaryPosition(e.target.value)}
+            onChange={(e) => setSummaryPosition(e.target.value as 'top' | 'bottom')}
           >
             <Radio value="top">Top</Radio>
             <Radio value="bottom">Bottom</Radio>
           </Radio.Group>
         </div>
       </div>
-      <div
-        style={{
-          boxSizing: 'border-box',
-          height: 500,
-          border: '1px solid #f00',
-          overflow: 'auto',
-          overscrollBehavior: 'contain',
-        }}
-      >
-        <VirtualTable
-          rowKey="key"
-          dataSource={data}
-          columns={columns}
-          estimatedRowHeight={57}
-          summary={summary}
-          sticky
-        />
-      </div>
+      <VirtualTable
+        rowKey="key"
+        dataSource={data}
+        columns={columns}
+        estimatedRowHeight={57}
+        summary={summary}
+        sticky
+      />
     </div>
   )
 }

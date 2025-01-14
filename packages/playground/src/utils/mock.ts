@@ -1,4 +1,3 @@
-/* eslint-disable @eslint-react/web-api/no-leaked-timeout */
 import { useEffect, useState } from 'react'
 
 export interface MockData {

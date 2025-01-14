@@ -1,7 +1,9 @@
-import { type FC } from 'react'
-import VirtualTable, { type ColumnType } from 'virtual-table'
+import type { ColumnType } from '@/components/table'
+import type { MockStringData } from '@/utils/mock'
 
-import { type MockStringData, useAsyncPureStringData } from '@/utils/mock'
+import type { FC } from 'react'
+import VirtualTable from '@/components/table'
+import { useAsyncPureStringData } from '@/utils/mock'
 
 const columns: ColumnType<MockStringData>[] = [
   {

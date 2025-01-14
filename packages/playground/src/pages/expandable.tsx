@@ -1,9 +1,11 @@
+import type { ColumnType, ExpandableConfig } from '@/components/table'
+import type { MockData } from '@/utils/mock'
+import type { FC } from 'react'
+import VirtualTable from '@/components/table'
+import { useAsyncData } from '@/utils/mock'
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons'
 import { Button, Input, InputNumber, Space } from 'antd'
-import { type FC, useMemo } from 'react'
-import VirtualTable, { type ColumnType, type ExpandableConfig } from 'virtual-table'
-
-import { type MockData, useAsyncData } from '@/utils/mock'
+import { useMemo } from 'react'
 
 const ExpandableDemo: FC = () => {
   const [data, setData] = useAsyncData()
@@ -34,7 +36,6 @@ const ExpandableDemo: FC = () => {
                 size="small"
                 shape="circle"
                 color="primary"
-                // @ts-ignore
                 variant="outlined"
                 onClick={() => {
                   setData((prevState) => {
@@ -215,24 +216,14 @@ const ExpandableDemo: FC = () => {
   return (
     <div style={{ padding: 16 }}>
       <h2>Expandable</h2>
-      <div
-        style={{
-          boxSizing: 'border-box',
-          height: 500,
-          border: '1px solid #f00',
-          overflow: 'auto',
-          overscrollBehavior: 'contain',
-        }}
-      >
-        <VirtualTable
-          rowKey="key"
-          dataSource={data}
-          columns={columns}
-          estimatedRowHeight={57}
-          expandable={expandable}
-          sticky
-        />
-      </div>
+      <VirtualTable
+        rowKey="key"
+        dataSource={data}
+        columns={columns}
+        estimatedRowHeight={57}
+        expandable={expandable}
+        sticky
+      />
     </div>
   )
 }
