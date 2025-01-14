@@ -17,7 +17,9 @@ import { tableLoading } from 'virtual-table/src/middleware/loading'
 import { tableSelection } from 'virtual-table/src/middleware/selection'
 import { Summary, tableSummary } from 'virtual-table/src/middleware/summary'
 
-function _SelectionImpl(props: SelectionProps & { foo?: number }) {
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// @ts-expect-error: 为 demo 保留此函数
+function SelectionImpl(props: SelectionProps) {
   const {
     multiple,
     value,
@@ -45,6 +47,7 @@ function _SelectionImpl(props: SelectionProps & { foo?: number }) {
     />
   )
 }
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 const FullDemo: FC = () => {
   const [summaryPosition, setSummaryPosition] = useState<'bottom' | 'top'>('bottom')
