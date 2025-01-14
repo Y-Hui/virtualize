@@ -29,20 +29,15 @@ const ScrollBar: FC = () => {
     }
   }, [])
 
-  const [size, setSize] = useState({ width: 0, height: 0 })
-
-  useEffect(() => {
-    const value = getScrollbarSize()
-
-    setSize(value)
-  }, [])
+  const [size] = useState(getScrollbarSize)
 
   return (
     <div
       className="virtual-table-sticky-scroll"
       style={{
-        paddingTop: size.height > 0 ? 0 : 15,
-        marginTop: size.height * -1,
+        paddingTop: size.height > 0 ? 0 : 12,
+        marginTop: size.height > 0 ? 0 : size.height * -1,
+        height: size.height,
       }}
       ref={composeRef((node) => {
         if (node == null) return
