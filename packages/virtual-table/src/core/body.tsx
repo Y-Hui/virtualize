@@ -1,14 +1,18 @@
+import type { CSSProperties, Ref } from 'react'
+import type { NecessaryProps } from './internal'
+import type {
+  MiddlewareRenderBody,
+  MiddlewareRenderBodyRoot,
+  MiddlewareRenderBodyWrapper,
+} from './pipeline/types'
+import type { RowProps } from './row'
+import type { AnyObject } from './types'
 import clsx from 'clsx'
-import { type CSSProperties, type Ref } from 'react'
-
 import { composeRef } from '../utils/ref'
 import Colgroup from './colgroup'
 import { useHorizontalScrollContext } from './context/horizontal-scroll'
-import { type NecessaryProps } from './internal'
 import { pipelineRender } from './pipeline/render-pipeline'
-import { type MiddlewareRenderBody, type MiddlewareRenderBodyRoot, type MiddlewareRenderBodyWrapper } from './pipeline/types'
-import Row, { type RowProps } from './row'
-import { type AnyObject } from './types'
+import Row from './row'
 
 export interface TableBodyProps<T>
   extends NecessaryProps<T>,

@@ -1,16 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { DetailedHTMLProps, HTMLAttributes, ReactElement } from 'react'
+import type { MiddlewareRenderCell } from './pipeline/types'
+import type { AnyObject, ColumnType } from './types'
 import clsx from 'clsx'
-import {
-  type DetailedHTMLProps,
-  type HTMLAttributes,
-  memo,
-  type ReactElement,
-} from 'react'
-
+import { memo } from 'react'
 import { useTableSticky } from './context/sticky'
 import { pipelineRender } from './pipeline/render-pipeline'
-import { type MiddlewareRenderCell } from './pipeline/types'
-import { type AnyObject, type ColumnType } from './types'
 import { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 type NativeProps = DetailedHTMLProps<
@@ -18,7 +13,7 @@ type NativeProps = DetailedHTMLProps<
   HTMLTableCellElement
 >
 
-export interface CellProps<T> extends NativeProps {
+export interface CellProps<T> extends Omit<NativeProps, 'children'> {
   column: ColumnType<T>
   columnIndex: number
   rowIndex: number
@@ -47,7 +42,6 @@ function Cell<T>(props: CellProps<T>) {
   const {
     className,
     style,
-    children,
     column,
     rowData,
     rowIndex,

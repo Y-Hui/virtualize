@@ -7,10 +7,9 @@ export function useEvent<T extends Function>(callback: T): T {
     fn.current = callback
   }, [callback])
 
-  // @ts-expect-error
-  const stableFn: T = useCallback((...args: unknown[]) => {
+  const stableFn = useCallback((...args: unknown[]) => {
     return fn.current?.(...args) as unknown
-  }, [])
+  }, []) as unknown as T
 
   return stableFn
 }

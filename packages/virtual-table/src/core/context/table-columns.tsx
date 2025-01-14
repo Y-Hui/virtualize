@@ -1,22 +1,13 @@
-import {
-  createContext,
-  type PropsWithChildren,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
-
+import type { PropsWithChildren } from 'react'
+import type { ColumnType } from '../types'
+import type { FixedType } from '../utils/verification'
+import type { StickyContextState } from './sticky'
+import { createContext, useContext, useMemo, useRef, useState } from 'react'
 import { __DEV__ } from '../../utils/dev'
 import { shallowEqualArrays } from '../../utils/equal'
 import { useShallowMemo } from '../hooks/useShallowMemo'
-import { type ColumnType } from '../types'
-import {
-  type FixedType,
-  isValidFixedLeft,
-  isValidFixedRight,
-} from '../utils/verification'
-import { Sticky, type StickyContextState } from './sticky'
+import { isValidFixedLeft, isValidFixedRight } from '../utils/verification'
+import { Sticky } from './sticky'
 
 export interface TableColumnsContextType {
   widthList: number[]
@@ -103,7 +94,7 @@ export function TableColumnsContext(
 export function useTableColumns() {
   const context = useContext(TableColumns)
   if (context == null) {
-    throw Error('useTableColumns 脱离上下文调用')
+    throw new Error('useTableColumns 脱离上下文调用')
   }
   return context
 }

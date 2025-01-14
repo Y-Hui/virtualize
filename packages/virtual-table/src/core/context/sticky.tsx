@@ -1,7 +1,6 @@
+import type { FixedType } from '../types'
 import { createContext, useContext } from 'react'
-
 import { __DEV__ } from '../../utils/dev'
-import { type FixedType } from '../types'
 
 export interface StickyContextState {
   /** 每一列的宽度 */
@@ -19,7 +18,7 @@ if (__DEV__) {
 export function useTableSticky() {
   const context = useContext(Sticky)
   if (context == null) {
-    throw Error('useTableSticky 脱离上下文调用')
+    throw new Error('useTableSticky 脱离上下文调用')
   }
   return context
 }

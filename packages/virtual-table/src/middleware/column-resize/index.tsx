@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'react-resizable/css/styles.css'
 
+import type { MiddlewareContext, MiddlewareRenderHeaderCell, MiddlewareResult } from '../../core'
 import { isValidElement, useCallback, useMemo, useState } from 'react'
 import { Resizable } from 'react-resizable'
-
-import { createMiddleware, type MiddlewareContext, type MiddlewareRenderHeaderCell, type MiddlewareResult } from '../../core'
+import { createMiddleware } from '../../core'
 import { __DEV__ } from '../../utils/dev'
 
 declare module '../../core' {
@@ -91,7 +91,7 @@ function useColumnResize<T = any>(
 
     if (__DEV__) {
       if (isValidElement(children) && children.type === Resizable) {
-        throw Error('The columnResize plugin was registered multiple times.')
+        throw new Error('The columnResize plugin was registered multiple times.')
       }
     }
 

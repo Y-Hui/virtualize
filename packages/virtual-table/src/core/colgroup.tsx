@@ -1,12 +1,10 @@
 import type { FC, Key } from 'react'
-
-import { type ColumnType } from './types'
+import type { ColumnType } from './types'
 
 export interface ColgroupProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   columns: ColumnType<any>[]
-  colRef?: (
-    instance: HTMLTableColElement | null, index: number) => void
+  colRef?: (instance: HTMLTableColElement | null, index: number) => void
 }
 
 const Colgroup: FC<ColgroupProps> = (props) => {

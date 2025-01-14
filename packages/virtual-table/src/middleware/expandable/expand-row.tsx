@@ -1,7 +1,8 @@
 import './style.scss'
 
+import type { CSSProperties, FC, ReactNode } from 'react'
 import clsx from 'clsx'
-import { type CSSProperties, type FC, type ReactNode, useRef } from 'react'
+import { useRef } from 'react'
 
 import { useContainerSize, useTableShared } from '../../core'
 

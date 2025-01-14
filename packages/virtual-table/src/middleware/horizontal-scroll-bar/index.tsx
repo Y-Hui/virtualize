@@ -1,7 +1,8 @@
-import { createMiddleware, type MiddlewareContext, type MiddlewareResult } from '../../core'
+import type { MiddlewareContext, MiddlewareResult } from '../../core'
+import { createMiddleware } from '../../core'
 import ScrollBar from './scroll-bar'
 
-// eslint-disable-next-line @eslint-react/hooks-extra/no-useless-custom-hooks, @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function useHorizontalScrollBar<T = any>(ctx: MiddlewareContext<T>): MiddlewareResult<T> {
   return {
     ...ctx,

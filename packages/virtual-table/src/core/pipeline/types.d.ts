@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { type ReactNode } from 'react'
-
-import { type NecessaryProps } from '../internal'
-import { type ColumnType, type OnRowType } from '../types'
+import type { ReactNode } from 'react'
+import type { NecessaryProps } from '../internal'
+import type { ColumnType, OnRowType } from '../types'
 
 export interface MiddlewareContext<T> extends NecessaryProps<T> {
   visibleCount: number

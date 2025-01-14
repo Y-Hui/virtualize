@@ -16,7 +16,7 @@ if (__DEV__) {
 export function useTableShared() {
   const context = useContext(TableShared)
   if (context == null) {
-    throw Error('useTableShared 脱离上下文调用')
+    throw new Error('useTableShared 脱离上下文调用')
   }
   return context
 }

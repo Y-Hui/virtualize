@@ -1,8 +1,8 @@
 import './index.scss'
-
+import type { ColumnType, MiddlewareContext, MiddlewareResult } from '../../core'
 import { useMemo } from 'react'
 
-import { type ColumnType, createMiddleware, type MiddlewareContext, type MiddlewareResult } from '../../core'
+import { createMiddleware } from '../../core'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function useTableLoading<T = any>(

@@ -1,10 +1,9 @@
+import type { ReactNode } from 'react'
+import type { OnRowType } from '../types'
+import type { Middleware, MiddlewareContext, MiddlewareRenders, MiddlewareResult } from './types'
 import clsx from 'clsx'
-import { type ReactNode } from 'react'
 
-import { type OnRowType } from '../types'
-import { type Middleware, type MiddlewareContext, type MiddlewareRenders, type MiddlewareResult } from './types'
-
-export type Hook<T> = { priority: number, hook: Middleware<T> }
+export interface Hook<T> { priority: number, hook: Middleware<T> }
 export type UnsafeHook<T> = Middleware<T> | undefined | null | Hook<T>
 
 type RenderFunctions<T> = {
@@ -36,7 +35,6 @@ export class TablePipeline<T> {
     this.hooks = value
   }
 
-  // eslint-disable-next-line @eslint-react/hooks-extra/no-useless-custom-hooks
   use(options: MiddlewareContext<T>): MiddlewareResult<T> {
     if (this.hooks.length === 0) {
       return options

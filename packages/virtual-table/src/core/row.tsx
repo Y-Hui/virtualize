@@ -1,18 +1,12 @@
+import type { DetailedHTMLProps, HTMLAttributes, Key, ReactElement } from 'react'
+import type { MiddlewareRenderCell, MiddlewareRenderRow } from './pipeline/types'
+import type { ColumnType, OnRowType } from './types'
 import clsx from 'clsx'
-import {
-  type DetailedHTMLProps,
-  type HTMLAttributes,
-  type Key,
-  memo,
-  type ReactElement,
-} from 'react'
-
+import { memo } from 'react'
 import { findLastIndex } from '../utils/find-last-index'
 import Cell from './cell'
 import { useTableShared } from './context/shared'
 import { pipelineRender } from './pipeline/render-pipeline'
-import { type MiddlewareRenderCell, type MiddlewareRenderRow } from './pipeline/types'
-import { type ColumnType, type OnRowType } from './types'
 import { isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 type NativeProps = DetailedHTMLProps<
@@ -20,7 +14,7 @@ type NativeProps = DetailedHTMLProps<
   HTMLTableRowElement
 >
 
-export interface RowProps<T> extends NativeProps {
+export interface RowProps<T> extends Omit<NativeProps, 'children'> {
   rowIndex: number
   rowData: T
   columns: ColumnType<T>[]
@@ -32,7 +26,6 @@ export interface RowProps<T> extends NativeProps {
 function Row<T>(props: RowProps<T>) {
   const {
     className,
-    children,
     rowIndex,
     rowData,
     columns,

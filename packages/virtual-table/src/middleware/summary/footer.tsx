@@ -1,7 +1,8 @@
+import type { FC, Key, ReactNode } from 'react'
+import type { ColumnType } from '../../core'
 import clsx from 'clsx'
-import { type FC, type Key, type ReactNode, useState } from 'react'
-
-import { type ColumnType, useHorizontalScrollContext } from '../../core'
+import { useState } from 'react'
+import { useHorizontalScrollContext } from '../../core'
 import { getScrollbarSize } from '../horizontal-scroll-bar/getScrollbarSize'
 
 export interface FooterProps {
@@ -25,7 +26,8 @@ const Footer: FC<FooterProps> = (props) => {
       )}
       style={{ paddingBottom: scrollbarHeight }}
       ref={(node) => {
-        if (node == null) return
+        if (node == null)
+          return
         addShouldSyncElement('virtual-table-summary', node)
       }}
     >

@@ -1,24 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useControllableValue, useMemoizedFn } from 'ahooks'
-import {
-  isValidElement,
-  type Key,
-  type ReactNode,
-  useCallback,
-  useMemo,
-  useRef,
-} from 'react'
+import type { Key, ReactNode } from 'react'
+import type { AnyObject, ColumnType, MiddlewareContext, MiddlewareResult } from '../../core'
+import type { TableRowSelection } from './types'
 
-import {
-  type AnyObject,
-  type ColumnType,
-  createMiddleware,
-  type MiddlewareContext,
-  type MiddlewareResult,
-  useShallowMemo,
-} from '../../core'
+import { useControllableValue, useMemoizedFn } from 'ahooks'
+import { isValidElement, useCallback, useMemo, useRef } from 'react'
+import { createMiddleware, useShallowMemo } from '../../core'
 import Selection from './selection'
-import { type TableRowSelection } from './types'
 
 export const SELECTION_COLUMN_KEY = 'VirtualTable.SELECTION_COLUMN'
 
@@ -107,12 +95,14 @@ function useSelection<T = any>(
         value = cache.current.get(key)
       }
 
-      if (!value && !preserveSelectedRowKeys) return
+      if (value == null && !preserveSelectedRowKeys) return
 
       result.push(value)
     })
     return result
   })
+
+  const prevSelectedIndex = useRef<number | null>(null)
 
   const mergeColumns = useMemo(() => {
     if (disablePlugin) {
@@ -133,6 +123,20 @@ function useSelection<T = any>(
         })
       }
       return Array.from(unionKeys)
+    }
+
+    const multipleSelect = (currentIndex: number, nextChecked: boolean) => {
+      const index = prevSelectedIndex.current ?? currentIndex
+      const startIndex = Math.min(index, currentIndex)
+      const endIndex = Math.max(index, currentIndex)
+      const rangeKeys = allKeys.slice(startIndex, endIndex + 1)
+      const shouldSelected = rangeKeys.some((rangeKey) => !selectedRowKeys.includes(rangeKey))
+      prevSelectedIndex.current = shouldSelected ? endIndex : null
+      const keys = nextChecked
+        ? shakeDeadKeys([...selectedRowKeys, ...rangeKeys])
+        : shakeDeadKeys(selectedRowKeys.filter((x) => !rangeKeys.includes(x)))
+      const rows = getRowsByKeys(keys)
+      setSelectedRowKeys(keys, rows, { type: 'multiple' })
     }
 
     const onSelectAll = () => {
@@ -157,7 +161,7 @@ function useSelection<T = any>(
           return columnTitle
         }
         if (typeof columnTitle === 'function') {
-          return columnTitle(undefined)
+          return columnTitle(undefined, { onClear: onClearAll, onSelectAll, onSelectInvert, allKeys })
         }
         return null
       }
@@ -183,7 +187,7 @@ function useSelection<T = any>(
       if (isValidElement(columnTitle)) {
         title = columnTitle
       } else if (typeof columnTitle === 'function') {
-        title = columnTitle(title)
+        title = columnTitle(title, { onClear: onClearAll, onSelectAll, onSelectInvert, allKeys })
       }
       return title
     }
@@ -214,6 +218,15 @@ function useSelection<T = any>(
             multiple={multiple}
             onChange={(nextChecked, e) => {
               updateCache()
+              if (multiple && (e as PointerEvent).shiftKey) {
+                multipleSelect(index, nextChecked)
+                return
+              }
+              if (nextChecked) {
+                prevSelectedIndex.current = index
+              } else {
+                prevSelectedIndex.current = null
+              }
               let keys: Key[] = [key]
               if (multiple) {
                 keys = nextChecked ? shakeDeadKeys([...selectedRowKeys, key]) : shakeDeadKeys(selectedRowKeys.filter((x) => x !== key))

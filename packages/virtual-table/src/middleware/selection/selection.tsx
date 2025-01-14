@@ -1,12 +1,10 @@
 import './styles.scss'
 
+import type { ComponentType, DetailedHTMLProps, ForwardedRef, InputHTMLAttributes } from 'react'
+import type { SelectionProps as BaseProps } from './types'
 import clsx from 'clsx'
-import {
-  type ComponentType, createElement, type DetailedHTMLProps, type ForwardedRef, forwardRef, type InputHTMLAttributes, useEffect, useRef,
-} from 'react'
-
+import { createElement, forwardRef, useEffect, useRef } from 'react'
 import { composeRef } from '../../utils/ref'
-import { type SelectionProps as BaseProps } from './types'
 
 type InputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>
 export interface SelectionProps extends BaseProps,

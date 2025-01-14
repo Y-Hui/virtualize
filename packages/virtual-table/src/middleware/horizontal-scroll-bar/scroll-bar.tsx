@@ -1,9 +1,9 @@
 import './scroll-bar.scss'
-
-import { type FC, useEffect, useRef, useState } from 'react'
-
+import type { FC } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useHorizontalScrollContext } from '../../core'
 import { composeRef } from '../../utils/ref'
+
 import { getScrollbarSize } from './getScrollbarSize'
 
 const ScrollBar: FC = () => {
@@ -33,7 +33,7 @@ const ScrollBar: FC = () => {
 
   useEffect(() => {
     const value = getScrollbarSize()
-    // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
+
     setSize(value)
   }, [])
 

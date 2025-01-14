@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { Middleware, MiddlewareContext, MiddlewareResult } from './types'
 import { isShallowEqual } from '../../utils/equal'
-import { type Middleware, type MiddlewareContext, type MiddlewareResult } from './types'
 
 /**
  * 创建中间件，内部会浅比较 options，只有 options 改变才会返回新的函数。
@@ -14,7 +14,6 @@ function createMiddleware<T, Args extends any[]>(
   }
 
   return (...options: Args): Middleware<T> => {
-    // eslint-disable-next-line @eslint-react/hooks-extra/no-useless-custom-hooks
     const useMiddleware: Middleware<T> = (ctx) => hook(ctx, ...options)
 
     if (isShallowEqual(options, cache.options)) {

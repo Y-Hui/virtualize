@@ -1,19 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { Key, MouseEvent, ReactNode } from 'react'
+import type {
+  AnyObject,
+  ColumnType,
+  FixedType,
+  MiddlewareContext,
+  MiddlewareRenderRow,
+  MiddlewareResult,
+  OnRowType,
+} from '../../core'
 import { useControllableValue, useMemoizedFn } from 'ahooks'
 import clsx from 'clsx'
-import { type Key, type MouseEvent, type ReactNode, useCallback, useMemo, useRef } from 'react'
-
-import {
-  type AnyObject,
-  type ColumnType,
-  createMiddleware,
-  type FixedType,
-  isValidFixed,
-  type MiddlewareContext,
-  type MiddlewareRenderRow,
-  type MiddlewareResult,
-  type OnRowType, useShallowMemo,
-} from '../../core'
+import { useCallback, useMemo, useRef } from 'react'
+import { createMiddleware, isValidFixed, useShallowMemo } from '../../core'
 import ExpandRow from './expand-row'
 
 type TriggerEventHandler<RecordType> = (record: RecordType, event: MouseEvent<HTMLElement>) => void

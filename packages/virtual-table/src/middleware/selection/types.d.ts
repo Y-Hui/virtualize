@@ -1,13 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { type ComponentType, type HTMLAttributes, type Key, type ReactNode, type TdHTMLAttributes } from 'react'
-
-import { type AnyObject, type ColumnExtra, type FixedType } from '../../core'
+import type { ComponentType, HTMLAttributes, Key, ReactNode, TdHTMLAttributes } from 'react'
+import type { ColumnExtra, FixedType } from '../../core'
 
 export type RowSelectMethod = 'all' | 'none' | 'invert' | 'single' | 'multiple'
-export type SelectionSelectFn<T = AnyObject> = (record: T, selected: boolean, selectedRows: T[], nativeEvent: Event) => void
+export type SelectionSelectFn<T = any> = (record: T, selected: boolean, selectedRows: T[], nativeEvent: Event) => void
 export type GetComponentProps<DataType> = (data: DataType, index?: number) => HTMLAttributes<any> & TdHTMLAttributes<any>
 
-export interface TableRowSelection<T = AnyObject> extends ColumnExtra {
+export type SelectionColumnTitleProps = SelectionProps & {
+  allKeys: Key[]
+  onClear: () => void
+  onSelectAll: () => void
+  onSelectInvert: () => void
+}
+
+export interface TableRowSelection<T = any> extends ColumnExtra {
   component?: ComponentType<SelectionProps>
   /** Keep the selection keys in list even the key not exist in `dataSource` anymore */
   preserveSelectedRowKeys?: boolean
@@ -17,18 +23,17 @@ export interface TableRowSelection<T = AnyObject> extends ColumnExtra {
   onChange?: (selectedRowKeys: Key[], selectedRows: T[], info: {
     type: RowSelectMethod
   }) => void
-  // TODO:
   getCheckboxProps?: (record: T) => SelectionProps & Record<string, unknown>
   onSelect?: SelectionSelectFn<T>
   hideSelectAll?: boolean
   fixed?: FixedType
   columnWidth?: string | number
-  columnTitle?: ReactNode | ((checkboxNode: ReactNode) => ReactNode)
+  columnTitle?: ReactNode | ((checkboxNode: ReactNode, props: SelectionColumnTitleProps) => ReactNode)
   renderCell?: (value: boolean, record: T, index: number, originNode: ReactNode) => ReactNode
   onCell?: GetComponentProps<T>
 }
 
-export type SelectionProps = {
+export interface SelectionProps {
   multiple?: boolean
   value?: boolean
   onChange?: (nextValue: boolean, e: Event) => void

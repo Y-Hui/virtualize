@@ -1,15 +1,14 @@
+import type { CSSProperties, FC, Key, RefObject } from 'react'
+import type {
+  MiddlewareRenderHeader,
+  MiddlewareRenderHeaderCell,
+  MiddlewareRenderHeaderRoot,
+  MiddlewareRenderHeaderRow,
+  MiddlewareRenderHeaderWrapper,
+} from './pipeline/types'
+import type { ColumnType } from './types'
 import clsx from 'clsx'
-import {
-  createElement,
-  type CSSProperties,
-  type FC,
-  Fragment,
-  type Key,
-  type RefObject,
-  useLayoutEffect,
-  useRef,
-} from 'react'
-
+import { createElement, Fragment, useLayoutEffect, useRef } from 'react'
 import { findLastIndex } from '../utils/find-last-index'
 import { composeRef } from '../utils/ref'
 import Colgroup from './colgroup'
@@ -17,8 +16,6 @@ import { useHorizontalScrollContext } from './context/horizontal-scroll'
 import { useTableSticky } from './context/sticky'
 import { useTableColumns } from './context/table-columns'
 import { pipelineRender } from './pipeline/render-pipeline'
-import { type MiddlewareRenderHeader, type MiddlewareRenderHeaderCell, type MiddlewareRenderHeaderRoot, type MiddlewareRenderHeaderRow, type MiddlewareRenderHeaderWrapper } from './pipeline/types'
-import { type ColumnType } from './types'
 import { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 export interface TableHeaderProps {

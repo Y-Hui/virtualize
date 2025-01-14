@@ -1,27 +1,39 @@
-import js from '@eslint/js'
-import react from '@eslint-react/eslint-plugin'
+import eslint from '@eslint/js'
 import stylistic from '@stylistic/eslint-plugin'
-// import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
-import reactCompiler from 'eslint-plugin-react-compiler'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
-import airbnb from './airbnb.mjs'
+import comments from './config/comments.mjs'
+import ignores from './config/ignores.mjs'
+import imports from './config/imports.mjs'
+import node from './config/node.mjs'
+import opinionated from './config/opinionated.mjs'
+import perfectionist from './config/perfectionist.mjs'
+import react from './config/react.mjs'
+import typescript from './config/typescript.mjs'
+import unicorn from './config/unicorn.mjs'
 
 /**
  * @param {Array<import('typescript-eslint').ConfigWithExtends>} overrides
  */
 export default function eslintConfig(...overrides) {
   return tseslint.config(
+    {
+      files: ['**/*.{ts,tsx,js,jsx,mjs,cjs}'],
+      languageOptions: {
+        ecmaVersion: 2020,
+        globals: globals.browser,
+        sourceType: 'module',
+      },
+    },
     { ignores: ['**/dist/**/*', '**/node_modules/', '.git/', '**/*.svg'] },
-    js.configs.recommended,
+    eslint.configs.recommended,
     tseslint.configs.strictTypeChecked,
     tseslint.configs.stylisticTypeChecked,
-    airbnb,
-    react.configs.all,
+    {
+      files: ['**/*.{js,jsx,mjs,cjs}'],
+      extends: [tseslint.configs.disableTypeChecked],
+    },
     stylistic.configs.customize({
       indent: 2,
       quotes: 'single',
@@ -30,108 +42,25 @@ export default function eslintConfig(...overrides) {
       arrowParens: true,
       braceStyle: '1tbs',
     }),
-    {
-      files: ['**/*.{js,jsx,mjs,cjs}'],
-      extends: [tseslint.configs.disableTypeChecked],
-    },
-    {
-      files: ['**/*.{ts,tsx,js,jsx,mjs,cjs}'],
-      languageOptions: {
-        ecmaVersion: 2020,
-        globals: globals.browser,
-      },
-      plugins: {
-        'react-hooks': reactHooks,
-        'react-refresh': reactRefresh,
-        'simple-import-sort': simpleImportSort,
-        'react-compiler': reactCompiler,
-      },
-      rules: {
-
-        ...reactHooks.configs.recommended.rules,
-        'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
-        'simple-import-sort/imports': 'error',
-        'simple-import-sort/exports': 'error',
-        'react-compiler/react-compiler': 'error',
-      },
-    },
+    imports,
+    perfectionist,
+    node,
+    react,
+    typescript,
+    comments,
+    unicorn,
+    ignores(),
+    opinionated,
     {
       rules: {
-        'no-unused-vars': 'off',
-        '@typescript-eslint/no-unused-vars': [
-          1,
-          {
-            args: 'all',
-            argsIgnorePattern: '^_',
-            caughtErrors: 'all',
-            caughtErrorsIgnorePattern: '^_',
-            destructuredArrayIgnorePattern: '^_',
-            varsIgnorePattern: '^_',
-            ignoreRestSiblings: true,
-          },
-        ],
-        '@typescript-eslint/consistent-type-imports': [
+        'object-shorthand': [
           'error',
+          'always',
           {
-            fixStyle: 'inline-type-imports',
+            avoidQuotes: true,
+            ignoreConstructors: false,
           },
         ],
-        '@typescript-eslint/ban-ts-comment': 'off',
-        '@typescript-eslint/explicit-module-boundary-types': 'off',
-        '@typescript-eslint/explicit-function-return-type': 'off',
-
-        'no-redeclare': 'off',
-        '@typescript-eslint/no-redeclare': ['error', { ignoreDeclarationMerge: true }],
-        '@typescript-eslint/no-var-requires': 'off',
-
-        'no-shadow': 'off',
-        '@typescript-eslint/no-shadow': [
-          'error',
-          {
-            ignoreFunctionTypeParameterNameValueShadow: true,
-          },
-        ],
-
-        'no-use-before-define': 'off',
-        '@typescript-eslint/no-use-before-define': 'error',
-        '@typescript-eslint/no-empty-object-type': [
-          'error',
-          {
-            allowInterfaces: 'always',
-          },
-        ],
-        '@eslint-react/naming-convention/filename-extension': [
-          'warn',
-          { allow: 'always', extensions: ['.js', '.jsx', '.ts', '.tsx', '.d.ts'] },
-        ],
-        '@eslint-react/naming-convention/filename': 'off',
-        '@eslint-react/prefer-destructuring-assignment': 'error',
-        'no-underscore-dangle': 'off',
-        '@eslint-react/avoid-shorthand-fragment': 'off',
-        '@eslint-react/avoid-shorthand-boolean': 'off',
-        '@eslint-react/naming-convention-use-state': 'off',
-        'import/prefer-default-export': 'off',
-        'react-refresh/only-export-components': 'off',
-        '@eslint-react/hooks-extra/ensure-use-memo-has-non-empty-deps': 'off',
-        'consistent-return': 'off',
-        'jsx-a11y/no-static-element-interactions': 'off',
-        'jsx-a11y/click-events-have-key-events': 'off',
-        '@typescript-eslint/no-non-null-assertion': 'warn',
-        'import/no-absolute-path': 'off',
-        '@typescript-eslint/restrict-template-expressions': ['error', {
-          allowAny: true,
-          allowNumber: true,
-          allowBoolean: true,
-        }],
-        '@typescript-eslint/no-misused-promises': 'off',
-        '@typescript-eslint/no-floating-promises': 'off',
-        '@typescript-eslint/no-unsafe-assignment': 'off',
-        '@typescript-eslint/no-dynamic-delete': 'off',
-        '@typescript-eslint/consistent-type-definitions': 'off',
-        '@typescript-eslint/no-unnecessary-type-parameters': 'off',
-        '@eslint-react/hooks-extra/no-unnecessary-use-memo': 'off',
-        '@typescript-eslint/no-confusing-void-expression': 'off',
-        '@typescript-eslint/no-unsafe-argument': 'warn',
       },
     },
     ...overrides,

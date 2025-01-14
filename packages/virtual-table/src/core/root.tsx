@@ -1,20 +1,10 @@
-/* eslint-disable @eslint-react/hooks-extra/no-direct-set-state-in-use-effect */
+import type { CSSProperties, ForwardedRef, ReactNode } from 'react'
+import type { PipelineRender } from './pipeline/types'
 import clsx from 'clsx'
-import {
-  type CSSProperties,
-  type ForwardedRef,
-  forwardRef,
-  type ReactNode,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
-
+import { forwardRef, useEffect, useMemo, useRef, useState } from 'react'
 import { composeRef } from '../utils/ref'
 import { useHorizontalScrollContext } from './context/horizontal-scroll'
 import { pipelineRender } from './pipeline/render-pipeline'
-import { type PipelineRender } from './pipeline/types'
 
 export interface TableRootProps {
   className?: string

@@ -1,12 +1,13 @@
-/* eslint-disable @eslint-react/hooks-extra/no-direct-set-state-in-use-layout-effect */
+import type { CSSProperties, ForwardedRef, ReactElement, RefAttributes } from 'react'
+import type { TableBodyProps } from './body'
+import type { ContainerSizeState } from './context/container-size'
+import type { TableSharedContextType } from './context/shared'
+import type { RowRect, UseRowRectManagerOptions } from './hooks/useRowRectManager'
+import type { OnRowType } from './types'
 import clsx from 'clsx'
 import {
-  type CSSProperties,
-  type ForwardedRef,
   forwardRef,
   memo,
-  type ReactElement,
-  type RefAttributes,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -14,29 +15,20 @@ import {
   useRef,
   useState,
 } from 'react'
-
 import { __DEV__ } from '../utils/dev'
-import {
-  getScrollElement, getScrollParent, isRoot, isWindow,
-} from '../utils/dom'
+import { getScrollElement, getScrollParent, isRoot, isWindow } from '../utils/dom'
 import { composeRef } from '../utils/ref'
-import TableBody, { type TableBodyProps } from './body'
-import { ContainerSize, type ContainerSizeState } from './context/container-size'
+import TableBody from './body'
+import { ContainerSize } from './context/container-size'
 import { HorizontalScrollContext } from './context/horizontal-scroll'
-import { TableShared, type TableSharedContextType } from './context/shared'
+import { TableShared } from './context/shared'
 import { TableColumnsContext } from './context/table-columns'
 import TableHeader from './header'
 import { useCalcSize } from './hooks/useCalcSize'
-import {
-  anchorQuery,
-  type RowRect,
-  useRowRectManager,
-  type UseRowRectManagerOptions,
-} from './hooks/useRowRectManager'
+import { anchorQuery, useRowRectManager } from './hooks/useRowRectManager'
 import { pipelineRender } from './pipeline/render-pipeline'
 import { TablePipeline } from './pipeline/useTablePipeline'
 import TableRoot from './root'
-import { type OnRowType } from './types'
 import { isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 export type VirtualTableCoreRef = HTMLTableElement
@@ -94,7 +86,10 @@ function VirtualTableCore<T>(
   }, [])
 
   const {
-    scrollContainerHeight, scrollContainerWidth, tableHeight, tableWidth,
+    scrollContainerHeight,
+    scrollContainerWidth,
+    tableHeight,
+    tableWidth,
   } = useCalcSize({ getScroller, root: rootNode })
 
   const containerSize = useMemo((): ContainerSizeState => {
@@ -199,7 +194,10 @@ function VirtualTableCore<T>(
   })
 
   const {
-    rowHeightList, rects, updateRowHeight, sum,
+    rowHeightList,
+    rects,
+    updateRowHeight,
+    sum,
   } = useRowRectManager({
     itemCount: dataSource?.length ?? 0,
     estimatedRowHeight,

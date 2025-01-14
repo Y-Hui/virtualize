@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @eslint-react/no-clone-element */
-import { cloneElement, type ComponentType, createElement, isValidElement, type ReactNode, useCallback, useMemo } from 'react'
-
-import { createMiddleware, type MiddlewareContext, type MiddlewareRenderBody, type MiddlewareResult } from '../../core'
+import type { ComponentType, ReactNode } from 'react'
+import type { MiddlewareContext, MiddlewareRenderBody, MiddlewareResult } from '../../core'
+import { cloneElement, createElement, isValidElement, useCallback, useMemo } from 'react'
+import { createMiddleware } from '../../core'
 import EmptyRow from './empty-row'
 
 export interface EmptyOptions {

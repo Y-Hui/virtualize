@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { Hook } from './table-pipeline'
+import type { Middleware } from './types'
 import { useMemo } from 'react'
-
 import { shallowEqualArrays } from '../../utils/equal'
-import { type Hook, shakeUnsafeHooks, TablePipeline } from './table-pipeline'
-import { type Middleware } from './types'
+import { shakeUnsafeHooks, TablePipeline } from './table-pipeline'
 
 export interface UseTablePipelineOptions<T = any> {
   pipeline?: TablePipeline<T>

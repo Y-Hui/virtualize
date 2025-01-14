@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import './style.scss'
 
-import { isValidElement, type ReactNode, useCallback } from 'react'
-
-import { createMiddleware, type MiddlewareContext, type MiddlewareResult } from '../../core'
+import type { ReactNode } from 'react'
+import type { MiddlewareContext, MiddlewareResult } from '../../core'
+import type { SummaryProps } from './summary'
+import { isValidElement, useCallback } from 'react'
+import { createMiddleware } from '../../core'
 import Footer from './footer'
-import Summary, { type SummaryProps } from './summary'
+import Summary from './summary'
 
 export interface TableSummaryOptions<T = any> {
   summary: (data: readonly T[]) => ReactNode

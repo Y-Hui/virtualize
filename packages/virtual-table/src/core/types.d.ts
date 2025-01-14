@@ -1,13 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  type DetailedHTMLProps,
-  type HTMLAttributes,
-  type Key,
-  type ReactNode,
-  type TdHTMLAttributes,
-} from 'react'
-
-import { type FixedType } from './utils/verification'
+import type { DetailedHTMLProps, HTMLAttributes, Key, ReactNode, TdHTMLAttributes } from 'react'
+import type { FixedType } from './utils/verification'
 
 export type AnyObject = Record<string, any>
 export type OnRowType<T = any> = (
@@ -22,6 +15,7 @@ export type { FixedType }
 export type AlignType = 'left' | 'right' | 'center'
 export type SizeType = 'small' | 'middle' | 'large'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ColumnExtra { }
 
 interface ColumnTypeCommon<T> extends ColumnExtra {

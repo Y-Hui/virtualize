@@ -1,13 +1,8 @@
+import type { DetailedHTMLProps, HTMLAttributes } from 'react'
+import type { ColumnType } from '../../core'
 import clsx from 'clsx'
-import { type DetailedHTMLProps, type HTMLAttributes, memo, useMemo } from 'react'
-
-import {
-  type ColumnType,
-  isValidFixed,
-  isValidFixedLeft,
-  isValidFixedRight,
-  useTableSticky,
-} from '../../core'
+import { memo, useMemo } from 'react'
+import { isValidFixed, isValidFixedLeft, isValidFixedRight, useTableSticky } from '../../core'
 import { findLastIndex } from '../../utils/find-last-index'
 
 type NativeProps = DetailedHTMLProps<

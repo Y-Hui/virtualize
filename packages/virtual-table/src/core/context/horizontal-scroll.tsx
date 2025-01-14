@@ -1,12 +1,5 @@
-import {
-  createContext,
-  type PropsWithChildren,
-  useContext,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from 'react'
-
+import type { PropsWithChildren } from 'react'
+import { createContext, useContext, useLayoutEffect, useMemo, useState } from 'react'
 import { __DEV__ } from '../../utils/dev'
 import { get } from '../utils/get'
 
@@ -73,7 +66,7 @@ export function HorizontalScrollContext(props: PropsWithChildren) {
       nodes.forEach((el) => {
         if (el === currentElement) return
         disabledElement.add(el)
-        // eslint-disable-next-line no-param-reassign
+
         el.scrollLeft = scrollLeft
       })
     }
@@ -117,7 +110,7 @@ export function useHorizontalScrollContext() {
   const context = useContext(HorizontalScroll)
 
   if (context == null) {
-    throw Error('useHorizontalScrollContext 脱离上下文调用')
+    throw new Error('useHorizontalScrollContext 脱离上下文调用')
   }
 
   return context

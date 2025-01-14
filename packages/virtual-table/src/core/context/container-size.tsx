@@ -13,7 +13,7 @@ export const ContainerSize = createContext<ContainerSizeState | null>(null)
 export function useContainerSize() {
   const context = useContext(ContainerSize)
   if (context == null) {
-    throw Error('useContainerSize 脱离上下文调用')
+    throw new Error('useContainerSize 脱离上下文调用')
   }
   return context
 }

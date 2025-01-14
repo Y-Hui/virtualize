@@ -1,5 +1,4 @@
-import { type ReactNode } from 'react'
-
+import type { ReactNode } from 'react'
 import type { MergedMiddlewareRender } from './types'
 
 type RenderOptions<T> = T extends ((children: ReactNode, options: infer Opt) => ReactNode) ? Opt : object

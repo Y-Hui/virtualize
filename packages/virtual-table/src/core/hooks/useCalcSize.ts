@@ -1,6 +1,7 @@
-import { type RefObject, useLayoutEffect, useRef, useState } from 'react'
-
-import { isWindow, type ScrollElement } from '../../utils/dom'
+import type { RefObject } from 'react'
+import type { ScrollElement } from '../../utils/dom'
+import { useLayoutEffect, useRef, useState } from 'react'
+import { isWindow } from '../../utils/dom'
 
 interface CalcSizeOptions {
   getScroller: () => ScrollElement | undefined

@@ -1,4 +1,4 @@
-import { type ColumnType } from './types'
+import type { ColumnType } from './types'
 
 export interface NecessaryProps<T> {
   dataSource?: T[]
