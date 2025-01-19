@@ -1,6 +1,29 @@
 {
-  "name": "virtual-table",
+  "name": "@are-visual/virtual-table",
   "private": true,
   "version": "0.0.1",
-  "main": "./src/index.ts"
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.esm.js"
+    },
+    "./*": {
+      "types": "./*.d.ts",
+      "default": "./*.js"
+    }
+  },
+  "files": ["**"],
+  "sideEffects": false,
+  "peerDependencies": {
+    "react": ">=16.14.0",
+    "react-dom": ">=16.14.0"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1"
+  },
+  "peerDependenciesMeta": {
+    "react-resizable": {
+      "optional": true
+    }
+  }
 }

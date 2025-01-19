@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { AnyObject, ColumnType, MiddlewareContext, MiddlewareResult } from '@are-visual/virtual-table'
 import type { Key, ReactNode } from 'react'
-import type { AnyObject, ColumnType, MiddlewareContext, MiddlewareResult } from '../../core'
 import type { SelectionColumnTitleProps, TableRowSelection } from './types'
 
-import { useControllableValue, useMemoizedFn } from 'ahooks'
+import { createMiddleware, useShallowMemo, useStableFn } from '@are-visual/virtual-table'
+import { useControllableValue } from 'ahooks'
 import { isValidElement, useCallback, useMemo, useRef } from 'react'
-import { createMiddleware, useShallowMemo } from '../../core'
 import Selection from './selection'
 
 export const SELECTION_COLUMN_KEY = 'VirtualTable.SELECTION_COLUMN'
@@ -84,7 +84,7 @@ function useSelection<T = any>(
 
   const allDisabled = !selectionPropsList.some((item) => !item.disabled)
 
-  const getRowsByKeys = useMemoizedFn((keys: Key[]) => {
+  const getRowsByKeys = useStableFn((keys: Key[]) => {
     const result: (T | undefined)[] = []
     keys.forEach((key) => {
       let value = dataSource.find((row) => row[rowKey] === key) as T | undefined

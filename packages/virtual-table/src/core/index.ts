@@ -11,8 +11,8 @@ export type { StickyContextState } from './context/sticky'
 export { useTableSticky } from './context/sticky'
 export type { TableColumnsContextType } from './context/table-columns'
 export { useTableColumns } from './context/table-columns'
-export { useEvent } from './hooks/useEvent'
 export { useShallowMemo } from './hooks/useShallowMemo'
+export { useStableFn } from './hooks/useStableFn'
 export { createMiddleware } from './pipeline/create-middleware'
 export type {
   Middleware,

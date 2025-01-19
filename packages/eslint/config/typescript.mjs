@@ -45,7 +45,7 @@ export default {
     '@typescript-eslint/no-unnecessary-type-parameters': 'off',
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': [
-      'error',
+      'warn',
       {
         args: 'all',
         argsIgnorePattern: '^_',

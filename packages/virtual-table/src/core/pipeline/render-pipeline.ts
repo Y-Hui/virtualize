@@ -9,6 +9,7 @@ export function pipelineRender<T extends MergedMiddlewareRender>(
   options: RenderOptions<T>,
 ): ReactNode {
   if (typeof render === 'function') {
+    // @ts-expect-error: There is no way to declare the type correctly, but it works at runtime.
     return render(node, options)
   }
   return node

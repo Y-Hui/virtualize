@@ -1,9 +1,8 @@
+import type { ColumnType } from '@are-visual/virtual-table'
 import type { DetailedHTMLProps, HTMLAttributes } from 'react'
-import type { ColumnType } from '../../core'
+import { findLastIndex, isValidFixed, isValidFixedLeft, isValidFixedRight, useTableSticky } from '@are-visual/virtual-table'
 import clsx from 'clsx'
 import { memo, useMemo } from 'react'
-import { isValidFixed, isValidFixedLeft, isValidFixedRight, useTableSticky } from '../../core'
-import { findLastIndex } from '../../utils/find-last-index'
 
 type NativeProps = DetailedHTMLProps<
   HTMLAttributes<HTMLTableCellElement>,

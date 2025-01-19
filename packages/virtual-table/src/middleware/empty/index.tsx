@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { MiddlewareContext, MiddlewareRenderBody, MiddlewareResult } from '@are-visual/virtual-table'
 import type { ComponentType, ReactNode } from 'react'
-import type { MiddlewareContext, MiddlewareRenderBody, MiddlewareResult } from '../../core'
+import { createMiddleware } from '@are-visual/virtual-table'
 import { cloneElement, createElement, isValidElement, useCallback, useMemo } from 'react'
-import { createMiddleware } from '../../core'
 import EmptyRow from './empty-row'
 
 export interface EmptyOptions {

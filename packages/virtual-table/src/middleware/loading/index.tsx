@@ -1,8 +1,7 @@
 import './index.scss'
-import type { ColumnType, MiddlewareContext, MiddlewareResult } from '../../core'
+import type { ColumnType, MiddlewareContext, MiddlewareResult } from '@are-visual/virtual-table'
+import { createMiddleware } from '@are-visual/virtual-table'
 import { useMemo } from 'react'
-
-import { createMiddleware } from '../../core'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function useTableLoading<T = any>(

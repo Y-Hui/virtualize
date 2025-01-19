@@ -1,27 +1,26 @@
-import 'virtual-table/src/styles/table.scss'
+import '@are-visual/virtual-table/styles/table.scss'
 
-import type { ForwardedRef, ReactElement, RefAttributes } from 'react'
 import type {
   ColumnType,
   SizeType,
   VirtualTableProps as VirtualTableCoreProps,
   VirtualTableRef as VirtualTableCoreRef,
-} from 'virtual-table'
-import type { ExpandableConfig } from 'virtual-table/src/middleware/expandable'
-import type { TableSummaryOptions } from 'virtual-table/src/middleware/summary'
+} from '@are-visual/virtual-table'
+import type { ExpandableConfig } from '@are-visual/virtual-table/middleware/expandable'
+import type { TableSummaryOptions } from '@are-visual/virtual-table/middleware/summary'
+import type { ForwardedRef, ReactElement, RefAttributes } from 'react'
 import type { TablePaginationConfig } from './middleware/pagination'
 import type { TableRowSelection } from './middleware/selection'
+import { VirtualTable as Table, useTablePipeline } from '@are-visual/virtual-table'
+import { columnResize } from '@are-visual/virtual-table/middleware/column-resize'
+import { tableEmpty } from '@are-visual/virtual-table/middleware/empty'
+import { tableExpandable } from '@are-visual/virtual-table/middleware/expandable'
+import { horizontalScrollBar } from '@are-visual/virtual-table/middleware/horizontal-scroll-bar'
+import { tableLoading } from '@are-visual/virtual-table/middleware/loading'
+import { Summary, tableSummary } from '@are-visual/virtual-table/middleware/summary'
 import { Empty } from 'antd'
 import clsx from 'clsx'
 import { forwardRef, useCallback, useEffect, useRef } from 'react'
-import { VirtualTable as Table, useTablePipeline } from 'virtual-table'
-import { columnResize } from 'virtual-table/src/middleware/column-resize'
-import { tableEmpty } from 'virtual-table/src/middleware/empty'
-import { tableExpandable } from 'virtual-table/src/middleware/expandable'
-import { horizontalScrollBar } from 'virtual-table/src/middleware/horizontal-scroll-bar'
-import { tableLoading } from 'virtual-table/src/middleware/loading'
-import { tableSummary } from 'virtual-table/src/middleware/summary'
-import Summary from 'virtual-table/src/middleware/summary/summary'
 import { tablePagination } from './middleware/pagination'
 import { tableSelection } from './middleware/selection'
 

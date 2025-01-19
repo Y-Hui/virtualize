@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { ColumnExtra, FixedType } from '@are-visual/virtual-table'
 import type { ComponentType, HTMLAttributes, Key, ReactNode, TdHTMLAttributes } from 'react'
-import type { ColumnExtra, FixedType } from '../../core'
 
 export type RowSelectMethod = 'all' | 'none' | 'invert' | 'single' | 'multiple'
 export type SelectionSelectFn<T = any> = (record: T, selected: boolean, selectedRows: T[], nativeEvent: Event) => void

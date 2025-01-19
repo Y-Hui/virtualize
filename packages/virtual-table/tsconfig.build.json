@@ -1,30 +1,37 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
+    "declaration": true,
+    "declarationDir": "./dist",
+    "emitDeclarationOnly": true,
 
     "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "ESNext",
     "skipLibCheck": true,
-
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": false,
     "isolatedModules": true,
     "moduleDetection": "force",
-    "noEmit": true,
     "jsx": "react-jsx",
-
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@are-visual/virtual-table": ["./packages/virtual-table/src/index.ts"],
-      "@are-visual/virtual-table/*": ["./packages/virtual-table/src/*"],
+      "@are-visual/virtual-table": ["./src/index.ts"],
+      "@are-visual/virtual-table/*": ["./src/*"],
     }
   },
-  "include": ["packages/*/src", "scripts/**/*", "./packages/global.d.ts"]
+  "include": [
+    "src/**/*",
+    "../global.d.ts"
+  ]
 }

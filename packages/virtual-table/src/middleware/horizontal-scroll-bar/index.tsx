@@ -1,5 +1,5 @@
-import type { MiddlewareContext, MiddlewareResult } from '../../core'
-import { createMiddleware } from '../../core'
+import type { MiddlewareContext, MiddlewareResult } from '@are-visual/virtual-table'
+import { createMiddleware } from '@are-visual/virtual-table'
 import ScrollBar from './scroll-bar'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

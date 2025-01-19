@@ -1,6 +1,5 @@
 import type { PropsWithChildren } from 'react'
 import { createContext, useContext, useLayoutEffect, useMemo, useState } from 'react'
-import { __DEV__ } from '../../utils/dev'
 import { get } from '../utils/get'
 
 export interface HorizontalScrollContextState {

@@ -1,7 +1,5 @@
 import { createContext, useContext } from 'react'
 
-import { __DEV__ } from '../../utils/dev'
-
 export interface TableSharedContextType {
   getRowHeightList: () => number[]
   updateRowHeight: (index: number, height: number) => void

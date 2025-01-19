@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { SelectionProps } from 'virtual-table/src/middleware/selection'
+import type { SelectionProps } from '@are-visual/virtual-table/middleware/selection'
 import type { TableRowSelection } from './types'
+import { tableSelection as rawTableSelection } from '@are-visual/virtual-table/middleware/selection'
 import { Checkbox, Radio } from 'antd'
 import { isValidElement } from 'react'
-import { tableSelection as rawTableSelection } from 'virtual-table/src/middleware/selection'
 import SelectionTitle from './title'
 
 export type { TableRowSelection }

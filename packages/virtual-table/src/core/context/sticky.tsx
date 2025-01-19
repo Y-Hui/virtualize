@@ -1,6 +1,5 @@
 import type { FixedType } from '../types'
 import { createContext, useContext } from 'react'
-import { __DEV__ } from '../../utils/dev'
 
 export interface StickyContextState {
   /** 每一列的宽度 */

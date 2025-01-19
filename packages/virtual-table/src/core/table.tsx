@@ -15,7 +15,6 @@ import {
   useRef,
   useState,
 } from 'react'
-import { __DEV__ } from '../utils/dev'
 import { getScrollElement, getScrollParent, isRoot, isWindow } from '../utils/dom'
 import { composeRef } from '../utils/ref'
 import TableBody from './body'

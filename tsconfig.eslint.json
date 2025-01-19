@@ -22,7 +22,11 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "allowJs": true,
-    "checkJs": false
+    "checkJs": false,
+    "paths": {
+      "@are-visual/virtual-table": ["./packages/virtual-table/src/index.ts"],
+      "@are-visual/virtual-table/*": ["./packages/virtual-table/src/*"],
+    }
   },
-  "include": ["packages/virtual-table/**/*", "packages/eslint/**/*", "scripts/**/*", "./eslint.config.mjs"],
+  "include": ["packages/virtual-table/**/*", "packages/eslint/**/*", "scripts/**/*", "./eslint.config.mjs", "./packages/global.d.ts"],
 }

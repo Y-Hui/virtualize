@@ -33,6 +33,7 @@ export {
   useContainerSize,
   useHorizontalScrollContext,
   useShallowMemo,
+  useStableFn,
   useTableColumns,
   useTablePipeline,
   useTableShared,
@@ -42,3 +43,5 @@ export {
   VirtualTableRow,
 } from './core'
 export type * from './core/pipeline/types'
+export { findLastIndex } from './utils/find-last-index'
+export { composeRef } from './utils/ref'

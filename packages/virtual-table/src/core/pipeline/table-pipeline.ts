@@ -89,6 +89,7 @@ export class TablePipeline<T> {
       Object.entries(renderFunctionMap).forEach(([key, value]) => {
         const target = nextCtx[key as keyof MiddlewareRenders]
         if (typeof target === 'function') {
+          // @ts-expect-error: There is no way to declare the type correctly, but it works at runtime.
           value.push(target)
         }
       })
@@ -107,6 +108,7 @@ export class TablePipeline<T> {
         context.current[key as keyof MiddlewareRenders] = (children, args) => {
           // reduce 把 [render1, render2] 转为 render1(render2(children))
           return renders.reduce<ReactNode>((node, render) => {
+            // @ts-expect-error: There is no way to declare the type correctly, but it works at runtime.
             return render(node, args)
           }, children)
         }

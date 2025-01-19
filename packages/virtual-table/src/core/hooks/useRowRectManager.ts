@@ -1,6 +1,5 @@
 import { useCallback, useRef } from 'react'
-
-import { useEvent } from './useEvent'
+import { useStableFn } from './useStableFn'
 
 export interface RowRect {
   index: number
@@ -72,7 +71,7 @@ export function useRowRectManager(options: UseRowRectManagerOptions) {
   }
 
   // DOM 渲染结束后，进行高度测量，再修改 rowHeightList
-  const updateRowHeight = useEvent((index: number, height: number) => {
+  const updateRowHeight = useStableFn((index: number, height: number) => {
     rowHeightList.current[index] = height
     updateRectList()
     onChange?.(index, height, rectList.current)

@@ -1,8 +1,8 @@
 import './style.scss'
 
-import type { MiddlewareContext, MiddlewareResult } from 'virtual-table'
+import type { MiddlewareContext, MiddlewareResult } from '@are-visual/virtual-table'
 import type { TablePaginationConfig } from './types'
-import { createMiddleware } from 'virtual-table'
+import { createMiddleware } from '@are-visual/virtual-table'
 import Pagination from './pagination'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

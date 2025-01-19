@@ -1,4 +1,5 @@
 import './index.css'
+import 'react-resizable/css/styles.css'
 
 import { ConfigProvider } from 'antd'
 import zhCN from 'antd/locale/zh_CN'

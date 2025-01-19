@@ -1,9 +1,9 @@
+import type { ColumnType } from '@are-visual/virtual-table'
 import type { FC, Key, ReactNode } from 'react'
-import type { ColumnType } from '../../core'
+import { useHorizontalScrollContext } from '@are-visual/virtual-table'
+import { getScrollbarSize } from '@are-visual/virtual-table/middleware/utils/getScrollbarSize'
 import clsx from 'clsx'
 import { useState } from 'react'
-import { useHorizontalScrollContext } from '../../core'
-import { getScrollbarSize } from '../horizontal-scroll-bar/getScrollbarSize'
 
 export interface FooterProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

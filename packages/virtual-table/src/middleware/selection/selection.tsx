@@ -2,9 +2,9 @@ import './styles.scss'
 
 import type { ComponentType, DetailedHTMLProps, ForwardedRef, InputHTMLAttributes } from 'react'
 import type { SelectionProps as BaseProps } from './types'
+import { composeRef } from '@are-visual/virtual-table'
 import clsx from 'clsx'
 import { createElement, forwardRef, useEffect, useRef } from 'react'
-import { composeRef } from '../../utils/ref'
 
 type InputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>
 export interface SelectionProps extends BaseProps,

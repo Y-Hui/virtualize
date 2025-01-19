@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { Key, MouseEvent, ReactNode } from 'react'
 import type {
   AnyObject,
   ColumnType,
@@ -8,11 +7,12 @@ import type {
   MiddlewareRenderRow,
   MiddlewareResult,
   OnRowType,
-} from '../../core'
-import { useControllableValue, useMemoizedFn } from 'ahooks'
+} from '@are-visual/virtual-table'
+import type { Key, MouseEvent, ReactNode } from 'react'
+import { createMiddleware, isValidFixed, useShallowMemo, useStableFn } from '@are-visual/virtual-table'
+import { useControllableValue } from 'ahooks'
 import clsx from 'clsx'
 import { useCallback, useMemo, useRef } from 'react'
-import { createMiddleware, isValidFixed, useShallowMemo } from '../../core'
 import ExpandRow from './expand-row'
 
 type TriggerEventHandler<RecordType> = (record: RecordType, event: MouseEvent<HTMLElement>) => void
@@ -135,7 +135,7 @@ function useTableExpandable<T = any>(
     },
   )
 
-  const onUpdateExpansion = useMemoizedFn((rowData: T, shouldExpand?: boolean) => {
+  const onUpdateExpansion = useStableFn((rowData: T, shouldExpand?: boolean) => {
     const key = getRowKey(rowData, rowKey)
     expansionKeys.current.add(key)
     if (shouldExpand == null) {

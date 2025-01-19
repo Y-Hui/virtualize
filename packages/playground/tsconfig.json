@@ -4,6 +4,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
+      "@are-visual/virtual-table": ["../virtual-table/src/index.ts"],
+      "@are-visual/virtual-table/*": ["../virtual-table/src/*"]
     }
   },
   "include": ["src/**/*", "./eslint.config.mjs", "./vite.config.ts"]

@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import './style.scss'
 
+import type { MiddlewareContext, MiddlewareResult } from '@are-visual/virtual-table'
 import type { ReactNode } from 'react'
-import type { MiddlewareContext, MiddlewareResult } from '../../core'
 import type { SummaryProps } from './summary'
+import { createMiddleware } from '@are-visual/virtual-table'
 import { isValidElement, useCallback } from 'react'
-import { createMiddleware } from '../../core'
 import Footer from './footer'
 import Summary from './summary'
 

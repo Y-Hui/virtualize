@@ -1,6 +1,5 @@
 import type { FC, ReactNode } from 'react'
-
-import { useContainerSize } from '../../core'
+import { useContainerSize } from '@are-visual/virtual-table'
 
 export interface EmptyRowProps {
   colSpan: number

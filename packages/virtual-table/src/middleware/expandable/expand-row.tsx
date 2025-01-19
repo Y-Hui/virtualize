@@ -1,10 +1,9 @@
 import './style.scss'
 
 import type { CSSProperties, FC, ReactNode } from 'react'
+import { useContainerSize, useTableShared } from '@are-visual/virtual-table'
 import clsx from 'clsx'
 import { useRef } from 'react'
-
-import { useContainerSize, useTableShared } from '../../core'
 
 export interface ExpandRowProps {
   className?: string

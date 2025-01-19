@@ -1,10 +1,8 @@
 import './scroll-bar.scss'
 import type { FC } from 'react'
+import { composeRef, useHorizontalScrollContext } from '@are-visual/virtual-table'
+import { getScrollbarSize } from '@are-visual/virtual-table/middleware/utils/getScrollbarSize'
 import { useEffect, useRef, useState } from 'react'
-import { useHorizontalScrollContext } from '../../core'
-import { composeRef } from '../../utils/ref'
-
-import { getScrollbarSize } from './getScrollbarSize'
 
 const ScrollBar: FC = () => {
   const { addShouldSyncElement } = useHorizontalScrollContext()

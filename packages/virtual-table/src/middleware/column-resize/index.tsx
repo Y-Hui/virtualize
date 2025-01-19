@@ -1,13 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import 'react-resizable/css/styles.css'
-
-import type { MiddlewareContext, MiddlewareRenderHeaderCell, MiddlewareResult } from '../../core'
+import type { MiddlewareContext, MiddlewareRenderHeaderCell, MiddlewareResult } from '@are-visual/virtual-table'
+import { createMiddleware } from '@are-visual/virtual-table'
 import { isValidElement, useCallback, useMemo, useState } from 'react'
 import { Resizable } from 'react-resizable'
-import { createMiddleware } from '../../core'
-import { __DEV__ } from '../../utils/dev'
 
-declare module '../../core' {
+declare module '@are-visual/virtual-table' {
   interface ColumnExtra {
     disableResize?: boolean
   }
