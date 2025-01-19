@@ -4,7 +4,7 @@ import type { Key, ReactNode } from 'react'
 import type { SelectionColumnTitleProps, TableRowSelection } from './types'
 
 import { createMiddleware, useShallowMemo, useStableFn } from '@are-visual/virtual-table'
-import { useControllableValue } from 'ahooks'
+import { useControllableValue } from '@are-visual/virtual-table/middleware/utils/useControllableValue'
 import { isValidElement, useCallback, useMemo, useRef } from 'react'
 import Selection from './selection'
 
@@ -27,6 +27,8 @@ function useSelection<T = any>(
   const dataSource = disablePlugin ? EMPTY_ARR : ((ctx.dataSource ?? []) as AnyObject[])
 
   const {
+    defaultSelectedRowKeys,
+
     component,
     preserveSelectedRowKeys,
     multiple = true,
@@ -52,7 +54,7 @@ function useSelection<T = any>(
   const [selectedRowKeys = [], setSelectedRowKeys] = useControllableValue<Key[]>(
     options ?? {},
     {
-      defaultValuePropName: 'defaultSelectedRowKeys',
+      defaultValue: defaultSelectedRowKeys,
       valuePropName: 'selectedRowKeys',
       trigger: 'onChange',
     },

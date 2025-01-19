@@ -11,7 +11,7 @@ import type {
 } from '@are-visual/virtual-table'
 import type { Key, MouseEvent, ReactNode } from 'react'
 import { createMiddleware, isValidFixed, useShallowMemo, useStableFn } from '@are-visual/virtual-table'
-import { useControllableValue } from 'ahooks'
+import { useControllableValue } from '@are-visual/virtual-table/middleware/utils/useControllableValue'
 import clsx from 'clsx'
 import { useCallback, useMemo, useRef } from 'react'
 import ExpandRow from './expand-row'
@@ -55,8 +55,6 @@ export function isExpansionColumn<T = any>(column: ColumnType<T>) {
 function getRowKey<T>(rowData: T, rowKey: (string & {}) | keyof T) {
   return (rowData as AnyObject)[rowKey as string] as Key
 }
-
-const EMPTY_ARR: Key[] = []
 
 function useTableExpandable<T = any>(
   ctx: MiddlewareContext<T>,
@@ -124,7 +122,7 @@ function useTableExpandable<T = any>(
   })
 
   const expansionKeys = useRef(new Set<Key>(defaultExpandedRowKeys ?? defaultExpandKey))
-  const [expansion = EMPTY_ARR, setExpansion] = useControllableValue<readonly Key[]>(
+  const [expansion, setExpansion] = useControllableValue<readonly Key[]>(
     options ?? {},
     {
       trigger: 'onExpandedRowsChange',

@@ -65,6 +65,7 @@ const FullDemo: FC = () => {
 
   const selection = useMemo(() => {
     return tableSelection<MockData>({
+      extraColumnProps: { disableResize: true },
       // component: SelectionImpl,
       onSelect(record, selected, selectedRows, nativeEvent) {
         console.log({ record, selected, selectedRows, nativeEvent })
@@ -77,6 +78,7 @@ const FullDemo: FC = () => {
 
   const expandable = useMemo(() => {
     return tableExpandable<MockData>({
+      extraColumnProps: { disableResize: true },
       fixed: 'left',
       defaultExpandAllRows: true,
       // defaultExpandedRowKeys: ['key:1'],
