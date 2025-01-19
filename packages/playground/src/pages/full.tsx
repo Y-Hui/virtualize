@@ -1,4 +1,10 @@
 import '@are-visual/virtual-table/styles/table.scss'
+import '@are-visual/virtual-table/middleware/column-resize/styles.scss'
+import '@are-visual/virtual-table/middleware/expandable/styles.scss'
+import '@are-visual/virtual-table/middleware/horizontal-scroll-bar/styles.scss'
+import '@are-visual/virtual-table/middleware/loading/styles.scss'
+import '@are-visual/virtual-table/middleware/selection/styles.scss'
+import '@are-visual/virtual-table/middleware/summary/styles.scss'
 
 import type { MockData } from '@/utils/mock'
 import type { ColumnType } from '@are-visual/virtual-table'
@@ -109,7 +115,15 @@ const FullDemo: FC = () => {
     use: [
       selection,
       expandable,
-      columnResize({ storageKey: 'full-demo' }),
+      columnResize({
+        storageKey: 'full-demo',
+        min(column) {
+          if (column.key === 'name') {
+            console.log(column)
+            return 160
+          }
+        },
+      }),
       { priority: 200, hook: tableLoading({ loading }) },
       { priority: 200, hook: tableEmpty({ children: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> }) },
       { priority: 200, hook: summary },

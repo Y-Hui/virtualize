@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { MiddlewareContext, MiddlewareRenderHeaderCell, MiddlewareResult } from '@are-visual/virtual-table'
+import type { ColumnType, MiddlewareContext, MiddlewareRenderHeaderCell, MiddlewareResult } from '@are-visual/virtual-table'
 import { createMiddleware } from '@are-visual/virtual-table'
 import { isValidElement, useCallback, useMemo, useState } from 'react'
 import { Resizable } from 'react-resizable'
@@ -10,12 +10,35 @@ declare module '@are-visual/virtual-table' {
   }
 }
 
-interface ResizeOptions {
+type Constraint<T> = number | ((column: ColumnType<T>) => (number | undefined | null))
+
+export interface ResizeOptions<T = any> {
   storageKey: string
+  min?: Constraint<T>
+  max?: Constraint<T>
 }
 
 function isObject(obj: unknown): obj is Record<string, unknown> {
   return typeof obj === 'object' && obj != null
+}
+
+function getValue<T, Args>(maybeValue: T | ((args: Args) => T), args: Args): T {
+  if (typeof maybeValue === 'function') {
+    return (maybeValue as (args: Args) => T)(args)
+  }
+  return maybeValue
+}
+
+function getConstraintValue<T>(
+  constraint: Constraint<T> | undefined,
+  column: ColumnType<T>,
+): [width: number, height: number] | undefined {
+  if (constraint == null) return undefined
+  const result = getValue(constraint, column)
+  if (result == null) {
+    return undefined
+  }
+  return [result, 0]
 }
 
 const resizeStorage = {
@@ -46,9 +69,9 @@ const resizeStorage = {
 
 function useColumnResize<T = any>(
   ctx: MiddlewareContext<T>,
-  args?: ResizeOptions,
+  args?: ResizeOptions<T>,
 ): MiddlewareResult<T> {
-  const { storageKey } = args ?? {}
+  const { storageKey, min, max } = args ?? {}
   const { columns: rawColumns } = ctx
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>(() => {
     if (storageKey == null) {
@@ -71,7 +94,7 @@ function useColumnResize<T = any>(
     })
   }, [storageKey])
 
-  const renderHeaderCell: MiddlewareRenderHeaderCell = useCallback((children, options) => {
+  const renderHeaderCell: MiddlewareRenderHeaderCell<T> = useCallback((children, options) => {
     const { column, columnIndex = 0, columnWidthList = [] } = options
 
     if (column.disableResize) {
@@ -95,26 +118,18 @@ function useColumnResize<T = any>(
     return (
       <Resizable
         width={width ?? 0}
-        height={47}
+        axis="x"
+        minConstraints={getConstraintValue(min, column)}
+        maxConstraints={getConstraintValue(max, column)}
         handle={(
-          <div
-            className="resize-handle"
-            style={{
-              width: 10,
-              position: 'absolute',
-              right: 0,
-              top: 0,
-              height: '100%',
-              cursor: 'col-resize',
-            }}
-          />
+          <div className="virtual-table-column-resize-handle" />
         )}
         onResize={(_e, { size }) => { handleResize(key, size.width) }}
       >
         {children}
       </Resizable>
     )
-  }, [handleResize])
+  }, [handleResize, max, min])
 
   const columns = useMemo(() => {
     return rawColumns.map((column) => {

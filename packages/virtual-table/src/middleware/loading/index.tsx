@@ -1,4 +1,3 @@
-import './index.scss'
 import type { ColumnType, MiddlewareContext, MiddlewareResult } from '@are-visual/virtual-table'
 import { createMiddleware } from '@are-visual/virtual-table'
 import { useMemo } from 'react'

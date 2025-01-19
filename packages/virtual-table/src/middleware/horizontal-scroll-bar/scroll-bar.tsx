@@ -1,10 +1,18 @@
-import './scroll-bar.scss'
-import type { FC } from 'react'
+import type { CSSProperties, FC } from 'react'
 import { composeRef, useHorizontalScrollContext } from '@are-visual/virtual-table'
 import { getScrollbarSize } from '@are-visual/virtual-table/middleware/utils/getScrollbarSize'
+import clsx from 'clsx'
 import { useEffect, useRef, useState } from 'react'
 
-const ScrollBar: FC = () => {
+export interface ScrollBarProps {
+  className?: string
+  style?: CSSProperties
+  bottom?: number | string
+  zIndex?: number
+}
+
+const ScrollBar: FC<ScrollBarProps> = (props) => {
+  const { className, style, bottom, zIndex } = props
   const { addShouldSyncElement } = useHorizontalScrollContext()
 
   const rootNode = useRef<HTMLDivElement>(null)
@@ -31,11 +39,14 @@ const ScrollBar: FC = () => {
 
   return (
     <div
-      className="virtual-table-sticky-scroll"
+      className={clsx('virtual-table-sticky-scroll', className)}
       style={{
+        ...style,
         paddingTop: size.height > 0 ? 0 : 12,
         marginTop: size.height > 0 ? 0 : size.height * -1,
         height: size.height,
+        bottom,
+        zIndex,
       }}
       ref={composeRef((node) => {
         if (node == null) return

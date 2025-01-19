@@ -10,12 +10,12 @@
 - [ ] 尝试将虚拟化、sticky 从 core 中拆分为 middleware
 - [ ] 文档编写
 - [x] 优化渲染次数，selection middleware 中设置 columnTitle 为函数时可以看到调用次数很多。
+- [x] 清理不必要的库（classnames、antd）
+- [ ] 尝试移除 ahooks
 
 ### Middleware TODO 🚧
 - [ ] useTablePipeline 实现改进，目前版本实现方式有些“脏”
 - [x] Middleware Render 函数类型改进（使用函数重载）
-- [ ] selection middleware 中 checkStrictly 未实现。
-- [ ] expandable middleware  indentSize、childrenColumnName 未实现
 - [x] empty middleware 设置 width 为容器宽度
 - [x] expandable 支持
 - [x] expandable，展开多个行再收起后，滚动出现闪烁
@@ -24,12 +24,6 @@
 - [ ] Table Row Sort 支持
 - [ ] Table Column Display 支持
 - [x] KeyboardFocus 兼容测试
-
-### GM 定制代码（兼容 antd API）结束后 TODO 🚧
-- [x] 清理不必要的库（classnames、antd）
-- [ ] 尝试移除 ahooks
-- [ ] 改进 Summary（antd Summary API 使用不便）
-
 
 ### DOM 结构 / Pipeline render 结构
 

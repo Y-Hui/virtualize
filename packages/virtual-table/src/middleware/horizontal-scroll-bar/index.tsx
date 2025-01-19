@@ -1,16 +1,22 @@
 import type { MiddlewareContext, MiddlewareResult } from '@are-visual/virtual-table'
+import type { ScrollBarProps } from './scroll-bar'
 import { createMiddleware } from '@are-visual/virtual-table'
 import ScrollBar from './scroll-bar'
 
+export type HorizontalScrollBarOptions = ScrollBarProps
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function useHorizontalScrollBar<T = any>(ctx: MiddlewareContext<T>): MiddlewareResult<T> {
+function useHorizontalScrollBar<T = any>(
+  ctx: MiddlewareContext<T>,
+  options?: HorizontalScrollBarOptions,
+): MiddlewareResult<T> {
   return {
     ...ctx,
     renderContent(children) {
       return (
         <>
           {children}
-          <ScrollBar />
+          <ScrollBar {...options} />
         </>
       )
     },

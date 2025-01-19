@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {
   AnyObject,
+  ColumnExtra,
   ColumnType,
   FixedType,
   MiddlewareContext,
@@ -15,17 +16,17 @@ import clsx from 'clsx'
 import { useCallback, useMemo, useRef } from 'react'
 import ExpandRow from './expand-row'
 
-type TriggerEventHandler<RecordType> = (record: RecordType, event: MouseEvent<HTMLElement>) => void
-interface RenderExpandIconProps<RecordType> {
+type TriggerEventHandler<T> = (record: T, event: MouseEvent<HTMLElement>) => void
+export interface RenderExpandIconProps<T> {
   prefixCls: string
   expanded: boolean
-  record: RecordType
+  record: T
   expandable: boolean
-  onExpand: TriggerEventHandler<RecordType>
+  onExpand: TriggerEventHandler<T>
 }
-type RowClassName<RecordType> = (record: RecordType, index: number, indent: number) => string
-type RenderExpandIcon<RecordType> = (props: RenderExpandIconProps<RecordType>) => ReactNode
-type ExpandedRowRender<ValueType> = (record: ValueType, index: number, indent: number, expanded: boolean) => ReactNode
+export type RowClassName<T> = (record: T, index: number, indent: number) => string
+export type RenderExpandIcon<T> = (props: RenderExpandIconProps<T>) => ReactNode
+export type ExpandedRowRender<T> = (record: T, index: number, indent: number, expanded: boolean) => ReactNode
 
 export interface ExpandableConfig<T> {
   expandedRowKeys?: readonly Key[]
@@ -37,13 +38,12 @@ export interface ExpandableConfig<T> {
   onExpand?: (expanded: boolean, record: T) => void
   onExpandedRowsChange?: (expandedKeys: readonly Key[]) => void
   defaultExpandAllRows?: boolean
-  // indentSize?: number
   showExpandColumn?: boolean
   expandedRowClassName?: string | RowClassName<T>
-  childrenColumnName?: string
   rowExpandable?: (record: T) => boolean
   columnWidth?: number | string
   fixed?: FixedType
+  extraColumnProps?: ColumnExtra
 }
 
 export const EXPANSION_COLUMN_KEY = 'VirtualTable.EXPANSION_COLUMN'
@@ -83,12 +83,10 @@ function useTableExpandable<T = any>(
     showExpandColumn = true,
     expandedRowClassName,
 
-    // TODO: 未实现
-    childrenColumnName: _childrenColumnName,
-
     rowExpandable,
     columnWidth = 50,
     fixed,
+    extraColumnProps,
   } = options ?? {}
 
   const _rowExpandableValue = useMemo(() => {
@@ -207,6 +205,7 @@ function useTableExpandable<T = any>(
 
     return [
       {
+        ...extraColumnProps,
         key: EXPANSION_COLUMN_KEY,
         title: columnTitle,
         width: columnWidth,
@@ -267,6 +266,7 @@ function useTableExpandable<T = any>(
     expansion,
     expandIcon,
     onUpdateExpansion,
+    extraColumnProps,
   ])
 
   const onRow: OnRowType<T> = useCallback((record, index) => {

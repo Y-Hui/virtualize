@@ -30,16 +30,15 @@ function useSelection<T = any>(
     component,
     preserveSelectedRowKeys,
     multiple = true,
-    getCheckboxProps,
+    getSelectionProps,
     onSelect,
     hideSelectAll = false,
-    fixed = 'left',
+    fixed,
     columnWidth,
     columnTitle,
 
-    disableResize = true,
+    extraColumnProps,
 
-    // TODO: 未实现
     // checkStrictly 属性使用场景：
     // const dataSource = [{ key: 1, name: "张三", children: [{ key: 1.1, name: "李四" }] }]
     // dataSource 中含有 children 属性，antd Table 组件会显示为“树形”结构，Table 左侧会新增一个展开按钮，点击后会显示“李四”的数据
@@ -67,8 +66,8 @@ function useSelection<T = any>(
 
   const selectionPropsList = useShallowMemo(() => {
     return dataSource.map((row) => {
-      if (!getCheckboxProps) return {}
-      return getCheckboxProps(row as T)
+      if (!getSelectionProps) return {}
+      return getSelectionProps(row as T)
     })
   })
 
@@ -211,12 +210,12 @@ function useSelection<T = any>(
     }
 
     const column: ColumnType<T> = {
+      ...extraColumnProps,
       title: hideSelectAll ? undefined : onCreateTitle(),
       width: columnWidth ?? 32,
       align: 'center',
-      fixed,
+      fixed: fixed ? 'left' : undefined,
       key: SELECTION_COLUMN_KEY,
-      disableResize,
       render(_value, record, index) {
         const key = (record as AnyObject)[rowKey] as Key
         const checked = selectedRowKeys.includes(key)
@@ -272,7 +271,7 @@ function useSelection<T = any>(
     return [column, ...rawColumns]
   }, [
     disablePlugin,
-    disableResize,
+    extraColumnProps,
     allDisabled,
     allKeys,
     columnTitle,

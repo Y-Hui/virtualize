@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { ColumnExtra, FixedType } from '@are-visual/virtual-table'
+import type { ColumnExtra } from '@are-visual/virtual-table'
 import type { ComponentType, HTMLAttributes, Key, ReactNode, TdHTMLAttributes } from 'react'
 
 export type RowSelectMethod = 'all' | 'none' | 'invert' | 'single' | 'multiple'
@@ -13,7 +13,7 @@ export type SelectionColumnTitleProps = SelectionProps & {
   onSelectInvert: () => void
 }
 
-export interface TableRowSelection<T = any> extends ColumnExtra {
+export interface TableRowSelection<T = any> {
   component?: ComponentType<SelectionProps>
   /** Keep the selection keys in list even the key not exist in `dataSource` anymore */
   preserveSelectedRowKeys?: boolean
@@ -23,14 +23,15 @@ export interface TableRowSelection<T = any> extends ColumnExtra {
   onChange?: (selectedRowKeys: Key[], selectedRows: T[], info: {
     type: RowSelectMethod
   }) => void
-  getCheckboxProps?: (record: T) => SelectionProps & Record<string, unknown>
+  getSelectionProps?: (record: T) => SelectionProps & Record<string, unknown>
   onSelect?: SelectionSelectFn<T>
   hideSelectAll?: boolean
-  fixed?: FixedType
+  fixed?: boolean
   columnWidth?: string | number
   columnTitle?: ReactNode | ((checkboxNode: ReactNode, props: SelectionColumnTitleProps) => ReactNode)
   renderCell?: (value: boolean, record: T, index: number, originNode: ReactNode) => ReactNode
   onCell?: GetComponentProps<T>
+  extraColumnProps?: ColumnExtra
 }
 
 export interface SelectionProps {

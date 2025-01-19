@@ -1,0 +1,73 @@
+$virtual-table-expanded-row-background: var(--virtual-table-expanded-row-background, rgba(0, 0, 0, 0.02));
+$virtual-table-expanded-icon-width: var(--virtual-table-expanded-icon-width, 17px);
+$virtual-table-expanded-icon-height: var(--virtual-table-expanded-icon-height, 17px);
+$virtual-table-expanded-icon-background: var(--virtual-table-expanded-icon-background, #fff);
+$virtual-table-expanded-icon-border-color: var(--virtual-table-expanded-icon-border-color, #f0f0f0);
+$virtual-table-expanded-icon-hover-border-color: var(--virtual-table-expanded-icon-hover-border-color, currentColor);
+$virtual-table-expanded-icon-color: var(--virtual-table-expanded-icon-color, rgba(0, 0, 0, 0.88));
+$virtual-table-expanded-icon-hover-color: var(--virtual-table-expanded-icon-hover-color, #69b1ff);
+$virtual-table-expanded-icon-radius: var(--virtual-table-expanded-icon-radius, 6px);
+
+.virtual-table-expanded-row {
+  .virtual-table-cell {
+    background-color: $virtual-table-expanded-row-background;
+  }
+
+  &>td {
+    padding: 0;
+  }
+
+  &-fixed {
+    position: sticky;
+    left: 0;
+    overflow: hidden;
+  }
+}
+
+.virtual-table-row-expand-icon {
+  position: relative;
+  display: inline-flex;
+  vertical-align: sub;
+  border: 1px solid $virtual-table-expanded-icon-border-color;
+  width: $virtual-table-expanded-icon-width;
+  height: $virtual-table-expanded-icon-height;
+  background-color: $virtual-table-expanded-icon-background;
+  border-radius: $virtual-table-expanded-icon-radius;
+  cursor: pointer;
+  color: $virtual-table-expanded-icon-color;
+  transition: all 0.3s;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    background-color: currentColor;
+  }
+
+  &::before {
+    top: 7px;
+    left: 3px;
+    width: 9px;
+    height: 1px;
+  }
+
+  &::after {
+    top: 3px;
+    left: 7px;
+    height: 9px;
+    width: 1px;
+  }
+
+  &:hover {
+    color: $virtual-table-expanded-icon-hover-color;
+    border-color: $virtual-table-expanded-icon-hover-border-color;
+  }
+
+  &-expanded {
+    &::after {
+      background-color: transparent;
+    }
+  }
+
+  &-collapsed {}
+}

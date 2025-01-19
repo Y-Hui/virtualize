@@ -1,7 +1,5 @@
-:root {
-  --virtual-table-row-selected-bg: #e6f4ff;
-  --virtual-table-row-selected-hover-bg: #bae0ff;
-}
+$virtual-table-row-selected-bg: var(--virtual-table-row-selected-bg, #e6f4ff);
+$virtual-table-row-selected-hover-bg: var(--virtual-table-row-selected-hover-bg, #bae0ff);
 
 .virtual-table-selection {
   position: relative;
@@ -9,13 +7,14 @@
 }
 
 .virtual-table-row-selected {
+
   .virtual-table-cell,
   .virtual-table-cell.virtual-table-sticky-cell {
-    background-color: var(--virtual-table-row-selected-bg);
+    background-color: $virtual-table-row-selected-bg;
   }
 
-  &:not(.no-hover):hover > .virtual-table-cell {
-    background-color: var(--virtual-table-row-selected-hover-bg);
+  &:not(.no-hover):hover>.virtual-table-cell {
+    background-color: $virtual-table-row-selected-hover-bg;
   }
 }
 

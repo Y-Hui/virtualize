@@ -1,6 +1,5 @@
-:root {
-  --virtual-table-summary-bg: #fff;
-}
+$virtual-table-summary-background: var(--virtual-table-summary-background, #fff);
+$virtual-table-summary-border-color: var(--virtual-table-summary-border-color, var(--virtual-table-border-color, #f0f0f0));
 
 .virtual-table-summary-wrapper {
   overflow: auto hidden;
@@ -12,7 +11,7 @@
 }
 
 .virtual-table-summary-top-border {
-  box-shadow: #f0f0f0 0px -1px 0px 0px;
+  box-shadow: $virtual-table-summary-border-color 0px -1px 0px 0px;
 }
 
 .virtual-table-summary {
@@ -30,17 +29,17 @@
   }
 
   &-tfoot {
-    background-color: #fff;
+    background-color: $virtual-table-summary-background;
   }
 
   &-cell {
-    background-color: var(--virtual-table-summary-bg, #fff);
+    background-color: $virtual-table-summary-background;
     border-bottom: 1px solid var(--virtual-table-border-color);
   }
 }
 
 .virtual-table-has-fix-left {
   .virtual-table-summary-cell {
-    background-color: var(--virtual-table-summary-bg, #fff);
+    background-color: $virtual-table-summary-background;
   }
 }

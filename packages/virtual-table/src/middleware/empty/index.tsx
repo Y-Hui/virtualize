@@ -7,13 +7,15 @@ import EmptyRow from './empty-row'
 
 export interface EmptyOptions {
   children: ReactNode | ComponentType
+  visible?: boolean
 }
 
 function useTableEmpty<T = any>(ctx: MiddlewareContext<T>, args: EmptyOptions): MiddlewareResult<T> {
-  const { children: component } = args
+  const { children: component, visible = true } = args
   const { dataSource } = ctx
 
-  const showEmpty = dataSource == null ? true : dataSource.length === 0
+  const isNoData = dataSource == null ? true : dataSource.length === 0
+  const showEmpty = isNoData && visible
 
   const node = useMemo(() => {
     if (typeof component === 'function') {
@@ -23,10 +25,6 @@ function useTableEmpty<T = any>(ctx: MiddlewareContext<T>, args: EmptyOptions): 
   }, [component])
 
   const renderBody: MiddlewareRenderBody = useCallback((children, options) => {
-    if (!showEmpty) {
-      return children
-    }
-
     const { columns } = options
 
     if (isValidElement(children)) {
@@ -43,7 +41,7 @@ function useTableEmpty<T = any>(ctx: MiddlewareContext<T>, args: EmptyOptions): 
         {node}
       </>
     )
-  }, [showEmpty, node])
+  }, [node])
 
   if (!showEmpty) {
     return ctx

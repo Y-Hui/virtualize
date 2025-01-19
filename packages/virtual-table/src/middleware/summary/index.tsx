@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import './style.scss'
-
 import type { MiddlewareContext, MiddlewareResult } from '@are-visual/virtual-table'
 import type { ReactNode } from 'react'
 import type { SummaryProps } from './summary'

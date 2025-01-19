@@ -1,0 +1,10 @@
+$virtual-table-column-resize-handle-width: var(--virtual-table-column-resize-handle-width, 10px);
+
+.virtual-table-column-resize-handle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: $virtual-table-column-resize-handle-width;
+  height: 100%;
+  cursor: col-resize;
+}
