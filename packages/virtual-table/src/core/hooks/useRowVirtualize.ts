@@ -1,28 +1,36 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { Dispatch, MutableRefObject, SetStateAction } from 'react'
 import type { ScrollElement } from '../../utils/dom'
 import type { RowRect } from './useRowRectManager'
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { getScrollElement, isRoot, isWindow } from '../../utils/dom'
-import { onResize } from '../utils/on-resize'
+import { useEffect, useMemo, useRef } from 'react'
+import { getScrollElement } from '../../utils/dom'
 import { anchorQuery, useRowRectManager } from './useRowRectManager'
 
 interface UseRowVirtualizeOptions<T = any> {
+  startIndex: number
+  setStartIndex: Dispatch<SetStateAction<number>>
+  endIndex: number
+  setEndIndex: Dispatch<SetStateAction<number>>
   dataSource: T[]
   getScroller: () => ScrollElement | undefined
   estimatedRowHeight: number
   overscan: number
+  visibleCount: MutableRefObject<number>
 }
 
+// TODO(FixMe): overscan=0、scroll=window、table 上方有元素时，滚动会白屏
 export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
-  const { dataSource: rawData, getScroller, estimatedRowHeight, overscan } = options
-
-  const hasData = !Array.isArray(rawData) ? false : rawData.length > 0
-
-  // 滚动容器内可见数据条数
-  const visibleCount = useRef(0)
-
-  const [startIndex, setStartIndex] = useState(0)
-  const [endIndex, setEndIndex] = useState(0)
+  const {
+    startIndex,
+    setStartIndex,
+    endIndex,
+    setEndIndex,
+    dataSource: rawData,
+    getScroller,
+    estimatedRowHeight,
+    overscan,
+    visibleCount,
+  } = options
 
   // 锚点元素，当前虚拟列表中，最接近滚动容器顶部的元素
   const anchorRef = useRef<RowRect>({
@@ -46,62 +54,6 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
       }
     },
   })
-
-  // 初始化时根据滚动容器计算 visibleCount
-  useLayoutEffect(() => {
-    const scrollerContainer = getScroller()
-    if (scrollerContainer == null) return
-
-    const getContainerHeight = () => {
-      let containerHeight = 0
-      if (isWindow(scrollerContainer) || isRoot(scrollerContainer)) {
-        containerHeight = window.innerHeight
-      } else {
-        const element = getScrollElement(scrollerContainer)
-        containerHeight = element.getBoundingClientRect().height
-      }
-      return containerHeight
-    }
-
-    const getScrollTop = () => {
-      let result = 0
-      if (isWindow(scrollerContainer) || isRoot(scrollerContainer)) {
-        result = window.scrollY
-      } else {
-        const element = getScrollElement(scrollerContainer)
-        result = element.scrollTop
-      }
-      return result
-    }
-
-    const updateBoundary = (scrollerContainerHeight: number) => {
-      const scrollTop = getScrollTop()
-
-      let nextStartIndex = 0
-      // 判断一下当前滚动位置，计算 startIndex（场景：SPA 页面切换且渲染非异步数据）
-      if (scrollTop >= estimatedRowHeight) {
-        nextStartIndex = Math.max(Math.floor(scrollTop / estimatedRowHeight) - 1 - overscan, 0)
-      }
-
-      const count = Math.ceil(scrollerContainerHeight / estimatedRowHeight)
-      const nextEndIndex = nextStartIndex + count + overscan
-
-      setStartIndex(nextStartIndex)
-      setEndIndex(nextEndIndex)
-
-      return { count, nextStartIndex, nextEndIndex }
-    }
-
-    if (visibleCount.current === 0) {
-      const { count } = updateBoundary(getContainerHeight())
-      visibleCount.current = count
-    }
-
-    return onResize(scrollerContainer, (rect) => {
-      const { count } = updateBoundary(rect.height)
-      visibleCount.current = count
-    })
-  }, [estimatedRowHeight, getScroller, hasData, overscan])
 
   const scrollTopRef = useRef(0)
   // 滚动时计算 visibleCount
@@ -141,8 +93,9 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
     return () => {
       container.removeEventListener('scroll', onScroll)
     }
-  }, [getScroller, overscan, rects])
+  }, [getScroller, overscan, rects, setEndIndex, setStartIndex, visibleCount])
 
+  // TODO: React Compiler 测试 topBlank 和 bottomBlank
   const topBlank = sum(0, startIndex)
   const bottomBlank = sum(endIndex)
 
@@ -158,7 +111,5 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
     bottomBlank,
 
     dataSlice,
-    startIndex,
-    endIndex,
   }
 }

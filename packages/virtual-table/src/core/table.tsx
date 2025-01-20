@@ -23,6 +23,7 @@ import { TableColumnsContext } from './context/table-columns'
 import TableHeader from './header'
 import { useCalcSize } from './hooks/useCalcSize'
 import { useRowVirtualize } from './hooks/useRowVirtualize'
+import { useVisibleRowSize } from './hooks/useVisibleRowSize'
 import { pipelineRender } from './pipeline/render-pipeline'
 import { TablePipeline } from './pipeline/useTablePipeline'
 import TableRoot from './root'
@@ -98,6 +99,19 @@ function VirtualTableCore<T>(
     }
   }, [scrollContainerWidth, scrollContainerHeight, tableWidth, tableHeight])
 
+  const hasData = !Array.isArray(rawData) ? false : rawData.length > 0
+
+  const [
+    [startIndex, setStartIndex],
+    [endIndex, setEndIndex],
+    { visibleCount },
+  ] = useVisibleRowSize({
+    hasData,
+    getScroller,
+    estimatedRowHeight,
+    overscan: overscanRows,
+  })
+
   const {
     dataSource,
     columns,
@@ -123,23 +137,26 @@ function VirtualTableCore<T>(
     dataSource: rawData,
     rowKey: rawRowKey,
     columns: rawColumns,
-    // TODO:
-    visibleCount: 100,
+    visibleCount: endIndex - startIndex,
     estimatedRowHeight,
   })
 
   const {
-    startIndex,
     dataSlice,
     updateRowHeight,
     rowHeightList,
     topBlank,
     bottomBlank,
   } = useRowVirtualize({
+    startIndex,
+    setStartIndex,
+    endIndex,
+    setEndIndex,
     dataSource,
     getScroller,
     estimatedRowHeight,
     overscan: overscanRows,
+    visibleCount,
   })
 
   const onRowClassName = useCallback((record: T, index: number) => {
