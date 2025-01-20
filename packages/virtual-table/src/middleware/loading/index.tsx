@@ -8,7 +8,7 @@ function useTableLoading<T = any>(
   options?: { loading?: boolean },
 ): MiddlewareResult<T> {
   const { loading = false } = options ?? {}
-  const { columns: rawColumns, visibleCount: lines } = ctx
+  const { columns: rawColumns, visibleRowSize: lines, estimatedRowHeight } = ctx
 
   const fakeDataSource = useMemo(() => {
     return Array.from({ length: lines }, (_, index) => {
@@ -25,14 +25,14 @@ function useTableLoading<T = any>(
       return {
         ...column,
         onCell() {
-          return { className: 'virtual-table-loading-cell' }
+          return { className: 'virtual-table-loading-cell', style: { height: estimatedRowHeight } }
         },
         render() {
           return <div className="virtual-table-loading-skeleton" />
         },
       }
     })
-  }, [loading, rawColumns])
+  }, [loading, rawColumns, estimatedRowHeight])
 
   if (!loading) {
     return ctx

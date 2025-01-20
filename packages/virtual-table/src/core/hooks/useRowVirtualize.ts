@@ -15,7 +15,7 @@ interface UseRowVirtualizeOptions<T = any> {
   getScroller: () => ScrollElement | undefined
   estimatedRowHeight: number
   overscan: number
-  visibleCount: MutableRefObject<number>
+  visibleRowSize: MutableRefObject<number>
 }
 
 // TODO(FixMe): overscan=0、scroll=window、table 上方有元素时，滚动会白屏
@@ -29,7 +29,7 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
     getScroller,
     estimatedRowHeight,
     overscan,
-    visibleCount,
+    visibleRowSize,
   } = options
 
   // 锚点元素，当前虚拟列表中，最接近滚动容器顶部的元素
@@ -56,7 +56,7 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
   })
 
   const scrollTopRef = useRef(0)
-  // 滚动时计算 visibleCount
+  // 滚动时计算 visibleRowSize
   useEffect(() => {
     const container = getScroller()
     if (container == null) return
@@ -66,7 +66,7 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
       if (anchor != null) {
         anchorRef.current = anchor
         setStartIndex(Math.max(0, anchor.index - overscan))
-        setEndIndex(anchor.index + visibleCount.current + overscan)
+        setEndIndex(anchor.index + visibleRowSize.current + overscan)
       }
     }
 
@@ -93,7 +93,7 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
     return () => {
       container.removeEventListener('scroll', onScroll)
     }
-  }, [getScroller, overscan, rects, setEndIndex, setStartIndex, visibleCount])
+  }, [getScroller, overscan, rects, setEndIndex, setStartIndex, visibleRowSize])
 
   // TODO: React Compiler 测试 topBlank 和 bottomBlank
   const topBlank = sum(0, startIndex)

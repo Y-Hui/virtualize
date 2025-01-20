@@ -8,7 +8,7 @@ type Prettify<T> = {
 } & {}
 
 export interface MiddlewareContext<T> extends NecessaryProps<T> {
-  visibleCount: number
+  visibleRowSize: number
   estimatedRowHeight: number
 }
 

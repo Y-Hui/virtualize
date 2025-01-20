@@ -14,12 +14,12 @@ export function useVisibleRowSize(options: UseVisibleRowSizeOptions) {
   const { hasData, getScroller, estimatedRowHeight, overscan } = options
 
   // 滚动容器内可见数据条数
-  const visibleCount = useRef(0)
+  const visibleRowSize = useRef(0)
 
   const [startIndex, setStartIndex] = useState(0)
   const [endIndex, setEndIndex] = useState(0)
 
-  // 初始化时根据滚动容器计算 visibleCount
+  // 初始化时根据滚动容器计算 visibleRowSize
   useLayoutEffect(() => {
     const scrollerContainer = getScroller()
     if (scrollerContainer == null) return
@@ -64,20 +64,20 @@ export function useVisibleRowSize(options: UseVisibleRowSizeOptions) {
       return { count, nextStartIndex, nextEndIndex }
     }
 
-    if (visibleCount.current === 0) {
+    if (visibleRowSize.current === 0) {
       const { count } = updateBoundary(getContainerHeight())
-      visibleCount.current = count
+      visibleRowSize.current = count
     }
 
     return onResize(scrollerContainer, (rect) => {
       const { count } = updateBoundary(rect.height)
-      visibleCount.current = count
+      visibleRowSize.current = count
     })
   }, [estimatedRowHeight, getScroller, hasData, overscan])
 
   return [
     [startIndex, setStartIndex] as const,
     [endIndex, setEndIndex] as const,
-    { visibleCount },
+    { visibleRowSize },
   ] as const
 }

@@ -176,7 +176,7 @@ function App() {
 | dataSource   | 表格数据源               | object[]     |      |
 | columns      | 表格列配置               | ColumnType[] |      |
 | rowKey       | 表格行 key 的取值        | string       |      |
-| visibleCount | 当前虚拟化下所显示的行数 | number       |      |
+| visibleRowSize | 当前虚拟化下所显示的行数 | number       |      |
 | estimatedRowHeight | 预计每行高度 | number       |      |
 
 ##### 插件返回值定义
@@ -186,7 +186,7 @@ function App() {
 | dataSource    | 表格数据源               | object[]                                |      |
 | columns       | 表格列配置               | ColumnType[]                            |      |
 | rowKey        | 表格行 key 的取值        | string                                  |      |
-| visibleCount  | 当前虚拟化下所显示的行数 | number                                  |      |
+| visibleRowSize  | 当前虚拟化下所显示的行数 | number                                  |      |
 | rowClassName  | 自定义表格行 class       | (*record*, *index*) => string           |      |
 | onRow         | 设置行属性               | (*record*, *index*) => TdHTMLAttributes |      |
 | render | 自定义 Table 外层渲染 | MiddlewareRender| |

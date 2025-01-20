@@ -104,7 +104,7 @@ function VirtualTableCore<T>(
   const [
     [startIndex, setStartIndex],
     [endIndex, setEndIndex],
-    { visibleCount },
+    { visibleRowSize },
   ] = useVisibleRowSize({
     hasData,
     getScroller,
@@ -137,7 +137,7 @@ function VirtualTableCore<T>(
     dataSource: rawData,
     rowKey: rawRowKey,
     columns: rawColumns,
-    visibleCount: endIndex - startIndex,
+    visibleRowSize: endIndex - startIndex,
     estimatedRowHeight,
   })
 
@@ -156,7 +156,7 @@ function VirtualTableCore<T>(
     getScroller,
     estimatedRowHeight,
     overscan: overscanRows,
-    visibleCount,
+    visibleRowSize,
   })
 
   const onRowClassName = useCallback((record: T, index: number) => {
