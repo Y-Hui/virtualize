@@ -88,7 +88,7 @@ function useTableExpandable<T = any>(
   } = options ?? {}
 
   const _rowExpandableValue = useMemo(() => {
-    return (dataSource ?? []).map((row) => {
+    return dataSource.map((row) => {
       if (!rowExpandable) return false
       return rowExpandable(row)
     })
@@ -109,7 +109,7 @@ function useTableExpandable<T = any>(
   )
   const defaultExpandKey = useShallowMemo((): readonly Key[] => {
     if (defaultExpandAll.current) {
-      const expandKeys = (dataSource ?? []).map((record, index): Key | null => {
+      const expandKeys = dataSource.map((record, index): Key | null => {
         if (rowExpandableRecord[index]) {
           const key = (record as AnyObject)[rowKey as string] as string | number
           return key

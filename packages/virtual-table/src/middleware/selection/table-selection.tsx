@@ -24,7 +24,7 @@ function useSelection<T = any>(
 
   const { columns: rawColumns } = ctx
   const rowKey = ctx.rowKey as string
-  const dataSource = disablePlugin ? EMPTY_ARR : ((ctx.dataSource ?? []) as AnyObject[])
+  const dataSource = disablePlugin ? EMPTY_ARR : (ctx.dataSource as AnyObject[])
 
   const {
     defaultSelectedRowKeys,

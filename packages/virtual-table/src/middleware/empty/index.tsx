@@ -14,7 +14,7 @@ function useTableEmpty<T = any>(ctx: MiddlewareContext<T>, args: EmptyOptions): 
   const { children: component, visible = true } = args
   const { dataSource } = ctx
 
-  const isNoData = dataSource == null ? true : dataSource.length === 0
+  const isNoData = !Array.isArray(dataSource) ? true : dataSource.length === 0
   const showEmpty = isNoData && visible
 
   const node = useMemo(() => {

@@ -145,10 +145,10 @@ function VirtualTableCore<T>(
   }, [onPipelineRow, onRow])
 
   const dataSlice = useMemo(() => {
-    return (dataSource ?? []).slice(startIndex, endIndex)
+    return dataSource.slice(startIndex, endIndex)
   }, [dataSource, startIndex, endIndex])
 
-  const hasData = dataSource == null ? false : dataSource.length > 0
+  const hasData = !Array.isArray(dataSource) ? false : dataSource.length > 0
 
   // 初始化时根据滚动容器计算 visibleCount
   useLayoutEffect(() => {
@@ -220,7 +220,7 @@ function VirtualTableCore<T>(
     updateRowHeight,
     sum,
   } = useRowRectManager({
-    itemCount: dataSource?.length ?? 0,
+    itemCount: dataSource.length,
     estimatedRowHeight,
     onChange(index, _height, rowRects) {
       if (anchorRef.current.index === index) {

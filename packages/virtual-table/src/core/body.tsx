@@ -51,7 +51,7 @@ function TableBody<T>(props: TableBodyProps<T>) {
 
   const bodyNode = pipelineRender(
     <tbody>
-      {dataSource?.map((e, rowIndex) => {
+      {dataSource.map((e, rowIndex) => {
         const _rowKey = (e as AnyObject)[rowKey as string]
         return (
           <Row

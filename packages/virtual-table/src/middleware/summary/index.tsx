@@ -18,7 +18,7 @@ function useTableSummary<T = any>(
   const { summary } = options ?? {}
   const { columns, dataSource } = ctx
 
-  const summaryNode = summary?.(dataSource ?? [])
+  const summaryNode = summary?.(dataSource)
   const fixed = isValidElement(summaryNode)
     && summaryNode.type === Summary
     && (summaryNode.props as SummaryProps).fixed

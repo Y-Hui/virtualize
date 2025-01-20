@@ -11,7 +11,7 @@ export default eslintConfig({
     },
     globals: {
       process: false,
-      __DEV__: 'readonly'
+      __DEV__: 'readonly',
     },
   },
 })
