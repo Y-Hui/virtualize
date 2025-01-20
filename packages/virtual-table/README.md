@@ -2,7 +2,7 @@
 
 ### BUG TODO 🚧
 - [x] SPA 页面切换时，滚动条位置未还原，滚动容器为 window，未正确计算
-- [ ] 窗口 resize、滚动容器 resize 时未重新计算
+- [x] 窗口 resize、滚动容器 resize 时未重新计算
 
 ### TODO 🚧
 - [x] 虚拟列表查找 anchor 时优化。

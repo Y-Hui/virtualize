@@ -29,6 +29,7 @@ import { anchorQuery, useRowRectManager } from './hooks/useRowRectManager'
 import { pipelineRender } from './pipeline/render-pipeline'
 import { TablePipeline } from './pipeline/useTablePipeline'
 import TableRoot from './root'
+import { onResize } from './utils/on-resize'
 import { isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 export type VirtualTableCoreRef = HTMLTableElement
@@ -103,7 +104,6 @@ function VirtualTableCore<T>(
 
   // 滚动容器内可见数据条数
   const visibleCount = useRef(0)
-  const containerHeightRef = useRef(0)
 
   const [startIndex, setStartIndex] = useState(0)
   const [endIndex, setEndIndex] = useState(0)
@@ -154,33 +154,57 @@ function VirtualTableCore<T>(
   useLayoutEffect(() => {
     const scrollerContainer = getScroller()
     if (scrollerContainer == null) return
-    let containerHeight = 0
-    let scrollTop = 0
-    if (isWindow(scrollerContainer) || isRoot(scrollerContainer)) {
-      containerHeight = window.innerHeight
-      scrollTop = window.scrollY
-    } else {
-      const element = getScrollElement(scrollerContainer)
-      containerHeight = element.getBoundingClientRect().height
-      scrollTop = element.scrollTop
-    }
-    const count = Math.ceil(containerHeight / estimatedRowHeight)
 
-    if (visibleCount.current === 0) {
-      // 判断一下当前滚动位置，计算 startIndex（场景：SPA 页面切换且渲染非异步数据）
+    const getContainerHeight = () => {
+      let containerHeight = 0
+      if (isWindow(scrollerContainer) || isRoot(scrollerContainer)) {
+        containerHeight = window.innerHeight
+      } else {
+        const element = getScrollElement(scrollerContainer)
+        containerHeight = element.getBoundingClientRect().height
+      }
+      return containerHeight
+    }
+
+    const getScrollTop = () => {
+      let result = 0
+      if (isWindow(scrollerContainer) || isRoot(scrollerContainer)) {
+        result = window.scrollY
+      } else {
+        const element = getScrollElement(scrollerContainer)
+        result = element.scrollTop
+      }
+      return result
+    }
+
+    const updateBoundary = (scrollerContainerHeight: number) => {
+      const scrollTop = getScrollTop()
+
       let nextStartIndex = 0
+      // 判断一下当前滚动位置，计算 startIndex（场景：SPA 页面切换且渲染非异步数据）
       if (scrollTop >= estimatedRowHeight) {
         nextStartIndex = Math.max(Math.floor(scrollTop / estimatedRowHeight) - 1 - overscanCount, 0)
       }
+
+      const count = Math.ceil(scrollerContainerHeight / estimatedRowHeight)
+      const nextEndIndex = nextStartIndex + count + overscanCount
+
       setStartIndex(nextStartIndex)
-      setEndIndex(nextStartIndex + count + overscanCount)
+      setEndIndex(nextEndIndex)
+
+      return { count, nextStartIndex, nextEndIndex }
     }
 
-    containerHeightRef.current = containerHeight
-    visibleCount.current = count
-  }, [estimatedRowHeight, getScroller, hasData, overscanCount])
+    if (visibleCount.current === 0) {
+      const { count } = updateBoundary(getContainerHeight())
+      visibleCount.current = count
+    }
 
-  const scrollTopRef = useRef(0)
+    return onResize(scrollerContainer, (rect) => {
+      const { count } = updateBoundary(rect.height)
+      visibleCount.current = count
+    })
+  }, [estimatedRowHeight, getScroller, hasData, overscanCount])
 
   // 锚点元素，当前虚拟列表中，最接近滚动容器顶部的元素
   const anchorRef = useRef<RowRect>({
@@ -205,6 +229,7 @@ function VirtualTableCore<T>(
     },
   })
 
+  const scrollTopRef = useRef(0)
   useEffect(() => {
     const container = getScroller()
     if (container == null) return
