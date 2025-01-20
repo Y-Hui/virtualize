@@ -38,6 +38,15 @@ const pipeline = useTablePipeline({
               <Summary.Cell index={2}>Gender Summary</Summary.Cell>
               <Summary.Cell index={3}>Actions Summary</Summary.Cell>
             </Summary.Row>
+            <Summary.Row>
+              {columns.map((column, index) => {
+                return (
+                  <Summary.Cell index={index}>
+                    Second Summary Cell
+                	</Summary.Cell>
+                )
+              })}
+            </Summary.Row>
           </Summary>
         )
       },
