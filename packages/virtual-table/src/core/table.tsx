@@ -2,7 +2,7 @@ import type { CSSProperties, ForwardedRef, ReactElement, RefAttributes } from 'r
 import type { TableBodyProps } from './body'
 import type { ContainerSizeState } from './context/container-size'
 import type { TableSharedContextType } from './context/shared'
-import type { RowRect, UseRowRectManagerOptions } from './hooks/useRowRectManager'
+import type { UseRowRectManagerOptions } from './hooks/useRowRectManager'
 import type { NecessaryProps } from './internal'
 import type { OnRowType } from './types'
 import clsx from 'clsx'
@@ -10,13 +10,10 @@ import {
   forwardRef,
   memo,
   useCallback,
-  useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
-  useState,
 } from 'react'
-import { getScrollElement, getScrollParent, isRoot, isWindow } from '../utils/dom'
+import { getScrollParent } from '../utils/dom'
 import { composeRef } from '../utils/ref'
 import TableBody from './body'
 import { ContainerSize } from './context/container-size'
@@ -25,11 +22,10 @@ import { TableShared } from './context/shared'
 import { TableColumnsContext } from './context/table-columns'
 import TableHeader from './header'
 import { useCalcSize } from './hooks/useCalcSize'
-import { anchorQuery, useRowRectManager } from './hooks/useRowRectManager'
+import { useRowVirtualize } from './hooks/useRowVirtualize'
 import { pipelineRender } from './pipeline/render-pipeline'
 import { TablePipeline } from './pipeline/useTablePipeline'
 import TableRoot from './root'
-import { onResize } from './utils/on-resize'
 import { isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 export type VirtualTableCoreRef = HTMLTableElement
@@ -47,8 +43,8 @@ export interface VirtualTableCoreProps<T>
   /** 开启表头 sticky，设置为 true 则默认 top 为 0，为 number 则是偏移量 */
   stickyHeader?: number | boolean
 
-  /** 在头和尾额外渲染多少条 @default 5 */
-  overscanCount?: number
+  /** 在头和尾额外渲染多少行 @default 5 */
+  overscanRows?: number
 
   pipeline?: TablePipeline<T>
 }
@@ -66,7 +62,7 @@ function VirtualTableCore<T>(
     dataSource: rawData,
     rowKey: rawRowKey = 'key',
     estimatedRowHeight,
-    overscanCount = 5,
+    overscanRows = 5,
     stickyHeader,
     pipeline = (TablePipeline.defaultPipeline as TablePipeline<T>),
     rowClassName: rawRowClassName,
@@ -102,12 +98,6 @@ function VirtualTableCore<T>(
     }
   }, [scrollContainerWidth, scrollContainerHeight, tableWidth, tableHeight])
 
-  // 滚动容器内可见数据条数
-  const visibleCount = useRef(0)
-
-  const [startIndex, setStartIndex] = useState(0)
-  const [endIndex, setEndIndex] = useState(0)
-
   const {
     dataSource,
     columns,
@@ -133,7 +123,23 @@ function VirtualTableCore<T>(
     dataSource: rawData,
     rowKey: rawRowKey,
     columns: rawColumns,
-    visibleCount: endIndex - startIndex,
+    // TODO:
+    visibleCount: 100,
+    estimatedRowHeight,
+  })
+
+  const {
+    startIndex,
+    dataSlice,
+    updateRowHeight,
+    rowHeightList,
+    topBlank,
+    bottomBlank,
+  } = useRowVirtualize({
+    dataSource,
+    getScroller,
+    estimatedRowHeight,
+    overscan: overscanRows,
   })
 
   const onRowClassName = useCallback((record: T, index: number) => {
@@ -144,132 +150,6 @@ function VirtualTableCore<T>(
     return { ...onRow?.(record, index), ...onPipelineRow?.(record, index) }
   }, [onPipelineRow, onRow])
 
-  const dataSlice = useMemo(() => {
-    return dataSource.slice(startIndex, endIndex)
-  }, [dataSource, startIndex, endIndex])
-
-  const hasData = !Array.isArray(dataSource) ? false : dataSource.length > 0
-
-  // 初始化时根据滚动容器计算 visibleCount
-  useLayoutEffect(() => {
-    const scrollerContainer = getScroller()
-    if (scrollerContainer == null) return
-
-    const getContainerHeight = () => {
-      let containerHeight = 0
-      if (isWindow(scrollerContainer) || isRoot(scrollerContainer)) {
-        containerHeight = window.innerHeight
-      } else {
-        const element = getScrollElement(scrollerContainer)
-        containerHeight = element.getBoundingClientRect().height
-      }
-      return containerHeight
-    }
-
-    const getScrollTop = () => {
-      let result = 0
-      if (isWindow(scrollerContainer) || isRoot(scrollerContainer)) {
-        result = window.scrollY
-      } else {
-        const element = getScrollElement(scrollerContainer)
-        result = element.scrollTop
-      }
-      return result
-    }
-
-    const updateBoundary = (scrollerContainerHeight: number) => {
-      const scrollTop = getScrollTop()
-
-      let nextStartIndex = 0
-      // 判断一下当前滚动位置，计算 startIndex（场景：SPA 页面切换且渲染非异步数据）
-      if (scrollTop >= estimatedRowHeight) {
-        nextStartIndex = Math.max(Math.floor(scrollTop / estimatedRowHeight) - 1 - overscanCount, 0)
-      }
-
-      const count = Math.ceil(scrollerContainerHeight / estimatedRowHeight)
-      const nextEndIndex = nextStartIndex + count + overscanCount
-
-      setStartIndex(nextStartIndex)
-      setEndIndex(nextEndIndex)
-
-      return { count, nextStartIndex, nextEndIndex }
-    }
-
-    if (visibleCount.current === 0) {
-      const { count } = updateBoundary(getContainerHeight())
-      visibleCount.current = count
-    }
-
-    return onResize(scrollerContainer, (rect) => {
-      const { count } = updateBoundary(rect.height)
-      visibleCount.current = count
-    })
-  }, [estimatedRowHeight, getScroller, hasData, overscanCount])
-
-  // 锚点元素，当前虚拟列表中，最接近滚动容器顶部的元素
-  const anchorRef = useRef<RowRect>({
-    index: 0,
-    height: estimatedRowHeight,
-    top: 0,
-    bottom: estimatedRowHeight,
-  })
-
-  const {
-    rowHeightList,
-    rects,
-    updateRowHeight,
-    sum,
-  } = useRowRectManager({
-    itemCount: dataSource.length,
-    estimatedRowHeight,
-    onChange(index, _height, rowRects) {
-      if (anchorRef.current.index === index) {
-        anchorRef.current = rowRects[index]
-      }
-    },
-  })
-
-  const scrollTopRef = useRef(0)
-  useEffect(() => {
-    const container = getScroller()
-    if (container == null) return
-
-    const updateBoundary = (scrollTop: number) => {
-      const anchor = anchorQuery(rects(), scrollTop)
-      if (anchor != null) {
-        anchorRef.current = anchor
-        setStartIndex(Math.max(0, anchor.index - overscanCount))
-        setEndIndex(anchor.index + visibleCount.current + overscanCount)
-      }
-    }
-
-    const onScroll = (e: Event) => {
-      const scrollElement = getScrollElement(e.target)
-      const { scrollTop } = scrollElement
-
-      // 如果滚动距离比较小，没有超出锚点元素的边界，就不需要计算 startIndex、endIndex 了
-      // 向下滚动
-      if (scrollTop > scrollTopRef.current) {
-        if (scrollTop > anchorRef.current.bottom) {
-          updateBoundary(scrollTop)
-        }
-      } else if (scrollTop < scrollTopRef.current) {
-        // 向上滚动
-        if (scrollTop < anchorRef.current.top) {
-          updateBoundary(scrollTop)
-        }
-      }
-
-      scrollTopRef.current = scrollTop
-    }
-    container.addEventListener('scroll', onScroll)
-    return () => {
-      container.removeEventListener('scroll', onScroll)
-    }
-  }, [getScroller, overscanCount, rects])
-
-  const topBlank = sum(0, startIndex)
-  const bottomBlank = sum(endIndex)
   const hasFixedLeftColumn = columns.some((x) => isValidFixedLeft(x.fixed))
   const hasFixedRightColumn = columns.some((x) => isValidFixedRight(x.fixed))
 

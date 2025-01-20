@@ -101,7 +101,7 @@ function App() {
 | dataSource         | 表格数据源                                              | object[]                                |        |      |
 | rowKey             | 表格行 key 的取值                                       | string                                  | `key`  |      |
 | estimatedRowHeight | 预计每行高度                                            | number                                  |        |      |
-| overscanCount      | 额外在首尾渲染条数                                      | number                                  | 5      |      |
+| overscanRows       | 额外在首尾渲染数据条数                                      | number                                  | 5      |      |
 | stickyHeader       | 表头吸顶<br />为 true 时 top 为 0，为 number 则是偏移量 | number \| boolean                       |        |      |
 | pipeline           | 插件实例                                                | TablePipeline                           |        |      |
 | rowClassName       | 表格行样式类名                                          | (*record*, *index*) => string           |        |      |
@@ -177,6 +177,7 @@ function App() {
 | columns      | 表格列配置               | ColumnType[] |      |
 | rowKey       | 表格行 key 的取值        | string       |      |
 | visibleCount | 当前虚拟化下所显示的行数 | number       |      |
+| estimatedRowHeight | 预计每行高度 | number       |      |
 
 ##### 插件返回值定义
 
