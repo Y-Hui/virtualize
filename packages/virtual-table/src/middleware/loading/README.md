@@ -1,4 +1,4 @@
-## tableLoading
+## tableLoading 加载状态
 
 Table loading 提示。
 

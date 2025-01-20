@@ -1,4 +1,4 @@
-## tableSelection
+## tableSelection 数据选择
 
 单选/多选 Table 数据。
 

@@ -1,4 +1,4 @@
-## horizontalScrollBar
+## horizontalScrollBar 水平滚动条
 
 Table 底部水平滚动条，columns 较多时，用户可使用滚动条滚动查看。
 

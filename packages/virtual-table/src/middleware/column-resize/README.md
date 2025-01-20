@@ -1,4 +1,4 @@
-## columnResize
+## columnResize 列宽调整
 
 为 Table 每一列添加宽度调整功能。
 

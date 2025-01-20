@@ -1,4 +1,4 @@
-## tableEmpty
+## tableEmpty 空提示
 
 为 Table 添加空提示。
 

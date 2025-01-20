@@ -1,4 +1,4 @@
-## tableExpandable
+## tableExpandable 行展开
 
 为 Table 增加行展开功能。
 
