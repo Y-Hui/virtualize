@@ -3,6 +3,7 @@ import type { TableBodyProps } from './body'
 import type { ContainerSizeState } from './context/container-size'
 import type { TableSharedContextType } from './context/shared'
 import type { RowRect, UseRowRectManagerOptions } from './hooks/useRowRectManager'
+import type { NecessaryProps } from './internal'
 import type { OnRowType } from './types'
 import clsx from 'clsx'
 import {
@@ -33,15 +34,12 @@ import { isValidFixedLeft, isValidFixedRight } from './utils/verification'
 export type VirtualTableCoreRef = HTMLTableElement
 
 export interface VirtualTableCoreProps<T>
-  extends Pick<UseRowRectManagerOptions, 'estimatedRowHeight'>,
-  Omit<
-    TableBodyProps<T>,
-    | 'startIndex'
-    | 'rowComponent'
-    | 'bodyRender'
-    | 'rowPipelineRender'
-    | 'cellPipelineRender'
-  > {
+  extends NecessaryProps<T>,
+  Pick<UseRowRectManagerOptions, 'estimatedRowHeight'>,
+  Pick<TableBodyProps<T>, 'rowClassName' | 'onRow'> {
+  className?: string
+  style?: CSSProperties
+
   tableBodyClassName?: string
   tableBodyStyle?: CSSProperties
 

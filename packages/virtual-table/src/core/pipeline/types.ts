@@ -19,18 +19,11 @@ export interface MiddlewareResult<T> extends MiddlewareContext<T>, MiddlewareRen
 export type Middleware<T> = (context: MiddlewareContext<T>) => MiddlewareResult<T>
 
 interface RenderOptions<T = any> {
-  /** renderCell、renderHeaderCell 存在 */
   column: ColumnType<T>
-  /** renderCell、renderHeaderCell 存在 */
   columnIndex: number
-  /** 列宽。renderHeaderCell 存在 */
   columnWidthList: number[]
-
-  /** renderRow 存在 */
   rowIndex: number
-  /** renderRow 存在 */
   columns: ColumnType<T>[]
-  /** renderRow 存在 */
   rowData: T
 }
 
