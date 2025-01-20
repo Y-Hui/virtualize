@@ -2,9 +2,16 @@
 
 为 Table 每一列添加宽度调整功能。
 
-### usage
+### Install
+
+```bash
+npm install react-resizable
+```
+
+### Usage
 
 ```tsx
+import 'react-resizable/css/styles.css'
 import '@are-visual/virtual-table/middleware/column-resize/styles.css'
 import { columnResize } from '@are-visual/virtual-table/middleware/column-resize'
 
