@@ -7,6 +7,8 @@ import { Resizable } from 'react-resizable'
 declare module '@are-visual/virtual-table' {
   interface ColumnExtra {
     disableResize?: boolean
+    /** Resize 时限制最大列宽 */
+    maxWidth?: number
   }
 }
 
@@ -81,11 +83,10 @@ function useColumnResize<T = any>(
   })
 
   const handleResize = useCallback((columnKey: string, newWidth: number) => {
-    const newWidths = Math.min(1000, Math.max(100, newWidth))
     setColumnWidths((prevState) => {
       const result = {
         ...prevState,
-        [columnKey]: newWidths,
+        [columnKey]: newWidth,
       }
       if (storageKey != null) {
         resizeStorage.set(storageKey, result)
@@ -103,11 +104,7 @@ function useColumnResize<T = any>(
 
     const key = 'key' in column ? (column.key as string) : (column.dataIndex as string)
 
-    let { width } = column
-
-    if (typeof width === 'string') {
-      width = columnWidthList[columnIndex]
-    }
+    const width = Number.isFinite(column.width) ? (column.width as number) : (columnWidthList[columnIndex] ?? 0)
 
     if (__DEV__) {
       if (isValidElement(children) && children.type === Resizable) {
@@ -117,14 +114,16 @@ function useColumnResize<T = any>(
 
     return (
       <Resizable
-        width={width ?? 0}
+        width={width}
         axis="x"
-        minConstraints={getConstraintValue(min, column)}
-        maxConstraints={getConstraintValue(max, column)}
+        minConstraints={getConstraintValue(column.minWidth ?? min, column)}
+        maxConstraints={getConstraintValue(column.maxWidth ?? max, column)}
         handle={(
           <div className="virtual-table-column-resize-handle" />
         )}
-        onResize={(_e, { size }) => { handleResize(key, size.width) }}
+        onResize={(_e, { size }) => {
+          handleResize(key, size.width)
+        }}
       >
         {children}
       </Resizable>
