@@ -8,7 +8,8 @@ import type {
 import type { RowProps } from './row'
 import type { AnyObject } from './types'
 import clsx from 'clsx'
-import { composeRef } from '../utils/ref'
+import { useEffect, useRef } from 'react'
+import { useMergedRef } from '../utils/ref'
 import Colgroup from './colgroup'
 import { useHorizontalScrollContext } from './context/horizontal-scroll'
 import { pipelineRender } from './pipeline/render-pipeline'
@@ -80,12 +81,18 @@ function TableBody<T>(props: TableBodyProps<T>) {
     { columns },
   )
 
+  const bodyWrapperRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const node = bodyWrapperRef.current
+    if (node == null) return
+    return addShouldSyncElement('virtual-table-body', node)
+  }, [addShouldSyncElement])
+
+  const mergedRef = useMergedRef(wrapperRef, bodyWrapperRef)
+
   return pipelineRender(
     <div
-      ref={composeRef(wrapperRef, (node) => {
-        if (node == null) return
-        addShouldSyncElement('virtual-table-body', node)
-      })}
+      ref={mergedRef}
       className="virtual-table-body-wrapper"
     >
       {tableNode}

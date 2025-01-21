@@ -2,7 +2,7 @@ import './styles.scss'
 
 import type { ComponentType, DetailedHTMLProps, ForwardedRef, InputHTMLAttributes } from 'react'
 import type { SelectionProps as BaseProps } from './types'
-import { composeRef } from '@are-visual/virtual-table'
+import { useMergedRef } from '@are-visual/virtual-table/utils/ref'
 import clsx from 'clsx'
 import { createElement, forwardRef, useEffect, useRef } from 'react'
 
@@ -34,6 +34,8 @@ function Selection(props: SelectionProps, ref: ForwardedRef<HTMLInputElement>) {
     input.indeterminate = !!indeterminate
   }, [isCustomComponent, indeterminate])
 
+  const mergedRef = useMergedRef(inputNode, ref)
+
   if (isCustomComponent) {
     return createElement(component, props)
   }
@@ -41,8 +43,7 @@ function Selection(props: SelectionProps, ref: ForwardedRef<HTMLInputElement>) {
   return (
     <input
       {...rest}
-      // eslint-disable-next-line react-compiler/react-compiler
-      ref={composeRef(inputNode, ref)}
+      ref={mergedRef}
       className={clsx('virtual-table-selection', className)}
       type={multiple ? 'checkbox' : 'radio'}
       checked={value}

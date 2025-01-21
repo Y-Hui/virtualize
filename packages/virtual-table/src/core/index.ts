@@ -41,7 +41,7 @@ export type {
 export { useTablePipeline } from './pipeline/useTablePipeline'
 export type { RowProps as VirtualTableRowProps } from './row'
 export { default as VirtualTableRow } from './row'
-export type { VirtualTableCoreProps as VirtualTableProps, VirtualTableCoreRef as VirtualTableRef } from './table'
+export type { VirtualTableCoreProps as VirtualTableProps } from './table'
 export { default as VirtualTable } from './table'
 export type {
   AlignType,

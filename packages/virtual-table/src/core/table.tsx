@@ -1,4 +1,4 @@
-import type { CSSProperties, ForwardedRef, ReactElement, RefAttributes } from 'react'
+import type { CSSProperties, ForwardedRef, ReactElement, Ref, RefAttributes } from 'react'
 import type { TableBodyProps } from './body'
 import type { ContainerSizeState } from './context/container-size'
 import type { TableSharedContextType } from './context/shared'
@@ -14,7 +14,7 @@ import {
   useRef,
 } from 'react'
 import { getScrollParent } from '../utils/dom'
-import { composeRef } from '../utils/ref'
+import { useMergedRef } from '../utils/ref'
 import TableBody from './body'
 import { ContainerSize } from './context/container-size'
 import { HorizontalScrollContext } from './context/horizontal-scroll'
@@ -29,12 +29,12 @@ import { TablePipeline } from './pipeline/useTablePipeline'
 import TableRoot from './root'
 import { isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
-export type VirtualTableCoreRef = HTMLTableElement
-
 export interface VirtualTableCoreProps<T>
   extends NecessaryProps<T>,
   Pick<UseRowRectManagerOptions, 'estimatedRowHeight'>,
   Pick<TableBodyProps<T>, 'rowClassName' | 'onRow'> {
+  tableBodyRef?: Ref<HTMLTableElement>
+
   className?: string
   style?: CSSProperties
 
@@ -54,9 +54,10 @@ export interface VirtualTableCoreProps<T>
 
 function VirtualTableCore<T>(
   props: VirtualTableCoreProps<T>,
-  ref: ForwardedRef<VirtualTableCoreRef>,
+  ref: ForwardedRef<HTMLDivElement>,
 ) {
   const {
+    tableBodyRef,
     className,
     style,
     tableBodyClassName,
@@ -73,9 +74,8 @@ function VirtualTableCore<T>(
     getOffsetTop: getOffsetTopImpl,
   } = props
 
-  const tableNode = useRef<HTMLTableElement>(null)
   const rootNode = useRef<HTMLDivElement>(null)
-  const scrollerContainerRef = useRef<HTMLElement | null>(null)
+  const bodyNode = useRef<HTMLTableElement>(null)
 
   const getScroller = useCallback(() => {
     const root = rootNode.current
@@ -130,7 +130,10 @@ function VirtualTableCore<T>(
     columns: rawColumns,
     visibleRowSize: endIndex - startIndex,
     estimatedRowHeight,
+    bodyRef: bodyNode,
+    rootRef: rootNode,
     getOffsetTop,
+    getScroller,
   })
 
   const {
@@ -172,6 +175,7 @@ function VirtualTableCore<T>(
     } satisfies TableSharedContextType
   }, [rowHeightList, updateRowHeight])
 
+  const bodyMergedRef = useMergedRef(bodyNode, tableBodyRef)
   const contentNode = pipelineRender(
     <>
       <TableHeader
@@ -184,7 +188,7 @@ function VirtualTableCore<T>(
         renderHeaderCell={renderHeaderCell}
       />
       <TableBody
-        tableRef={composeRef(tableNode, ref)}
+        tableRef={bodyMergedRef}
         className={tableBodyClassName}
         style={{
           ...tableBodyStyle,
@@ -208,9 +212,10 @@ function VirtualTableCore<T>(
     { columns },
   )
 
+  const rootMergedRef = useMergedRef(rootNode, ref)
   const table = pipelineRender(
     <TableRoot
-      ref={rootNode}
+      ref={rootMergedRef}
       className={className}
       style={style}
       hasFixedLeftColumn={hasFixedLeftColumn}
@@ -239,5 +244,5 @@ if (__DEV__) {
 }
 
 export default memo(forwardRef(VirtualTableCore)) as <T>(
-  props: VirtualTableCoreProps<T> & RefAttributes<HTMLTableElement>,
+  props: VirtualTableCoreProps<T> & RefAttributes<HTMLDivElement>,
 ) => ReactElement

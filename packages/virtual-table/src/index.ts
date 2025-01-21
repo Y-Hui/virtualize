@@ -21,7 +21,6 @@ export type {
   UseTablePipelineOptions,
   VirtualTableCellProps,
   VirtualTableProps,
-  VirtualTableRef,
   VirtualTableRowProps,
 } from './core'
 export {
@@ -44,4 +43,4 @@ export {
 } from './core'
 export type * from './core/pipeline/types'
 export { findLastIndex } from './utils/find-last-index'
-export { composeRef } from './utils/ref'
+export { mergeRefs, useMergedRef } from './utils/ref'

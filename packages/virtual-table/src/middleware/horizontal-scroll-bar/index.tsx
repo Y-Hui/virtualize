@@ -10,13 +10,15 @@ function useHorizontalScrollBar<T = any>(
   ctx: MiddlewareContext<T>,
   options?: HorizontalScrollBarOptions,
 ): MiddlewareResult<T> {
+  const { bodyRef } = ctx
+
   return {
     ...ctx,
     renderContent(children) {
       return (
         <>
           {children}
-          <ScrollBar {...options} />
+          <ScrollBar bodyRef={bodyRef} {...options} />
         </>
       )
     },

@@ -3,7 +3,7 @@ import type { FC, Key, ReactNode } from 'react'
 import { useHorizontalScrollContext } from '@are-visual/virtual-table'
 import { getScrollbarSize } from '@are-visual/virtual-table/middleware/utils/getScrollbarSize'
 import clsx from 'clsx'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export interface FooterProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -18,6 +18,13 @@ const Footer: FC<FooterProps> = (props) => {
   const { addShouldSyncElement } = useHorizontalScrollContext()
   const [scrollbarHeight] = useState(() => getScrollbarSize().height)
 
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const wrapperNode = wrapperRef.current
+    if (wrapperNode == null) return
+    return addShouldSyncElement('virtual-table-summary', wrapperNode)
+  }, [addShouldSyncElement])
+
   return (
     <div
       className={clsx(
@@ -25,11 +32,7 @@ const Footer: FC<FooterProps> = (props) => {
         fixed && 'virtual-table-summary-sticky-bottom virtual-table-summary-top-border',
       )}
       style={{ paddingBottom: scrollbarHeight }}
-      ref={(node) => {
-        if (node == null)
-          return
-        addShouldSyncElement('virtual-table-summary', node)
-      }}
+      ref={wrapperRef}
     >
       <table className="virtual-table-summary">
         <colgroup>

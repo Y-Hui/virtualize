@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { ReactNode } from 'react'
+import type { ReactNode, RefObject } from 'react'
+import type { ScrollElement } from '../../utils/dom'
 import type { NecessaryProps } from '../internal'
 import type { ColumnType, OnRowType } from '../types'
 
@@ -10,6 +11,9 @@ type Prettify<T> = {
 export interface MiddlewareContext<T> extends Readonly<NecessaryProps<T>> {
   readonly visibleRowSize: number
   readonly estimatedRowHeight: number
+  readonly bodyRef: RefObject<HTMLTableElement>
+  readonly rootRef: RefObject<HTMLDivElement>
+  readonly getScroller: () => ScrollElement | undefined
   readonly getOffsetTop: () => number
 }
 

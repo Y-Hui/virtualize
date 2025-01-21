@@ -8,9 +8,9 @@ import type {
 } from './pipeline/types'
 import type { ColumnType } from './types'
 import clsx from 'clsx'
-import { createElement, Fragment, useLayoutEffect, useRef } from 'react'
+import { createElement, Fragment, useEffect, useLayoutEffect, useRef } from 'react'
 import { findLastIndex } from '../utils/find-last-index'
-import { composeRef } from '../utils/ref'
+import { useMergedRef } from '../utils/ref'
 import Colgroup from './colgroup'
 import { useHorizontalScrollContext } from './context/horizontal-scroll'
 import { useTableSticky } from './context/sticky'
@@ -62,6 +62,13 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
   const firstFixedRightColumnIndex = columns.findIndex((x) => isValidFixedRight(x.fixed))
 
   const { addShouldSyncElement } = useHorizontalScrollContext()
+
+  const headerWrapperRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const node = headerWrapperRef.current
+    if (node == null) return
+    return addShouldSyncElement('virtual-table-header', node)
+  }, [addShouldSyncElement])
 
   const row = pipelineRender(
     <tr>
@@ -143,14 +150,11 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
     { columns },
   )
 
+  const mergedRef = useMergedRef(wrapperRef, headerWrapperRef)
+
   return pipelineRender(
     <div
-      ref={composeRef(wrapperRef, (node) => {
-        if (node == null) {
-          return
-        }
-        addShouldSyncElement('virtual-table-header', node)
-      })}
+      ref={mergedRef}
       className={clsx('virtual-table-header', className, {
         'virtual-table-header-sticky': stickyHeader,
       })}

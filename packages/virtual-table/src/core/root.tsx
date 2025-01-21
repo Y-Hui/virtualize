@@ -2,7 +2,7 @@ import type { CSSProperties, ForwardedRef, ReactNode } from 'react'
 import type { PipelineRender } from './pipeline/types'
 import clsx from 'clsx'
 import { forwardRef, useEffect, useMemo, useRef, useState } from 'react'
-import { composeRef } from '../utils/ref'
+import { useMergedRef } from '../utils/ref'
 import { useHorizontalScrollContext } from './context/horizontal-scroll'
 import { pipelineRender } from './pipeline/render-pipeline'
 
@@ -60,10 +60,10 @@ function TableRoot(props: TableRootProps, ref: ForwardedRef<HTMLDivElement>) {
     }
   }, [elements, hasFixedLeftColumn, hasFixedRightColumn])
 
+  const mergedRef = useMergedRef(ref, rootNode)
   return pipelineRender(
     <div
-      // eslint-disable-next-line react-compiler/react-compiler
-      ref={composeRef(ref, rootNode)}
+      ref={mergedRef}
       className={clsx(
         'virtual-table',
         hasFixedLeft && 'virtual-table-has-fix-left',
