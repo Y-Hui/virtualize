@@ -417,7 +417,67 @@ const pipeline = useTablePipeline({
 })
 ```
 
+#### Context Hooks
 
+以下所列出的 hook 均与 Table 内部的 Context 有关，无法脱离 Provider 使用。
+
+##### useContainerSize
+
+读取 Context 传递的 Table 尺寸信息。
+
+```tsx
+import { useContainerSize } from '@are-visual/virtual-table'
+
+const {
+  scrollContainerHeight,
+  scrollContainerWidth,
+  tableHeight,
+  tableWidth,
+} = useContainerSize()
+```
+
+##### useHorizontalScrollContext
+
+当你自定义的插件需要同步水平滚动时，可以使用这个 hook。使用 `addShouldSyncElement` 设置需要同步的 DOM。
+
+可参考 [horizontalScrollBar 水平滚动条](./packages/virtual-table/src/middleware/horizontal-scroll-bar)的实现。
+
+```tsx
+import { useHorizontalScrollContext } from '@are-visual/virtual-table'
+
+const { getElements, addShouldSyncElement, removeShouldSyncElement} = useHorizontalScrollContext()
+
+const needSyncScrollElement = useRef()
+useEffect(() => {
+  const node = needSyncScrollElement.current
+  
+  if(node == null) return
+  
+  // addShouldSyncElement 会返回一个已设置 key 的清除函数（removeShouldSyncElement）
+  return addShouldSyncElement('union-key', node)
+}, [])
+```
+
+##### useTableRowManager
+
+此 hook 可以获取当前 Table 行的高度、更新行高。
+
+可参考 [tableExpandable 行展开](./packages/virtual-table/src/middleware/expandable)的实现。
+
+```tsx
+import { useTableRowManager } from '@are-visual/virtual-table'
+
+const { getRowHeightList, updateRowHeight } = useTableRowManager()
+```
+
+类型签名：
+
+```ts
+interface TableRowManagerContextType {
+  getRowHeightList: () => number[]
+  updateRowHeight: (index: number, height: number) => void
+}
+```
 
 ### 参考
 

@@ -93,7 +93,7 @@ export function TableColumnsContext(
 export function useTableColumns() {
   const context = useContext(TableColumns)
   if (context == null) {
-    throw new Error('useTableColumns 脱离上下文调用')
+    throw new Error('useTableColumns provider not found')
   }
   return context
 }

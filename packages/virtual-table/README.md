@@ -14,7 +14,6 @@
 - [x] 尝试移除 ahooks
 
 ### Middleware TODO 🚧
-- [ ] useTablePipeline 实现改进，目前版本实现方式有些“脏”
 - [x] Middleware Render 函数类型改进（使用函数重载）
 - [x] empty middleware 设置 width 为容器宽度
 - [x] expandable 支持

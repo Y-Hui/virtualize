@@ -1,5 +1,5 @@
 import type { CSSProperties, FC, ReactNode } from 'react'
-import { useContainerSize, useTableShared } from '@are-visual/virtual-table'
+import { useContainerSize, useTableRowManager } from '@are-visual/virtual-table'
 import clsx from 'clsx'
 import { useRef } from 'react'
 
@@ -24,7 +24,7 @@ const ExpandRow: FC<ExpandRowProps> = (props) => {
     fixed,
   } = props
 
-  const { getRowHeightList, updateRowHeight } = useTableShared()
+  const { getRowHeightList, updateRowHeight } = useTableRowManager()
   const { tableWidth } = useContainerSize()
 
   const currentNodeHeight = useRef(0)

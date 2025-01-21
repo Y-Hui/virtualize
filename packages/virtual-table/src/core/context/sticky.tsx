@@ -17,7 +17,7 @@ if (__DEV__) {
 export function useTableSticky() {
   const context = useContext(Sticky)
   if (context == null) {
-    throw new Error('useTableSticky 脱离上下文调用')
+    throw new Error('useTableSticky provider not found')
   }
   return context
 }

@@ -1,7 +1,6 @@
 import type { CSSProperties, ForwardedRef, ReactElement, Ref, RefAttributes } from 'react'
 import type { TableBodyProps } from './body'
-import type { ContainerSizeState } from './context/container-size'
-import type { TableSharedContextType } from './context/shared'
+import type { TableRowManagerContextType } from './context/row-manager'
 import type { UseRowRectManagerOptions } from './hooks/useRowRectManager'
 import type { NecessaryProps } from './internal'
 import type { OnRowType } from './types'
@@ -16,12 +15,11 @@ import {
 import { getScrollParent } from '../utils/dom'
 import { useMergedRef } from '../utils/ref'
 import TableBody from './body'
-import { ContainerSize } from './context/container-size'
+import { ContainerSizeContext } from './context/container-size'
 import { HorizontalScrollContext } from './context/horizontal-scroll'
-import { TableShared } from './context/shared'
+import { TableRowManager } from './context/row-manager'
 import { TableColumnsContext } from './context/table-columns'
 import TableHeader from './header'
-import { useCalcSize } from './hooks/useCalcSize'
 import { useRowVirtualize } from './hooks/useRowVirtualize'
 import { useVisibleRowSize } from './hooks/useVisibleRowSize'
 import { pipelineRender } from './pipeline/render-pipeline'
@@ -166,13 +164,13 @@ function VirtualTableCore<T>(
   const hasFixedLeftColumn = columns.some((x) => isValidFixedLeft(x.fixed))
   const hasFixedRightColumn = columns.some((x) => isValidFixedRight(x.fixed))
 
-  const shared = useMemo(() => {
+  const rowManager = useMemo((): TableRowManagerContextType => {
     return {
       getRowHeightList() {
         return rowHeightList.current
       },
       updateRowHeight,
-    } satisfies TableSharedContextType
+    }
   }, [rowHeightList, updateRowHeight])
 
   const bodyMergedRef = useMergedRef(bodyNode, tableBodyRef)
@@ -229,13 +227,13 @@ function VirtualTableCore<T>(
   )
 
   return (
-    <TableShared.Provider value={shared}>
+    <TableRowManager.Provider value={rowManager}>
       <TableColumnsContext columns={columns}>
-        <ContainerSize.Provider value={containerSize}>
+        <ContainerSizeContext getScroller={getScroller} root={rootNode}>
           <HorizontalScrollContext>{table}</HorizontalScrollContext>
-        </ContainerSize.Provider>
+        </ContainerSizeContext>
       </TableColumnsContext>
-    </TableShared.Provider>
+    </TableRowManager.Provider>
   )
 }
 

@@ -3,7 +3,7 @@ import type { ScrollElement } from '../../utils/dom'
 import { useLayoutEffect, useRef, useState } from 'react'
 import { isWindow } from '../../utils/dom'
 
-interface CalcSizeOptions {
+export interface CalcSizeOptions {
   getScroller: () => ScrollElement | undefined
   root: RefObject<HTMLDivElement>
 }

@@ -1,6 +1,5 @@
 import type { PropsWithChildren } from 'react'
-import { createContext, useContext, useLayoutEffect, useMemo, useState } from 'react'
-import { get } from '../utils/get'
+import { createContext, useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 export interface HorizontalScrollContextState {
   getElements: () => HTMLElement[]
@@ -18,43 +17,34 @@ if (__DEV__) {
 export function HorizontalScrollContext(props: PropsWithChildren) {
   const { children } = props
 
+  const elementsRef = useRef<Record<string, HTMLElement>>({})
   const [elements, setElements] = useState<Record<string, HTMLElement>>({})
+
+  const removeShouldSyncElement = useCallback((key: string) => {
+    delete elementsRef.current[key]
+    setElements({ ...elementsRef.current })
+  }, [])
+
+  const addShouldSyncElement = useCallback((key: string, element: HTMLElement) => {
+    const target = elementsRef.current[key]
+    if (target !== element) {
+      elementsRef.current[key] = element
+      setElements({ ...elementsRef.current })
+    }
+    return () => {
+      removeShouldSyncElement(key)
+    }
+  }, [removeShouldSyncElement])
 
   const context = useMemo((): HorizontalScrollContextState => {
     return {
       getElements() {
         return Object.values(elements)
       },
-      addShouldSyncElement(key, element) {
-        setElements((prevState) => {
-          if (prevState[key] === element) {
-            return prevState
-          }
-          return { ...prevState, [key]: element }
-        })
-        return () => {
-          setElements((prevState) => {
-            if (get(prevState, key) != null) {
-              const result = { ...prevState }
-              delete result[key]
-              return result
-            }
-            return prevState
-          })
-        }
-      },
-      removeShouldSyncElement(key) {
-        setElements((prevState) => {
-          if (get(prevState, key) != null) {
-            const result = { ...prevState }
-            delete result[key]
-            return result
-          }
-          return prevState
-        })
-      },
+      addShouldSyncElement,
+      removeShouldSyncElement,
     }
-  }, [elements])
+  }, [addShouldSyncElement, elements, removeShouldSyncElement])
 
   // 水平滚动容器同步
   useLayoutEffect(() => {
@@ -109,7 +99,7 @@ export function useHorizontalScrollContext() {
   const context = useContext(HorizontalScroll)
 
   if (context == null) {
-    throw new Error('useHorizontalScrollContext 脱离上下文调用')
+    throw new Error('useHorizontalScrollContext provider not found')
   }
 
   return context

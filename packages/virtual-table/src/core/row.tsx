@@ -5,7 +5,7 @@ import clsx from 'clsx'
 import { memo } from 'react'
 import { findLastIndex } from '../utils/find-last-index'
 import Cell from './cell'
-import { useTableShared } from './context/shared'
+import { useTableRowManager } from './context/row-manager'
 import { pipelineRender } from './pipeline/render-pipeline'
 import { isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
@@ -35,7 +35,7 @@ function Row<T>(props: RowProps<T>) {
     ...rest
   } = props
 
-  const { updateRowHeight } = useTableShared()
+  const { updateRowHeight } = useTableRowManager()
 
   const lastFixedLeftColumnIndex = findLastIndex(columns, (x) => isValidFixedLeft(x.fixed))
   const firstFixedRightColumnIndex = columns.findIndex((x) => isValidFixedRight(x.fixed))
