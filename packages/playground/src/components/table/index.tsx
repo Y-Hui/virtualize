@@ -4,7 +4,6 @@ import type {
   ColumnType,
   SizeType,
   VirtualTableProps as VirtualTableCoreProps,
-  VirtualTableRef as VirtualTableCoreRef,
 } from '@are-visual/virtual-table'
 import type { ColumnExtra } from '@are-visual/virtual-table/core'
 import type { ExpandableConfig } from '@are-visual/virtual-table/middleware/expandable'
@@ -66,7 +65,7 @@ const extraColumnProps: ColumnExtra = { disableResize: true }
 
 function VirtualTable<T>(
   props: VirtualTableProps<T>,
-  ref: ForwardedRef<VirtualTableCoreRef>,
+  ref: ForwardedRef<HTMLDivElement>,
 ) {
   const {
     className,
@@ -110,7 +109,7 @@ function VirtualTable<T>(
   const pipeline = useTablePipeline<T>({
     pipeline: extraPipeline,
     use: [
-      tableSelection({ ...rowSelection, extraColumnProps }),
+      tableSelection(rowSelection == null ? undefined : { ...rowSelection, extraColumnProps }),
       tableExpandable(expandable),
       columnResize(storageKey == null ? undefined : { storageKey }),
       // eslint-disable-next-line react-compiler/react-compiler
@@ -142,5 +141,5 @@ function VirtualTable<T>(
 
 export { Summary }
 export default forwardRef(VirtualTable) as <T>(
-  props: VirtualTableProps<T> & RefAttributes<VirtualTableCoreRef>,
+  props: VirtualTableProps<T> & RefAttributes<HTMLDivElement>,
 ) => ReactElement

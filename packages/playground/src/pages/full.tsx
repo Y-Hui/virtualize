@@ -53,7 +53,6 @@ function SelectionImpl(props: SelectionProps) {
     />
   )
 }
-/* eslint-enable @typescript-eslint/no-unused-vars */
 
 const FullDemo: FC = () => {
   const [summaryPosition, setSummaryPosition] = useState<'bottom' | 'top'>('bottom')
@@ -119,12 +118,6 @@ const FullDemo: FC = () => {
       expandable,
       columnResize({
         storageKey: 'full-demo',
-        min(column) {
-          if (column.key === 'name') {
-            console.log(column)
-            return 160
-          }
-        },
       }),
       { priority: 200, hook: tableLoading({ loading }) },
       { priority: 200, hook: tableEmpty({ children: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> }) },
@@ -333,6 +326,9 @@ const FullDemo: FC = () => {
           marginBottom: 30,
           display: 'grid',
           gridTemplateColumns: 'repeat(5, minmax(0, 1fr))',
+          border: '1px solid #f00',
+          height: 500,
+          maxHeight: 100,
         }}
       >
         <div>
