@@ -48,6 +48,8 @@ export interface VirtualTableCoreProps<T>
   overscanRows?: number
 
   pipeline?: TablePipeline<T>
+
+  getOffsetTop?: () => number
 }
 
 function VirtualTableCore<T>(
@@ -68,6 +70,7 @@ function VirtualTableCore<T>(
     pipeline = (TablePipeline.defaultPipeline as TablePipeline<T>),
     rowClassName: rawRowClassName,
     onRow,
+    getOffsetTop: getOffsetTopImpl,
   } = props
 
   const tableNode = useRef<HTMLTableElement>(null)
@@ -80,24 +83,12 @@ function VirtualTableCore<T>(
     return getScrollParent(root)
   }, [])
 
-  const {
-    scrollContainerHeight,
-    scrollContainerWidth,
-    tableHeight,
-    tableWidth,
-  } = useCalcSize({ getScroller, root: rootNode })
-
-  const containerSize = useMemo((): ContainerSizeState => {
-    return {
-      width: scrollContainerWidth,
-      height: scrollContainerHeight,
-      tableWidth,
-      tableHeight,
-      container() {
-        return scrollerContainerRef.current
-      },
+  const getOffsetTop = useCallback(() => {
+    if (typeof getOffsetTopImpl === 'function') {
+      return getOffsetTopImpl()
     }
-  }, [scrollContainerWidth, scrollContainerHeight, tableWidth, tableHeight])
+    return rootNode.current?.offsetTop ?? 0
+  }, [getOffsetTopImpl])
 
   const hasData = !Array.isArray(rawData) ? false : rawData.length > 0
 
@@ -139,6 +130,7 @@ function VirtualTableCore<T>(
     columns: rawColumns,
     visibleRowSize: endIndex - startIndex,
     estimatedRowHeight,
+    getOffsetTop,
   })
 
   const {
@@ -148,6 +140,7 @@ function VirtualTableCore<T>(
     topBlank,
     bottomBlank,
   } = useRowVirtualize({
+    getOffsetTop,
     startIndex,
     setStartIndex,
     endIndex,

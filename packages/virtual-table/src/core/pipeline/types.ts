@@ -7,9 +7,10 @@ type Prettify<T> = {
   [K in keyof T]: T[K]
 } & {}
 
-export interface MiddlewareContext<T> extends NecessaryProps<T> {
-  visibleRowSize: number
-  estimatedRowHeight: number
+export interface MiddlewareContext<T> extends Readonly<NecessaryProps<T>> {
+  readonly visibleRowSize: number
+  readonly estimatedRowHeight: number
+  readonly getOffsetTop: () => number
 }
 
 export interface MiddlewareResult<T> extends MiddlewareContext<T>, MiddlewareRenders {

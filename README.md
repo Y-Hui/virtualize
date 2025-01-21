@@ -91,21 +91,43 @@ function App() {
 
 #### Table Props
 
-| Prop Name          | 说明                                                    | 类型                                    | 默认值 | 版本 |
-| ------------------ | ------------------------------------------------------- | --------------------------------------- | ------ | ---- |
-| className          | 样式类名                                                | string                                  |        |      |
-| style              | 样式                                                    | CSSProperties                           |        |      |
-| tableBodyClassName | body 样式类名                                           | string                                  |        |      |
-| tableBodyStyle     | body 样式                                               | CSSProperties                           |        |      |
-| columns            | 表格列配置                                              | ColumnType[]                            |        |      |
-| dataSource         | 表格数据源                                              | object[]                                |        |      |
-| rowKey             | 表格行 key 的取值                                       | string                                  | `key`  |      |
-| estimatedRowHeight | 预计每行高度                                            | number                                  |        |      |
-| overscanRows       | 额外在首尾渲染数据条数                                      | number                                  | 5      |      |
-| stickyHeader       | 表头吸顶<br />为 true 时 top 为 0，为 number 则是偏移量 | number \| boolean                       |        |      |
-| pipeline           | 插件实例                                                | TablePipeline                           |        |      |
-| rowClassName       | 表格行样式类名                                          | (*record*, *index*) => string           |        |      |
-| onRow              | 设置行属性                                              | (*record*, *index*) => TdHTMLAttributes |        |      |
+| Prop Name          | 说明                                                    | 类型                                    | 默认值                         | 版本 |
+| ------------------ | ------------------------------------------------------- | --------------------------------------- | ------------------------------ | ---- |
+| ref                | 设置最外层 div ref                                      | Ref\<HTMLDivElement\>                   |                                |      |
+| tableBodyRef       | 设置 body 部分 table ref                                | Ref\<HTMLTableElement\>                 |                                |      |
+| className          | 样式类名                                                | string                                  |                                |      |
+| style              | 样式                                                    | CSSProperties                           |                                |      |
+| tableBodyClassName | body 样式类名                                           | string                                  |                                |      |
+| tableBodyStyle     | body 样式                                               | CSSProperties                           |                                |      |
+| columns            | 表格列配置                                              | ColumnType[]                            |                                |      |
+| dataSource         | 表格数据源                                              | object[]                                |                                |      |
+| rowKey             | 表格行 key 的取值                                       | string                                  | `key`                          |      |
+| estimatedRowHeight | 预计每行高度                                            | number                                  |                                |      |
+| overscanRows       | 额外在首尾渲染数据条数                                  | number                                  | 5                              |      |
+| stickyHeader       | 表头吸顶<br />为 true 时 top 为 0，为 number 则是偏移量 | number \| boolean                       |                                |      |
+| pipeline           | 插件实例                                                | TablePipeline                           |                                |      |
+| rowClassName       | 表格行样式类名                                          | (*record*, *index*) => string           |                                |      |
+| onRow              | 设置行属性                                              | (*record*, *index*) => TdHTMLAttributes |                                |      |
+| getOffsetTop       | 计算顶部偏移量                                          | () => number                            | 使用 最外层 div 计算 offsetTop |      |
+
+#### getOffsetTop
+
+![offset-layout](./docs/images/offset-top-layout.svg)
+
+例如上图所示，业务开发中的常见布局形式，绿色部分即为 Table 组件之前的**额外区域**，若这一部分的 DOM 高度较高，滚动会导致可视区域内容计算出错，导致 Table 存在空白部分。
+
+在虚拟列表的实现中，当滚动事件触发时，需要使用 `scrollTop` 与最接近滚动容器顶部的元素（锚点元素）位置进行比较，再得出最新的数据可视范围。
+
+![offset-scroll-top](./docs/images/offset-scroll-top.svg)
+如上图所示，当 Table 与滚动容器的上边缘相交时，数据可视范围计算才可以开始计算。而正是因为额外区域的存在，导致 Table 与滚动容器上边缘相交前，可视数据范围的计算便已经触发了，造成 Table 中存在空白行。
+
+所以，`@are-visual/virtual-table` 提供了 `getOffsetTop` 属性，用于得知额外区域的具体高度，这样在数据可视范围计算时才能避免这个问题。
+
+一般来说，你不太需要关注 `getOffsetTop`，因为它有一个默认实现：使用 table 的 DOM 节点访问 offsetTop 属性作为偏移量。
+
+`getOffsetTop` 总是会在滚动事件中反复调用。
+
+> 关于 `getOffsetTop` 的默认实现是否会造成额外重排/性能影响，还有待验证。若你实在担心，可以设置 getOffsetTop 以覆盖默认实现。
 
 #### 插件
 

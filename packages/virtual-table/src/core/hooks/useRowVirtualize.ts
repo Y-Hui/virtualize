@@ -11,6 +11,7 @@ interface UseRowVirtualizeOptions<T = any> {
   setStartIndex: Dispatch<SetStateAction<number>>
   endIndex: number
   setEndIndex: Dispatch<SetStateAction<number>>
+  getOffsetTop: () => number
   dataSource: T[]
   getScroller: () => ScrollElement | undefined
   estimatedRowHeight: number
@@ -18,13 +19,13 @@ interface UseRowVirtualizeOptions<T = any> {
   visibleRowSize: MutableRefObject<number>
 }
 
-// TODO(FixMe): overscan=0、scroll=window、table 上方有元素时，滚动会白屏
 export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
   const {
     startIndex,
     setStartIndex,
     endIndex,
     setEndIndex,
+    getOffsetTop,
     dataSource: rawData,
     getScroller,
     estimatedRowHeight,
@@ -71,8 +72,9 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
     }
 
     const onScroll = (e: Event) => {
+      const offsetTop = getOffsetTop()
       const scrollElement = getScrollElement(e.target)
-      const { scrollTop } = scrollElement
+      const scrollTop = Math.max(0, scrollElement.scrollTop - offsetTop)
 
       // 如果滚动距离比较小，没有超出锚点元素的边界，就不需要计算 startIndex、endIndex 了
       // 向下滚动
@@ -93,7 +95,7 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
     return () => {
       container.removeEventListener('scroll', onScroll)
     }
-  }, [getScroller, overscan, rects, setEndIndex, setStartIndex, visibleRowSize])
+  }, [getOffsetTop, getScroller, overscan, rects, setEndIndex, setStartIndex, visibleRowSize])
 
   // TODO: React Compiler 测试 topBlank 和 bottomBlank
   const topBlank = sum(0, startIndex)
