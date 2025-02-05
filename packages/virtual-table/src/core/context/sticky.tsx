@@ -1,6 +1,7 @@
 import type { Key, PropsWithChildren } from 'react'
 import type { ColumnType, FixedType } from '../types'
 import { createContext, useContext, useMemo } from 'react'
+import { useShallowMemo } from '../hooks/useShallowMemo'
 import { getKey } from '../utils/get-key'
 import { isValidFixedLeft, isValidFixedRight } from '../utils/verification'
 import { useColumnSizes } from './column-sizes'
@@ -70,9 +71,12 @@ export function StickyContext(
     }, new Map<Key, number>())
   }, [columnsFixedRecord, widthList])
 
+  const shallowMemoFixedRecord = useShallowMemo(() => columnsFixedRecord)
+  const shallowMemoStickySizes = useShallowMemo(() => stickySizes)
+
   const stickyState = useMemo((): StickyContextState => {
-    return { size: stickySizes, fixed: columnsFixedRecord }
-  }, [columnsFixedRecord, stickySizes])
+    return { size: shallowMemoStickySizes, fixed: shallowMemoFixedRecord }
+  }, [shallowMemoFixedRecord, shallowMemoStickySizes])
 
   return (
     <Sticky.Provider value={stickyState}>
