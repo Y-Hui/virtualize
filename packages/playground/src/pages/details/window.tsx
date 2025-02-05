@@ -1,10 +1,9 @@
 import '@are-visual/virtual-table/styles/table.scss'
-import '@are-visual/virtual-table/middleware/column-resize/styles.scss'
-import '@are-visual/virtual-table/middleware/selection/styles.scss'
 import '@are-visual/virtual-table/middleware/horizontal-scroll-bar/styles.scss'
 import type { ColumnType } from '@are-visual/virtual-table'
 import type { FC } from 'react'
-import { VirtualTable } from '@are-visual/virtual-table'
+import { useTablePipeline, VirtualTable } from '@are-visual/virtual-table'
+import { horizontalScrollBar } from '@are-visual/virtual-table/middleware/horizontal-scroll-bar'
 
 const size = 1000
 
@@ -25,10 +24,15 @@ const columns = Array.from({ length: size }, (_, index): ColumnType<Record<strin
 })
 
 const WindowScroll: FC = () => {
+  const pipeline = useTablePipeline({
+    use: [horizontalScrollBar()],
+  })
+
   return (
     <VirtualTable
       className="virtual-table-small"
       rowKey="key"
+      pipeline={pipeline}
       dataSource={dataSource}
       columns={columns}
       estimatedRowHeight={39}
