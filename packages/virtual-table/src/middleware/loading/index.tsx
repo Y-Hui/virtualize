@@ -1,20 +1,32 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ColumnType, MiddlewareContext, MiddlewareResult } from '@are-visual/virtual-table'
-import { createMiddleware } from '@are-visual/virtual-table'
-import { useMemo } from 'react'
+import { createMiddleware, onResize } from '@are-visual/virtual-table'
+import { useEffect, useMemo, useState } from 'react'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function useTableLoading<T = any>(
   ctx: MiddlewareContext<T>,
   options?: { loading?: boolean },
 ): MiddlewareResult<T> {
   const { loading = false } = options ?? {}
-  const { columns: rawColumns, visibleRowSize: lines, estimatedRowHeight } = ctx
+  const { columns: rawColumns, estimatedRowHeight, headerWrapperRef, getScroller } = ctx
+
+  const [count, setCount] = useState(10)
+
+  useEffect(() => {
+    const header = headerWrapperRef.current
+    const container = getScroller()
+    if (container == null) return
+    return onResize(container, ({ height }) => {
+      const headerHeight = header?.offsetHeight ?? 0
+      setCount(Math.ceil((height - headerHeight) / estimatedRowHeight))
+    })
+  }, [getScroller, headerWrapperRef, estimatedRowHeight])
 
   const fakeDataSource = useMemo(() => {
-    return Array.from({ length: lines }, (_, index) => {
+    return Array.from({ length: count }, (_, index) => {
       return { key: index }
     }) as T[]
-  }, [lines])
+  }, [count])
 
   const columns = useMemo((): ColumnType<T>[] => {
     if (!loading) {

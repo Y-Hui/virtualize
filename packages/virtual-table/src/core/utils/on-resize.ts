@@ -13,6 +13,7 @@ export function onResize(target: Window | HTMLElement, callback: (rect: ResizeRe
         height: window.innerHeight,
       })
     }
+    listener()
     window.addEventListener('resize', listener)
     return () => {
       window.removeEventListener('resize', listener)

@@ -1,6 +1,6 @@
 import type { ColumnType } from '@are-visual/virtual-table'
-import type { DetailedHTMLProps, HTMLAttributes } from 'react'
-import { findLastIndex, isValidFixed, isValidFixedLeft, isValidFixedRight, useTableSticky } from '@are-visual/virtual-table'
+import type { DetailedHTMLProps, HTMLAttributes, Key } from 'react'
+import { isValidFixed, isValidFixedLeft, isValidFixedRight, useTableSticky } from '@are-visual/virtual-table'
 import clsx from 'clsx'
 import { memo, useMemo } from 'react'
 
@@ -10,7 +10,8 @@ type NativeProps = DetailedHTMLProps<
 >
 
 export interface CellProps extends NativeProps, Pick<ColumnType<unknown>, 'align'> {
-  index: number
+  // index: number
+  columnKey: Key
   colSpan?: number
 }
 
@@ -21,16 +22,23 @@ function Cell(props: CellProps) {
     children,
     align,
     colSpan,
-    index: columnIndex,
+    columnKey,
     ...restProps
   } = props
 
   const { size: stickySizes, fixed: columnsFixed } = useTableSticky()
-  const fixed = columnsFixed[columnIndex]
 
-  const { left: lastFixedLeftColumnIndex, right: firstFixedRightColumnIndex } = useMemo(() => {
-    const left = findLastIndex(columnsFixed, (x) => isValidFixedLeft(x))
-    const right = columnsFixed.findIndex((x) => isValidFixedRight(x))
+  const stickySize = stickySizes.get(columnKey)
+  const fixed = columnsFixed.find((x) => x.key === columnKey)?.fixed
+
+  const { left: lastFixedLeftColumnKey, right: firstFixedRightColumnKey } = useMemo(() => {
+    const left = columnsFixed.reduce<Key | undefined>((result, x) => {
+      if (isValidFixedLeft(x.fixed)) {
+        return x.key
+      }
+      return result
+    }, undefined)
+    const right = columnsFixed.find((x) => isValidFixedRight(x.fixed))?.key
     return { left, right }
   }, [columnsFixed])
 
@@ -38,17 +46,17 @@ function Cell(props: CellProps) {
     return null
   }
 
-  const colOffset = Math.max(0, (colSpan ?? 0) - 1)
-  let index = columnIndex + colOffset
-  let offset = stickySizes[index]
+  // const colOffset = Math.max(0, (colSpan ?? 0) - 1)
+  // let index = columnIndex + colOffset
+  // let offset = stickySizes[index]
 
   if (colSpan != null) {
-    if (index === lastFixedLeftColumnIndex) {
-      index = columnIndex + colOffset
-    } else if (columnIndex === firstFixedRightColumnIndex) {
-      index = columnIndex
-      offset = stickySizes[index + colOffset]
-    }
+    // if (index === lastFixedLeftColumnIndex) {
+    //   index = columnIndex + colOffset
+    // } else if (columnIndex === firstFixedRightColumnIndex) {
+    //   index = columnIndex
+    //   offset = stickySizes[index + colOffset]
+    // }
   }
 
   return (
@@ -59,14 +67,14 @@ function Cell(props: CellProps) {
         'virtual-table-cell virtual-table-summary-cell',
         align != null && `virtual-table-align-${align}`,
         isValidFixed(fixed) && 'virtual-table-sticky-cell',
-        lastFixedLeftColumnIndex === index && 'virtual-table-cell-fix-left-last',
-        firstFixedRightColumnIndex === index && 'virtual-table-cell-fix-right-first',
+        lastFixedLeftColumnKey === columnKey && 'virtual-table-cell-fix-left-last',
+        firstFixedRightColumnKey === columnKey && 'virtual-table-cell-fix-right-first',
         className,
       )}
       style={{
         ...style,
-        left: isValidFixedLeft(fixed) ? stickySizes[columnIndex] : undefined,
-        right: isValidFixedRight(fixed) ? offset : undefined,
+        left: isValidFixedLeft(fixed) ? stickySize : undefined,
+        right: isValidFixedRight(fixed) ? stickySize : undefined,
       }}
     >
       {children}

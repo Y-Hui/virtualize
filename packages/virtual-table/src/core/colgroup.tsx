@@ -1,10 +1,10 @@
-import type { FC, Key } from 'react'
-import type { ColumnType } from './types'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { FC } from 'react'
+import type { ColumnDescriptor, ColumnType } from './types'
 
 export interface ColgroupProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  columns: ColumnType<any>[]
-  colRef?: (instance: HTMLTableColElement | null, index: number) => void
+  columns: ColumnDescriptor[]
+  colRef?: (instance: HTMLTableColElement | null, column: ColumnType<any>, index: number) => void
 }
 
 const Colgroup: FC<ColgroupProps> = (props) => {
@@ -13,18 +13,24 @@ const Colgroup: FC<ColgroupProps> = (props) => {
   return (
     <colgroup>
       {columns.map((item, index) => {
-        const key = 'key' in item ? (item.key as Key) : item.dataIndex
+        const { key } = item
+        if (item.type === 'blank') {
+          return <col key={key} style={{ width: item.width }} />
+        }
+
+        const { column } = item
+
         return (
           <col
-            key={typeof key === 'symbol' ? index : key}
+            key={key}
             ref={
               typeof colRef === 'function'
-                ? (instance) => { colRef(instance, index) }
+                ? (instance) => { colRef(instance, column, index) }
                 : colRef
             }
             style={{
-              width: item.width,
-              minWidth: item.minWidth,
+              width: column.width,
+              minWidth: column.minWidth,
             }}
           />
         )

@@ -1,4 +1,4 @@
-import type { CSSProperties, FC, Key, RefObject } from 'react'
+import type { CSSProperties, FC, RefObject } from 'react'
 import type {
   MiddlewareRenderHeader,
   MiddlewareRenderHeaderCell,
@@ -6,15 +6,15 @@ import type {
   MiddlewareRenderHeaderRow,
   MiddlewareRenderHeaderWrapper,
 } from './pipeline/types'
-import type { ColumnType } from './types'
+import type { InnerColumnDescriptor } from './types'
 import clsx from 'clsx'
-import { createElement, Fragment, useEffect, useLayoutEffect, useRef } from 'react'
+import { createElement, Fragment, useEffect, useRef } from 'react'
 import { findLastIndex } from '../utils/find-last-index'
 import { useMergedRef } from '../utils/ref'
 import Colgroup from './colgroup'
+import { useColumnSizes } from './context/column-sizes'
 import { useHorizontalScrollContext } from './context/horizontal-scroll'
 import { useTableSticky } from './context/sticky'
-import { useTableColumns } from './context/table-columns'
 import { pipelineRender } from './pipeline/render-pipeline'
 import { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
@@ -25,7 +25,7 @@ export interface TableHeaderProps {
   wrapperRef?: RefObject<HTMLDivElement>
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  columns: ColumnType<any>[]
+  columns: InnerColumnDescriptor<any>
 
   /** 开启表头 sticky，设置为 true 则默认 top 为 0，为 number 则是偏移量 */
   stickyHeader?: number | boolean
@@ -42,7 +42,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
     className,
     style,
     wrapperRef,
-    columns,
+    columns: columnDescriptor,
     stickyHeader,
     renderHeaderWrapper,
     renderHeaderRoot,
@@ -51,16 +51,23 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
     renderHeaderCell,
   } = props
 
-  const { widthList, setWidthList } = useTableColumns()
+  const { columns, descriptor } = columnDescriptor
+
+  const { widthList } = useColumnSizes()
   const { size: stickySizes } = useTableSticky()
-  const columnsWidthRef = useRef<number[]>([])
-  useLayoutEffect(() => {
-    setWidthList(columnsWidthRef.current)
+
+  const lastFixedLeftColumnIndex = findLastIndex(descriptor, (x) => {
+    if (x.type === 'blank') {
+      return false
+    }
+    return isValidFixedLeft(x.column.fixed)
   })
-
-  const lastFixedLeftColumnIndex = findLastIndex(columns, (x) => isValidFixedLeft(x.fixed))
-  const firstFixedRightColumnIndex = columns.findIndex((x) => isValidFixedRight(x.fixed))
-
+  const firstFixedRightColumnIndex = descriptor.findIndex((x) => {
+    if (x.type === 'blank') {
+      return false
+    }
+    return isValidFixedRight(x.column.fixed)
+  })
   const { addShouldSyncElement } = useHorizontalScrollContext()
 
   const headerWrapperRef = useRef<HTMLDivElement>(null)
@@ -72,12 +79,17 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
 
   const row = pipelineRender(
     <tr>
-      {columns.map((column, index) => {
+      {descriptor.map((item, index) => {
+        const { key } = item
+        if (item.type === 'blank') {
+          return <th key={key} />
+        }
+
+        const { column } = item
+
         if (column.colSpan === 0) {
           return null
         }
-
-        const key = 'key' in column ? (column.key as Key) : column.dataIndex
 
         const {
           className: thClassName,
@@ -86,7 +98,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
         } = column.onHeaderCell?.(column, index) ?? {}
 
         return (
-          <Fragment key={typeof key === 'symbol' ? index : key}>
+          <Fragment key={key}>
             {pipelineRender(
               createElement(
                 'th',
@@ -105,49 +117,40 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
                   ),
                   style: {
                     ...thStyle,
-                    left: isValidFixedLeft(column.fixed) ? stickySizes[index] : undefined,
+                    left: isValidFixedLeft(column.fixed) ? stickySizes.get(key) : undefined,
                     right: isValidFixedRight(column.fixed)
-                      ? stickySizes[index]
+                      ? stickySizes.get(key)
                       : undefined,
                   },
                 },
                 column.title,
               ),
               renderHeaderCell,
-              { column, columns, columnIndex: index, columnWidthList: widthList },
+              { column, columns, columnIndex: index, columnWidths: widthList, columnDescriptor: descriptor },
             )}
           </Fragment>
         )
       })}
     </tr>,
     renderHeaderRow,
-    { columns },
+    { columns, columnDescriptor: descriptor },
   )
 
   const theadNode = pipelineRender(
     <thead className="virtual-table-thead">{row}</thead>,
     renderHeader,
-    { columns },
+    { columns, columnDescriptor: descriptor },
   )
 
   const tableNode = pipelineRender(
     <table
-      style={{
-        ...style,
-        top: Number.isFinite(stickyHeader) ? (stickyHeader as number) : undefined,
-      }}
+      style={style}
     >
-      <Colgroup
-        columns={columns}
-        colRef={(node, index) => {
-          if (node == null) return
-          columnsWidthRef.current[index] = node.offsetWidth
-        }}
-      />
+      <Colgroup columns={descriptor} />
       {theadNode}
     </table>,
     renderHeaderRoot,
-    { columns },
+    { columns, columnDescriptor: descriptor },
   )
 
   const mergedRef = useMergedRef(wrapperRef, headerWrapperRef)
@@ -158,11 +161,14 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
       className={clsx('virtual-table-header', className, {
         'virtual-table-header-sticky': stickyHeader,
       })}
+      style={{
+        top: Number.isFinite(stickyHeader) ? (stickyHeader as number) : undefined,
+      }}
     >
       {tableNode}
     </div>,
     renderHeaderWrapper,
-    { columns },
+    { columns, columnDescriptor: descriptor },
   )
 }
 

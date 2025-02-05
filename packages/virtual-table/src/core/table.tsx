@@ -1,7 +1,7 @@
-import type { CSSProperties, ForwardedRef, ReactElement, Ref, RefAttributes } from 'react'
+import type { CSSProperties, ForwardedRef, Key, ReactElement, Ref, RefAttributes } from 'react'
 import type { TableBodyProps } from './body'
+import type { TableColumnsContextType } from './context/column-sizes'
 import type { TableRowManagerContextType } from './context/row-manager'
-import type { UseRowRectManagerOptions } from './hooks/useRowRectManager'
 import type { NecessaryProps } from './internal'
 import type { OnRowType } from './types'
 import clsx from 'clsx'
@@ -11,27 +11,29 @@ import {
   useCallback,
   useMemo,
   useRef,
+  useState,
 } from 'react'
-import { getScrollParent } from '../utils/dom'
+import { getScrollParent, isRoot, isWindow } from '../utils/dom'
 import { useMergedRef } from '../utils/ref'
 import TableBody from './body'
+import { ColumnSizes } from './context/column-sizes'
 import { ContainerSizeContext } from './context/container-size'
 import { HorizontalScrollContext } from './context/horizontal-scroll'
 import { TableRowManager } from './context/row-manager'
-import { TableColumnsContext } from './context/table-columns'
+import { StickyContext } from './context/sticky'
 import TableHeader from './header'
+import { useColumnVirtualize } from './hooks/useColumnVirtualize'
 import { useRowVirtualize } from './hooks/useRowVirtualize'
-import { useVisibleRowSize } from './hooks/useVisibleRowSize'
 import { pipelineRender } from './pipeline/render-pipeline'
 import { TablePipeline } from './pipeline/useTablePipeline'
 import TableRoot from './root'
+import { getKey } from './utils/get-key'
 import { isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 export interface VirtualTableCoreProps<T>
   extends NecessaryProps<T>,
-  Pick<UseRowRectManagerOptions, 'estimatedRowHeight'>,
   Pick<TableBodyProps<T>, 'rowClassName' | 'onRow'> {
-  tableBodyRef?: Ref<HTMLTableElement>
+  bodyRootRef?: Ref<HTMLTableElement>
 
   className?: string
   style?: CSSProperties
@@ -42,8 +44,14 @@ export interface VirtualTableCoreProps<T>
   /** 开启表头 sticky，设置为 true 则默认 top 为 0，为 number 则是偏移量 */
   stickyHeader?: number | boolean
 
+  /** 预计每列宽度，需要横向虚拟化时，设置它 */
+  estimatedColumnWidth?: number
+  /** 预计每行高度 @default 46 */
+  estimatedRowHeight?: number
   /** 在头和尾额外渲染多少行 @default 5 */
   overscanRows?: number
+  /** 横向虚拟化时，在头和尾额外渲染多少列 @default 3 */
+  overscanColumns?: number
 
   pipeline?: TablePipeline<T>
 
@@ -55,7 +63,7 @@ function VirtualTableCore<T>(
   ref: ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    tableBodyRef,
+    bodyRootRef,
     className,
     style,
     tableBodyClassName,
@@ -63,8 +71,10 @@ function VirtualTableCore<T>(
     columns: rawColumns,
     dataSource: rawData,
     rowKey: rawRowKey = 'key',
-    estimatedRowHeight,
+    estimatedRowHeight = 46,
+    estimatedColumnWidth,
     overscanRows = 5,
+    overscanColumns = 3,
     stickyHeader,
     pipeline = (TablePipeline.defaultPipeline as TablePipeline<T>),
     rowClassName: rawRowClassName,
@@ -73,7 +83,12 @@ function VirtualTableCore<T>(
   } = props
 
   const rootNode = useRef<HTMLDivElement>(null)
-  const bodyNode = useRef<HTMLTableElement>(null)
+
+  const headerWrapperRef = useRef<HTMLDivElement>(null)
+  const bodyWrapperRef = useRef<HTMLDivElement>(null)
+  const bodyRoot = useRef<HTMLTableElement>(null)
+  const mergedBodyRootRef = useMergedRef(bodyRoot, bodyRootRef)
+  const bodyRef = useRef<HTMLTableSectionElement>(null)
 
   const getScroller = useCallback(() => {
     const root = rootNode.current
@@ -85,25 +100,20 @@ function VirtualTableCore<T>(
     if (typeof getOffsetTopImpl === 'function') {
       return getOffsetTopImpl()
     }
+    const scrollContainer = getScroller()
+    if (scrollContainer === rootNode.current) {
+      return 0
+    }
+    if (isWindow(scrollContainer) || isRoot(scrollContainer)) {
+      const top = rootNode.current?.getBoundingClientRect().top ?? 0
+      return window.scrollY + top
+    }
     return rootNode.current?.offsetTop ?? 0
-  }, [getOffsetTopImpl])
-
-  const hasData = !Array.isArray(rawData) ? false : rawData.length > 0
-
-  const [
-    [startIndex, setStartIndex],
-    [endIndex, setEndIndex],
-    { visibleRowSize },
-  ] = useVisibleRowSize({
-    hasData,
-    getScroller,
-    estimatedRowHeight,
-    overscan: overscanRows,
-  })
+  }, [getOffsetTopImpl, getScroller])
 
   const {
     dataSource,
-    columns,
+    columns: pipelineColumns,
     rowKey,
     rowClassName,
 
@@ -126,15 +136,32 @@ function VirtualTableCore<T>(
     dataSource: rawData,
     rowKey: rawRowKey,
     columns: rawColumns,
-    visibleRowSize: endIndex - startIndex,
     estimatedRowHeight,
-    bodyRef: bodyNode,
+    headerWrapperRef,
+    bodyWrapperRef,
+    bodyRootRef: bodyRoot,
+    bodyRef,
     rootRef: rootNode,
     getOffsetTop,
     getScroller,
   })
 
+  const [columnWidths, setColumnWidths] = useState(() => new Map<Key, number>())
+  const columnWidthsRef = useRef(columnWidths)
+  const updateColumnWidths = (value: Map<Key, number>) => {
+    columnWidthsRef.current = value
+    setColumnWidths(value)
+  }
+
+  const tableColumnsContext = useMemo<TableColumnsContextType>(() => {
+    return {
+      widthList: columnWidths,
+      setWidthList: updateColumnWidths,
+    }
+  }, [columnWidths])
+
   const {
+    startIndex,
     dataSlice,
     updateRowHeight,
     rowHeightList,
@@ -142,16 +169,33 @@ function VirtualTableCore<T>(
     bottomBlank,
   } = useRowVirtualize({
     getOffsetTop,
-    startIndex,
-    setStartIndex,
-    endIndex,
-    setEndIndex,
     dataSource,
     getScroller,
-    estimatedRowHeight,
+    estimateSize: estimatedRowHeight,
     overscan: overscanRows,
-    visibleRowSize,
   })
+
+  const { columns } = useColumnVirtualize<T>({
+    estimateSize: estimatedColumnWidth ?? 100,
+    overscan: overscanColumns,
+    columns: pipelineColumns,
+    getScroller,
+    bodyWrapper: bodyWrapperRef,
+    columnWidths,
+    disabled: estimatedColumnWidth == null,
+  })
+
+  if (__DEV__) {
+    pipelineColumns.forEach((column) => {
+      if (column.width == null && column.minWidth == null) {
+        console.warn('Missing `width` in column', column)
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (getKey(column) == null) {
+        console.error('Missing `dataIndex` or `key` in column', column)
+      }
+    })
+  }
 
   const onRowClassName = useCallback((record: T, index: number) => {
     return clsx(rawRowClassName?.(record, index), rowClassName?.(record, index))
@@ -161,8 +205,8 @@ function VirtualTableCore<T>(
     return { ...onRow?.(record, index), ...onPipelineRow?.(record, index) }
   }, [onPipelineRow, onRow])
 
-  const hasFixedLeftColumn = columns.some((x) => isValidFixedLeft(x.fixed))
-  const hasFixedRightColumn = columns.some((x) => isValidFixedRight(x.fixed))
+  const hasFixedLeftColumn = pipelineColumns.some((x) => isValidFixedLeft(x.fixed))
+  const hasFixedRightColumn = pipelineColumns.some((x) => isValidFixedRight(x.fixed))
 
   const rowManager = useMemo((): TableRowManagerContextType => {
     return {
@@ -173,10 +217,10 @@ function VirtualTableCore<T>(
     }
   }, [rowHeightList, updateRowHeight])
 
-  const bodyMergedRef = useMergedRef(bodyNode, tableBodyRef)
   const contentNode = pipelineRender(
     <>
       <TableHeader
+        wrapperRef={headerWrapperRef}
         columns={columns}
         stickyHeader={stickyHeader}
         renderHeaderWrapper={renderHeaderWrapper}
@@ -186,7 +230,9 @@ function VirtualTableCore<T>(
         renderHeaderCell={renderHeaderCell}
       />
       <TableBody
-        tableRef={bodyMergedRef}
+        bodyWrapperRef={bodyWrapperRef}
+        bodyRootRef={mergedBodyRootRef}
+        bodyRef={bodyRef}
         className={tableBodyClassName}
         style={{
           ...tableBodyStyle,
@@ -207,7 +253,7 @@ function VirtualTableCore<T>(
       />
     </>,
     renderContent,
-    { columns },
+    { columns: columns.columns, columnDescriptor: columns.descriptor },
   )
 
   const rootMergedRef = useMergedRef(rootNode, ref)
@@ -223,16 +269,18 @@ function VirtualTableCore<T>(
       {contentNode}
     </TableRoot>,
     render,
-    { columns },
+    { columns: columns.columns, columnDescriptor: columns.descriptor },
   )
 
   return (
     <TableRowManager.Provider value={rowManager}>
-      <TableColumnsContext columns={columns}>
-        <ContainerSizeContext getScroller={getScroller} root={rootNode}>
-          <HorizontalScrollContext>{table}</HorizontalScrollContext>
-        </ContainerSizeContext>
-      </TableColumnsContext>
+      <ColumnSizes.Provider value={tableColumnsContext}>
+        <StickyContext columns={pipelineColumns}>
+          <ContainerSizeContext getScroller={getScroller} root={rootNode}>
+            <HorizontalScrollContext>{table}</HorizontalScrollContext>
+          </ContainerSizeContext>
+        </StickyContext>
+      </ColumnSizes.Provider>
     </TableRowManager.Provider>
   )
 }

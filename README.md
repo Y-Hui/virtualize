@@ -36,6 +36,7 @@ const columns: ColumnType<User>[] = [
   {
     dataIndex: 'id',
     title: 'UID',
+    width: 100,
     render(value) {
       return `#${value}`
     },
@@ -43,15 +44,18 @@ const columns: ColumnType<User>[] = [
   {
     dataIndex: 'name',
     title: 'Username',
+    width: 100,
   },
   {
     dataIndex: 'age',
     title: 'Age',
     align: 'right',
+    width: 100,
   },
   {
     key: 'actions',
     title: 'Action',
+    width: 100,
     render(value, record, index) {
       return (
         <button type="button">View details</button>
@@ -91,24 +95,26 @@ function App() {
 
 #### Table Props
 
-| Prop Name          | 说明                                                    | 类型                                    | 默认值                         | 版本 |
-| ------------------ | ------------------------------------------------------- | --------------------------------------- | ------------------------------ | ---- |
-| ref                | 设置最外层 div ref                                      | Ref\<HTMLDivElement\>                   |                                |      |
-| tableBodyRef       | 设置 body 部分 table ref                                | Ref\<HTMLTableElement\>                 |                                |      |
-| className          | 样式类名                                                | string                                  |                                |      |
-| style              | 样式                                                    | CSSProperties                           |                                |      |
-| tableBodyClassName | body 样式类名                                           | string                                  |                                |      |
-| tableBodyStyle     | body 样式                                               | CSSProperties                           |                                |      |
-| columns            | 表格列配置                                              | ColumnType[]                            |                                |      |
-| dataSource         | 表格数据源                                              | object[]                                |                                |      |
-| rowKey             | 表格行 key 的取值                                       | string                                  | `key`                          |      |
-| estimatedRowHeight | 预计每行高度                                            | number                                  |                                |      |
-| overscanRows       | 额外在首尾渲染数据条数                                  | number                                  | 5                              |      |
-| stickyHeader       | 表头吸顶<br />为 true 时 top 为 0，为 number 则是偏移量 | number \| boolean                       |                                |      |
-| pipeline           | 插件实例                                                | TablePipeline                           |                                |      |
-| rowClassName       | 表格行样式类名                                          | (*record*, *index*) => string           |                                |      |
-| onRow              | 设置行属性                                              | (*record*, *index*) => TdHTMLAttributes |                                |      |
-| getOffsetTop       | 计算顶部偏移量                                          | () => number                            | 使用 最外层 div 计算 offsetTop |      |
+| Prop Name            | 说明                                                    | 类型                                    | 默认值                         | 版本 |
+| -------------------- | ------------------------------------------------------- | --------------------------------------- | ------------------------------ | ---- |
+| ref                  | 设置最外层 div ref                                      | Ref\<HTMLDivElement\>                   |                                |      |
+| tableBodyRef         | 设置 body 部分 table ref                                | Ref\<HTMLTableElement\>                 |                                |      |
+| className            | 样式类名                                                | string                                  |                                |      |
+| style                | 样式                                                    | CSSProperties                           |                                |      |
+| tableBodyClassName   | body 样式类名                                           | string                                  |                                |      |
+| tableBodyStyle       | body 样式                                               | CSSProperties                           |                                |      |
+| columns              | 表格列配置                                              | ColumnType[]                            |                                |      |
+| dataSource           | 表格数据源                                              | object[]                                |                                |      |
+| rowKey               | 表格行 key 的取值                                       | string                                  | `key`                          |      |
+| estimatedRowHeight   | 预计每行高度                                            | number                                  | 46                             |      |
+| estimatedColumnWidth | 预计每列宽度<br />需要横向虚拟化时，设置它              | number                                  |                                |      |
+| overscanRows         | 额外在首尾渲染数据条数                                  | number                                  | 5                              |      |
+| overscanColumns      | 横向虚拟化时，在头和尾额外渲染多少列                    | number                                  | 3                              |      |
+| stickyHeader         | 表头吸顶<br />为 true 时 top 为 0，为 number 则是偏移量 | number \| boolean                       |                                |      |
+| pipeline             | 插件实例                                                | TablePipeline                           |                                |      |
+| rowClassName         | 表格行样式类名                                          | (*record*, *index*) => string           |                                |      |
+| onRow                | 设置行属性                                              | (*record*, *index*) => TdHTMLAttributes |                                |      |
+| getOffsetTop         | 计算顶部偏移量                                          | () => number                            | 使用 最外层 div 计算 offsetTop |      |
 
 #### getOffsetTop
 
@@ -198,8 +204,14 @@ function App() {
 | dataSource   | 表格数据源               | object[]     |      |
 | columns      | 表格列配置               | ColumnType[] |      |
 | rowKey       | 表格行 key 的取值        | string       |      |
-| visibleRowSize | 当前虚拟化下所显示的行数 | number       |      |
 | estimatedRowHeight | 预计每行高度 | number       |      |
+| rootRef | 最外层 div 元素 | RefObject\<HTMLDivElement\> | |
+| headerWrapperRef | header 外层 div 元素 | RefObject\<HTMLDivElement\> | |
+| bodyWrapperRef | body 外层 div 元素 | RefObject\<HTMLDivElement\> | |
+| bodyRootRef | body 外层 table 节点 | RefObject\<HTMLTableElement\> | |
+| bodyRef | tbody 元素 | RefObject\<HTMLTableSectionElement\> | |
+| getScroller | 获取滚动容器 | () => ScrollElement \| undefined |  |
+| getOffsetTop | 计算顶部偏移量 | () => number | |
 
 ##### 插件返回值定义
 
@@ -262,78 +274,76 @@ Context
 interface RenderOptions<T = any> {
   column: ColumnType<T>
   columnIndex: number
-  columnWidthList: number[]
+  columnWidths: Map<Key, number>
   rowIndex: number
   columns: ColumnType<T>[]
   rowData: T
+  columnDescriptor: ColumnDescriptor<T>[]
 }
 
 type MiddlewareRender<T = any> = (
   children: ReactNode,
-  options: Pick<RenderOptions<T>, 'columns'>,
+  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>
 ) => ReactNode
 
 type MiddlewareRenderRoot<T = any> = (
   children: ReactNode,
-  options: Omit<RenderOptions<T>, keyof RenderOptions<T>>,
+  options: Omit<RenderOptions<T>, keyof RenderOptions<T>>
 ) => ReactNode
 
 type MiddlewareRenderContent<T = any> = (
   children: ReactNode,
-  options: Pick<RenderOptions<T>, 'columns'>,
+  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>
 ) => ReactNode
 
 type MiddlewareRenderHeaderWrapper<T = any> = (
   children: ReactNode,
-  options: Pick<RenderOptions<T>, 'columns'>,
+  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>
 ) => ReactNode
 
 type MiddlewareRenderHeaderRoot<T = any> = (
   children: ReactNode,
-  options: Pick<RenderOptions<T>, 'columns'>,
+  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>
 ) => ReactNode
 
 type MiddlewareRenderHeader<T = any> = (
   children: ReactNode,
-  options: Pick<RenderOptions<T>, 'columns'>,
+  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>
 ) => ReactNode
 
 type MiddlewareRenderHeaderRow<T = any> = (
   children: ReactNode,
-  options: Pick<RenderOptions<T>, 'columns'>,
+  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>
 ) => ReactNode
 
 type MiddlewareRenderHeaderCell<T = any> = (
   children: ReactNode,
-  options: Pick<
-    RenderOptions<T>,
-    'columns' | 'column' | 'columnIndex' | 'columnWidthList'
-  >,
+  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'column' | 'columnIndex' | 'columnWidths'>
 ) => ReactNode
 
 type MiddlewareRenderBodyWrapper<T = any> = (
   children: ReactNode,
-  options: Pick<RenderOptions<T>, 'columns'>,
+  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>
 ) => ReactNode
 
 type MiddlewareRenderBodyRoot<T = any> = (
   children: ReactNode,
-  options: Pick<RenderOptions<T>, 'columns'>,
+  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>
 ) => ReactNode
 
 type MiddlewareRenderBody<T = any> = (
   children: ReactNode,
-  options: Pick<RenderOptions<T>, 'columns'>,
+  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>
 ) => ReactNode
 
 type MiddlewareRenderRow<T = any> = (
   children: ReactNode,
-  options: Pick<RenderOptions<T>, 'columns' | 'rowIndex' | 'rowData'>,
+  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'rowIndex' | 'rowData'>
 ) => ReactNode
 
 type MiddlewareRenderCell<T = any> = (
   children: ReactNode,
-  options: Pick<RenderOptions<T>, 'column' | 'columnIndex'>,
+  options: Pick<RenderOptions<T>, 'column' | 'columnIndex'>
 ) => ReactNode
 ```
 

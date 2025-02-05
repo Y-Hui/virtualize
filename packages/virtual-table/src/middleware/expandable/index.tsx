@@ -154,7 +154,7 @@ function useTableExpandable<T = any>(
   const isFixed = isValidFixed(fixed)
 
   const renderRow: MiddlewareRenderRow = useCallback((children, args) => {
-    const { rowData, rowIndex } = args
+    const { rowData, rowIndex, columnDescriptor } = args
 
     const isExpandable = rowExpandableRecord[rowIndex]
     if (isExpandable) {
@@ -177,7 +177,7 @@ function useTableExpandable<T = any>(
               className={className}
               rowIndex={rowIndex}
               isExpanded={isExpanded}
-              colSpan={args.columns.length}
+              colSpan={columnDescriptor.length}
               fixed={isFixed}
             >
               {expandedRowRender?.(rowData as T, rowIndex, 0, isExpanded)}

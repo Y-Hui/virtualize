@@ -4,6 +4,7 @@ $virtual-table-row-selected-hover-bg: var(--virtual-table-row-selected-hover-bg,
 .virtual-table-selection {
   position: relative;
   display: inline-flex;
+  margin: 0;
 }
 
 .virtual-table-row-selected {
@@ -16,8 +17,4 @@ $virtual-table-row-selected-hover-bg: var(--virtual-table-row-selected-hover-bg,
   &:not(.no-hover):hover>.virtual-table-cell {
     background-color: $virtual-table-row-selected-hover-bg;
   }
-}
-
-.virtual-table-selection-column {
-  z-index: 3;
 }

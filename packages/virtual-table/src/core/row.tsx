@@ -1,6 +1,6 @@
-import type { DetailedHTMLProps, HTMLAttributes, Key, ReactElement } from 'react'
+import type { DetailedHTMLProps, HTMLAttributes, ReactElement } from 'react'
 import type { MiddlewareRenderCell, MiddlewareRenderRow } from './pipeline/types'
-import type { ColumnType, OnRowType } from './types'
+import type { InnerColumnDescriptor, OnRowType } from './types'
 import clsx from 'clsx'
 import { memo } from 'react'
 import { findLastIndex } from '../utils/find-last-index'
@@ -17,7 +17,7 @@ type NativeProps = DetailedHTMLProps<
 export interface RowProps<T> extends Omit<NativeProps, 'children'> {
   rowIndex: number
   rowData: T
-  columns: ColumnType<T>[]
+  columns: InnerColumnDescriptor<T>
   onRow?: OnRowType<T>
   renderRow?: MiddlewareRenderRow
   renderCell?: MiddlewareRenderCell
@@ -28,7 +28,7 @@ function Row<T>(props: RowProps<T>) {
     className,
     rowIndex,
     rowData,
-    columns,
+    columns: columnDescriptor,
     onRow,
     renderRow,
     renderCell,
@@ -37,8 +37,20 @@ function Row<T>(props: RowProps<T>) {
 
   const { updateRowHeight } = useTableRowManager()
 
-  const lastFixedLeftColumnIndex = findLastIndex(columns, (x) => isValidFixedLeft(x.fixed))
-  const firstFixedRightColumnIndex = columns.findIndex((x) => isValidFixedRight(x.fixed))
+  const { columns, descriptor } = columnDescriptor
+
+  const lastFixedLeftColumnIndex = findLastIndex(descriptor, (x) => {
+    if (x.type === 'blank') {
+      return false
+    }
+    return isValidFixedLeft(x.column.fixed)
+  })
+  const firstFixedRightColumnIndex = descriptor.findIndex((x) => {
+    if (x.type === 'blank') {
+      return false
+    }
+    return isValidFixedRight(x.column.fixed)
+  })
 
   const { className: extraClassName, ...extraProps } = onRow?.(rowData, rowIndex) ?? {}
 
@@ -49,14 +61,19 @@ function Row<T>(props: RowProps<T>) {
       className={clsx('virtual-table-row', className, extraClassName)}
       ref={(node) => {
         if (node == null) return
+        // 小心陷阱：当 table 父元素为 display: none 时，依然会触发 updateRowHeight 函数，并设置高度为 0
         updateRowHeight(rowIndex, node.offsetHeight)
       }}
     >
-      {columns.map((column, index) => {
-        const key = 'key' in column ? (column.key as Key) : column.dataIndex
+      {descriptor.map((item, index) => {
+        const { key } = item
+        if (item.type === 'blank') {
+          return <td key={key} />
+        }
+        const { column } = item
         return (
           <Cell
-            key={typeof key === 'symbol' ? index : key}
+            key={key}
             className={clsx(
               lastFixedLeftColumnIndex === index && 'virtual-table-cell-fix-left-last',
               firstFixedRightColumnIndex === index
@@ -72,7 +89,7 @@ function Row<T>(props: RowProps<T>) {
       })}
     </tr>,
     renderRow,
-    { columns, rowIndex, rowData },
+    { columns, rowIndex, rowData, columnDescriptor: descriptor },
   )
 }
 

@@ -61,6 +61,7 @@ export default function eslintConfig(...overrides) {
             ignoreConstructors: false,
           },
         ],
+        'eqeqeq': ['error', 'always', { null: 'ignore' }],
       },
     },
     ...overrides,

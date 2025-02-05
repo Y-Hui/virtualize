@@ -1,6 +1,7 @@
 export type {
   AlignType,
   AnyObject,
+  ColumnDescriptor,
   ColumnExtra,
   ColumnType,
   ContainerSizeState,
@@ -29,11 +30,11 @@ export {
   isValidFixed,
   isValidFixedLeft,
   isValidFixedRight,
+  useColumnSizes,
   useContainerSize,
   useHorizontalScrollContext,
   useShallowMemo,
   useStableFn,
-  useTableColumns,
   useTablePipeline,
   useTableRowManager,
   useTableSticky,
@@ -42,5 +43,6 @@ export {
   VirtualTableRow,
 } from './core'
 export type * from './core/pipeline/types'
+export { onResize } from './core/utils/on-resize'
 export { findLastIndex } from './utils/find-last-index'
 export { mergeRefs, useMergedRef } from './utils/ref'

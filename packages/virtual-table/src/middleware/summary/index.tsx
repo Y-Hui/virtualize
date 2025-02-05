@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { MiddlewareContext, MiddlewareResult } from '@are-visual/virtual-table'
+import type { MiddlewareContext, MiddlewareRenderHeader, MiddlewareResult } from '@are-visual/virtual-table'
 import type { ReactNode } from 'react'
 import type { SummaryProps } from './summary'
 import { createMiddleware } from '@are-visual/virtual-table'
 import { isValidElement, useCallback } from 'react'
+import { SummaryContext } from './context/columns'
 import Footer from './footer'
 import Summary from './summary'
 
@@ -16,18 +17,22 @@ function useTableSummary<T = any>(
   options?: TableSummaryOptions<T>,
 ): MiddlewareResult<T> {
   const { summary } = options ?? {}
-  const { columns, dataSource } = ctx
+  const { dataSource } = ctx
 
   const summaryNode = summary?.(dataSource)
   const fixed = isValidElement(summaryNode)
     && summaryNode.type === Summary
     && (summaryNode.props as SummaryProps).fixed
 
-  const renderHeader = useCallback((children: ReactNode) => {
+  const renderHeader: MiddlewareRenderHeader = useCallback((children, { columnDescriptor }) => {
     return (
       <>
         {children}
-        <tfoot className="virtual-table-summary-tfoot">{summaryNode}</tfoot>
+        <tfoot className="virtual-table-summary-tfoot">
+          <SummaryContext.Provider value={columnDescriptor}>
+            {summaryNode}
+          </SummaryContext.Provider>
+        </tfoot>
       </>
     )
   }, [summaryNode])
@@ -42,12 +47,14 @@ function useTableSummary<T = any>(
 
   return {
     ...ctx,
-    renderContent(children) {
+    renderContent(children, { columnDescriptor }) {
       return (
         <>
           {children}
-          <Footer fixed={fixed === 'bottom' || fixed} columns={columns}>
-            {summaryNode}
+          <Footer fixed={fixed === 'bottom' || fixed} columns={columnDescriptor}>
+            <SummaryContext.Provider value={columnDescriptor}>
+              {summaryNode}
+            </SummaryContext.Provider>
           </Footer>
         </>
       )

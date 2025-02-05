@@ -1,6 +1,9 @@
 export type { CellProps as VirtualTableCellProps } from './cell'
 export { default as VirtualTableCell } from './cell'
 export { default as Colgroup } from './colgroup'
+export type { ColgroupProps } from './colgroup'
+export type { TableColumnsContextType } from './context/column-sizes'
+export { useColumnSizes } from './context/column-sizes'
 export type { ContainerSizeState } from './context/container-size'
 export { useContainerSize } from './context/container-size'
 export type { HorizontalScrollContextState } from './context/horizontal-scroll'
@@ -9,8 +12,6 @@ export type { TableRowManagerContextType } from './context/row-manager'
 export { useTableRowManager } from './context/row-manager'
 export type { StickyContextState } from './context/sticky'
 export { useTableSticky } from './context/sticky'
-export type { TableColumnsContextType } from './context/table-columns'
-export { useTableColumns } from './context/table-columns'
 export { useShallowMemo } from './hooks/useShallowMemo'
 export { useStableFn } from './hooks/useStableFn'
 export { createMiddleware } from './pipeline/create-middleware'
@@ -46,6 +47,7 @@ export { default as VirtualTable } from './table'
 export type {
   AlignType,
   AnyObject,
+  ColumnDescriptor,
   ColumnExtra,
   ColumnType,
   FixedType,

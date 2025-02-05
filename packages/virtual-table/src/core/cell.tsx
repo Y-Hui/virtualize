@@ -6,6 +6,7 @@ import clsx from 'clsx'
 import { memo } from 'react'
 import { useTableSticky } from './context/sticky'
 import { pipelineRender } from './pipeline/render-pipeline'
+import { getKey } from './utils/get-key'
 import { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 type NativeProps = DetailedHTMLProps<
@@ -51,6 +52,7 @@ function Cell<T>(props: CellProps<T>) {
   } = props
 
   const { align, fixed, onCell } = column
+  const key = getKey(column)
   const { size: stickySizes } = useTableSticky()
 
   const {
@@ -82,8 +84,8 @@ function Cell<T>(props: CellProps<T>) {
       style={{
         ...style,
         ...extraStyle,
-        left: isValidFixedLeft(fixed) ? stickySizes[columnIndex] : undefined,
-        right: isValidFixedRight(fixed) ? stickySizes[columnIndex] : undefined,
+        left: isValidFixedLeft(fixed) ? stickySizes.get(key) : undefined,
+        right: isValidFixedRight(fixed) ? stickySizes.get(key) : undefined,
       }}
     >
       {getTableCellContent(rowIndex, rowData as AnyObject, column)}

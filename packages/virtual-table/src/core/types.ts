@@ -43,3 +43,19 @@ type ColumnTypeWithDataIndex<T> = ColumnTypeCommon<T> & {
 }
 
 export type ColumnType<T> = ColumnTypeWithKey<T> | ColumnTypeWithDataIndex<T>
+
+export type ColumnDescriptor<T = any> =
+  | { key: Key, type: 'blank', width: number }
+  | { key: Key, type: 'normal', column: ColumnType<T> }
+
+export interface ColumnBlank {
+  left: number
+  leftKey: Key
+  right: number
+  rightKey: Key
+}
+
+export interface InnerColumnDescriptor<T> {
+  descriptor: ColumnDescriptor<T>[]
+  columns: ColumnType<T>[]
+}

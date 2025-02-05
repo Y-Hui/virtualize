@@ -1,18 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { ReactNode, RefObject } from 'react'
+import type { Key, ReactNode, RefObject } from 'react'
 import type { ScrollElement } from '../../utils/dom'
 import type { NecessaryProps } from '../internal'
-import type { ColumnType, OnRowType } from '../types'
+import type { ColumnDescriptor, ColumnType, OnRowType } from '../types'
 
 type Prettify<T> = {
   [K in keyof T]: T[K]
 } & {}
 
 export interface MiddlewareContext<T> extends Readonly<NecessaryProps<T>> {
-  readonly visibleRowSize: number
   readonly estimatedRowHeight: number
-  readonly bodyRef: RefObject<HTMLTableElement>
   readonly rootRef: RefObject<HTMLDivElement>
+  readonly headerWrapperRef: RefObject<HTMLDivElement>
+  readonly bodyWrapperRef: RefObject<HTMLDivElement>
+  readonly bodyRootRef: RefObject<HTMLTableElement>
+  readonly bodyRef: RefObject<HTMLTableSectionElement>
   readonly getScroller: () => ScrollElement | undefined
   readonly getOffsetTop: () => number
 }
@@ -27,27 +29,28 @@ export type Middleware<T> = (context: MiddlewareContext<T>) => MiddlewareResult<
 interface RenderOptions<T = any> {
   column: ColumnType<T>
   columnIndex: number
-  columnWidthList: number[]
+  columnWidths: Map<Key, number>
   rowIndex: number
   columns: ColumnType<T>[]
   rowData: T
+  columnDescriptor: ColumnDescriptor<T>[]
 }
 
 export type PipelineRenderOptions = Partial<RenderOptions>
 export type PipelineRender = (children: ReactNode, options: PipelineRenderOptions) => ReactNode
 
-export type MiddlewareRender<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns'>>) => ReactNode
+export type MiddlewareRender<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>>) => ReactNode
 export type MiddlewareRenderRoot<T = any> = (children: ReactNode, options: Prettify<Omit<RenderOptions<T>, keyof RenderOptions<T>>>) => ReactNode
-export type MiddlewareRenderContent<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns'>>) => ReactNode
-export type MiddlewareRenderHeaderWrapper<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns'>>) => ReactNode
-export type MiddlewareRenderHeaderRoot<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns'>>) => ReactNode
-export type MiddlewareRenderHeader<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns'>>) => ReactNode
-export type MiddlewareRenderHeaderRow<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns'>>) => ReactNode
-export type MiddlewareRenderHeaderCell<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'column' | 'columnIndex' | 'columnWidthList'>>) => ReactNode
-export type MiddlewareRenderBodyWrapper<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns'>>) => ReactNode
-export type MiddlewareRenderBodyRoot<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns'>>) => ReactNode
-export type MiddlewareRenderBody<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns'>>) => ReactNode
-export type MiddlewareRenderRow<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'rowIndex' | 'rowData'>>) => ReactNode
+export type MiddlewareRenderContent<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>>) => ReactNode
+export type MiddlewareRenderHeaderWrapper<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>>) => ReactNode
+export type MiddlewareRenderHeaderRoot<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>>) => ReactNode
+export type MiddlewareRenderHeader<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>>) => ReactNode
+export type MiddlewareRenderHeaderRow<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>>) => ReactNode
+export type MiddlewareRenderHeaderCell<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'column' | 'columnIndex' | 'columnWidths'>>) => ReactNode
+export type MiddlewareRenderBodyWrapper<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>>) => ReactNode
+export type MiddlewareRenderBodyRoot<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>>) => ReactNode
+export type MiddlewareRenderBody<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>>) => ReactNode
+export type MiddlewareRenderRow<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'rowIndex' | 'rowData'>>) => ReactNode
 export type MiddlewareRenderCell<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'column' | 'columnIndex'>>) => ReactNode
 
 export type MergedMiddlewareRender<T = any> = MiddlewareRender<T>

@@ -6,7 +6,7 @@
 
 ### TODO 🚧
 - [x] 虚拟列表查找 anchor 时优化。
-- [ ] 横向虚拟化
+- [x] 横向虚拟化
 - [ ] 尝试将虚拟化、sticky 从 core 中拆分为 middleware
 - [x] 文档编写
 - [x] 优化渲染次数，selection middleware 中设置 columnTitle 为函数时可以看到调用次数很多。

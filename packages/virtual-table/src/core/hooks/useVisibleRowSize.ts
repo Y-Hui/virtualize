@@ -6,12 +6,13 @@ import { onResize } from '../utils/on-resize'
 interface UseVisibleRowSizeOptions {
   hasData: boolean
   getScroller: () => ScrollElement | undefined
-  estimatedRowHeight: number
+  getOffsetTop: () => number
+  estimateSize: number
   overscan: number
 }
 
 export function useVisibleRowSize(options: UseVisibleRowSizeOptions) {
-  const { hasData, getScroller, estimatedRowHeight, overscan } = options
+  const { hasData, getScroller, estimateSize, overscan, getOffsetTop } = options
 
   // 滚动容器内可见数据条数
   const visibleRowSize = useRef(0)
@@ -47,15 +48,16 @@ export function useVisibleRowSize(options: UseVisibleRowSizeOptions) {
     }
 
     const updateBoundary = (scrollerContainerHeight: number) => {
-      const scrollTop = getScrollTop()
+      let scrollTop = getScrollTop()
 
       let nextStartIndex = 0
       // 判断一下当前滚动位置，计算 startIndex（场景：SPA 页面切换且渲染非异步数据）
-      if (scrollTop >= estimatedRowHeight) {
-        nextStartIndex = Math.max(Math.floor(scrollTop / estimatedRowHeight) - 1 - overscan, 0)
+      if (scrollTop >= estimateSize) {
+        scrollTop = scrollTop - getOffsetTop()
+        nextStartIndex = Math.max(Math.floor(scrollTop / estimateSize) - 1 - overscan, 0)
       }
 
-      const count = Math.ceil(scrollerContainerHeight / estimatedRowHeight)
+      const count = Math.ceil(scrollerContainerHeight / estimateSize)
       const nextEndIndex = nextStartIndex + count + overscan
 
       setStartIndex(nextStartIndex)
@@ -73,7 +75,7 @@ export function useVisibleRowSize(options: UseVisibleRowSizeOptions) {
       const { count } = updateBoundary(rect.height)
       visibleRowSize.current = count
     })
-  }, [estimatedRowHeight, getScroller, hasData, overscan])
+  }, [estimateSize, getOffsetTop, getScroller, hasData, overscan])
 
   return [
     [startIndex, setStartIndex] as const,

@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ColumnType, MiddlewareContext, MiddlewareRenderHeaderCell, MiddlewareResult } from '@are-visual/virtual-table'
+import type { Key } from 'react'
 import { createMiddleware } from '@are-visual/virtual-table'
 import { isValidElement, useCallback, useMemo, useState } from 'react'
 import { Resizable } from 'react-resizable'
+import { getKey } from '../../core/utils/get-key'
 
 declare module '@are-visual/virtual-table' {
   interface ColumnExtra {
@@ -82,11 +84,11 @@ function useColumnResize<T = any>(
     return resizeStorage.get(storageKey)
   })
 
-  const handleResize = useCallback((columnKey: string, newWidth: number) => {
+  const handleResize = useCallback((columnKey: Key, newWidth: number) => {
     setColumnWidths((prevState) => {
       const result = {
         ...prevState,
-        [columnKey]: newWidth,
+        [`${columnKey}`]: newWidth,
       }
       if (storageKey != null) {
         resizeStorage.set(storageKey, result)
@@ -96,15 +98,15 @@ function useColumnResize<T = any>(
   }, [storageKey])
 
   const renderHeaderCell: MiddlewareRenderHeaderCell<T> = useCallback((children, options) => {
-    const { column, columnIndex = 0, columnWidthList = [] } = options
+    const { column, columnWidths } = options
 
     if (column.disableResize) {
       return children
     }
 
-    const key = 'key' in column ? (column.key as string) : (column.dataIndex as string)
+    const key = getKey(column)
 
-    const width = Number.isFinite(column.width) ? (column.width as number) : (columnWidthList[columnIndex] ?? 0)
+    const width = Number.isFinite(column.width) ? (column.width as number) : (columnWidths.get(key) ?? 0)
 
     if (__DEV__) {
       if (isValidElement(children) && children.type === Resizable) {
@@ -132,7 +134,7 @@ function useColumnResize<T = any>(
 
   const columns = useMemo(() => {
     return rawColumns.map((column) => {
-      const key = 'key' in column ? (column.key as string) : (column.dataIndex as string)
+      const key = getKey(column).toString()
       const width = columnWidths[key] as number | undefined
       if (width != null && width !== column.width) {
         return { ...column, width }

@@ -11,19 +11,19 @@ export interface RowRect {
 export interface UseRowRectManagerOptions {
   itemCount: number
   /** 预计每行高度 */
-  estimatedRowHeight: number
+  estimateSize: number
   onChange?: (index: number, height: number, rects: RowRect[]) => void
 }
 
 export function useRowRectManager(options: UseRowRectManagerOptions) {
-  const { itemCount, estimatedRowHeight = 46, onChange } = options
+  const { itemCount, estimateSize, onChange } = options
   const rowHeightList = useRef<number[]>([])
 
   const calc = () => {
     for (let i = 0; i < itemCount; i += 1) {
       const target = rowHeightList.current[i] as number | undefined
       if (target == null) {
-        rowHeightList.current[i] = estimatedRowHeight
+        rowHeightList.current[i] = estimateSize
       }
     }
     rowHeightList.current = rowHeightList.current.slice(0, itemCount)
@@ -71,6 +71,7 @@ export function useRowRectManager(options: UseRowRectManagerOptions) {
   }
 
   // DOM 渲染结束后，进行高度测量，再修改 rowHeightList
+  // 小心陷阱：当 table 父元素为 display: none 时，依然会触发 updateRowHeight 函数，并设置高度为 0
   const updateRowHeight = useStableFn((index: number, height: number) => {
     rowHeightList.current[index] = height
     updateRectList()
@@ -87,27 +88,4 @@ export function useRowRectManager(options: UseRowRectManagerOptions) {
     sum,
     rects: useCallback(() => rectList.current, []),
   }
-}
-
-export function anchorQuery(rects: RowRect[], scrollTop: number) {
-  let left = 0
-  let right = rects.length - 1
-  let index = -1
-
-  while (left <= right) {
-    const mid = Math.floor((left + right) / 2)
-
-    if (rects[mid].bottom > scrollTop) {
-      index = mid
-      right = mid - 1
-    } else {
-      left = mid + 1
-    }
-  }
-
-  if (index === -1) {
-    return undefined
-  }
-
-  return rects[index]
 }
