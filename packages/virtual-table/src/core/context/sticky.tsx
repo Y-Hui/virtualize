@@ -7,7 +7,6 @@ import { isValidFixedLeft, isValidFixedRight } from '../utils/verification'
 import { useColumnSizes } from './column-sizes'
 
 export interface StickyContextState {
-  /** 每一列的宽度 */
   size: Map<Key, number>
   /** 每一列设置的 fixed 值 */
   fixed: { key: Key, fixed: FixedType | undefined }[]

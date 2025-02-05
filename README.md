@@ -489,6 +489,32 @@ interface TableRowManagerContextType {
 }
 ```
 
+##### useColumnSizes
+
+此 hook 可以获取当前 Table 每一列的宽度、更新列宽。
+
+类型签名：
+
+```ts
+interface TableColumnsContextType {
+  widthList: Map<Key, number>
+  setWidthList: (value: Map<Key, number>) => void
+}
+```
+
+##### useTableSticky
+
+此 hook 可以获取每列 fixed 的值、sticky 位置。
+
+```ts
+interface StickyContextState {
+  size: Map<Key, number>
+  fixed: { key: Key, fixed: FixedType | undefined }[]
+}
+```
+
+
+
 ### 参考
 
 [浅说虚拟列表的实现原理](https://github.com/dwqs/blog/issues/70)

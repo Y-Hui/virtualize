@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ColumnType, MiddlewareContext, MiddlewareRenderHeaderCell, MiddlewareResult } from '@are-visual/virtual-table'
 import type { Key } from 'react'
-import { createMiddleware } from '@are-visual/virtual-table'
+import { createMiddleware, getKey } from '@are-visual/virtual-table'
 import { isValidElement, useCallback, useMemo, useState } from 'react'
 import { Resizable } from 'react-resizable'
-import { getKey } from '../../core/utils/get-key'
 
 declare module '@are-visual/virtual-table' {
   interface ColumnExtra {
