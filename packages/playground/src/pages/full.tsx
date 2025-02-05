@@ -66,6 +66,7 @@ const FullDemo: FC = () => {
     return tableSelection<MockData>({
       extraColumnProps: { disableResize: true },
       // component: SelectionImpl,
+      fixed: true,
       onSelect(record, selected, selectedRows, nativeEvent) {
         console.log({ record, selected, selectedRows, nativeEvent })
       },
@@ -94,17 +95,16 @@ const FullDemo: FC = () => {
         return (
           <Summary fixed={summaryPosition}>
             <Summary.Row>
-              <Summary.Cell index={0}>0</Summary.Cell>
-              <Summary.Cell index={1}>1</Summary.Cell>
-              <Summary.Cell index={2}>2</Summary.Cell>
-              <Summary.Cell index={3}>3</Summary.Cell>
-              <Summary.Cell index={4}>4</Summary.Cell>
-              <Summary.Cell index={5}>5</Summary.Cell>
-              <Summary.Cell index={6}>6</Summary.Cell>
-              <Summary.Cell index={7}>7</Summary.Cell>
-              <Summary.Cell index={8}>8</Summary.Cell>
-              <Summary.Cell index={9}>9</Summary.Cell>
-              <Summary.Cell index={10}>10</Summary.Cell>
+              {(column, key) => {
+                if (column.key === 'name') {
+                  return (
+                    <Summary.Cell columnKey={key}>
+                      {key.toString()}
+                    </Summary.Cell>
+                  )
+                }
+                return <Summary.Cell columnKey={key} />
+              }}
             </Summary.Row>
           </Summary>
         )
@@ -370,6 +370,7 @@ const FullDemo: FC = () => {
           dataSource={empty ? [] : data}
           columns={columns}
           estimatedRowHeight={49}
+          // estimatedColumnWidth={200}
           stickyHeader={sticky}
         />
       </div>

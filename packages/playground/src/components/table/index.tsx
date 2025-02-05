@@ -1,4 +1,10 @@
 import '@are-visual/virtual-table/styles/table.scss'
+import '@are-visual/virtual-table/middleware/column-resize/styles.scss'
+import '@are-visual/virtual-table/middleware/expandable/styles.scss'
+import '@are-visual/virtual-table/middleware/horizontal-scroll-bar/styles.scss'
+import '@are-visual/virtual-table/middleware/loading/styles.scss'
+import '@are-visual/virtual-table/middleware/selection/styles.scss'
+import '@are-visual/virtual-table/middleware/summary/styles.scss'
 
 import type {
   ColumnType,

@@ -190,6 +190,7 @@ const SelectionDemo: FC = () => {
         dataSource={data}
         columns={columns}
         estimatedRowHeight={49}
+        estimatedColumnWidth={200}
         sticky
         rowSelection={{
           selections: true,

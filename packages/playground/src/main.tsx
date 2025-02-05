@@ -14,8 +14,10 @@ const SelectionDemo = lazy(() => import('./pages/selection'))
 const ColumnResize = lazy(() => import('./pages/column-resize'))
 const Expandable = lazy(() => import('./pages/expandable'))
 const SummaryDemo = lazy(() => import('./pages/summary'))
+const RowsAndColumns = lazy(() => import('./pages/rows-and-columns'))
 const FullDemo = lazy(() => import('./pages/full'))
 const AntdDemo = lazy(() => import('./pages/antd'))
+const Details = lazy(() => import('./pages/details/index'))
 
 const router = createHashRouter([
   {
@@ -47,12 +49,20 @@ const router = createHashRouter([
         element: <SummaryDemo />,
       },
       {
+        path: '/rows-and-columns',
+        element: <RowsAndColumns />,
+      },
+      {
         path: '/full',
         element: <FullDemo />,
       },
       {
         path: '/antd',
         element: <AntdDemo />,
+      },
+      {
+        path: '/details',
+        element: <Details />,
       },
     ],
   },

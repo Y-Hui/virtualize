@@ -16,15 +16,16 @@ const SummaryDemo: FC = () => {
     return (
       <Summary fixed={summaryPosition}>
         <Summary.Row>
-          <Summary.Cell index={0}>0</Summary.Cell>
-          <Summary.Cell index={1}>1</Summary.Cell>
-          <Summary.Cell index={2}>2</Summary.Cell>
-          <Summary.Cell index={3}>3</Summary.Cell>
-          <Summary.Cell index={4}>4</Summary.Cell>
-          <Summary.Cell index={5}>5</Summary.Cell>
-          <Summary.Cell index={6}>6</Summary.Cell>
-          <Summary.Cell index={7}>7</Summary.Cell>
-          <Summary.Cell index={8}>8</Summary.Cell>
+          {(column, key) => {
+            if (column.key === 'name') {
+              return (
+                <Summary.Cell columnKey={key}>
+                  {key.toString()}
+                </Summary.Cell>
+              )
+            }
+            return <Summary.Cell columnKey={key} />
+          }}
         </Summary.Row>
       </Summary>
     )
@@ -251,6 +252,7 @@ const SummaryDemo: FC = () => {
         dataSource={data}
         columns={columns}
         estimatedRowHeight={57}
+        estimatedColumnWidth={200}
         summary={summary}
         sticky
       />

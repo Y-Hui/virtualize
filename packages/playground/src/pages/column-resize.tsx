@@ -186,6 +186,7 @@ const ColumnResizeDemo: FC = () => {
         dataSource={data}
         columns={columns}
         estimatedRowHeight={57}
+        estimatedColumnWidth={200}
         storageKey="resize-page"
         sticky
       />

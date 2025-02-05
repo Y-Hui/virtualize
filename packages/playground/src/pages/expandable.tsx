@@ -178,7 +178,74 @@ const ExpandableDemo: FC = () => {
         title: 'Data6',
         dataIndex: 'data6',
         width: 200,
-        fixed: 'right',
+        render: (value, _row, index) => (
+          <Input
+            value={value}
+            onChange={(e) => {
+              setData((prevState) => {
+                const result = prevState.slice()
+                result[index] = { ...result[index], data6: e.currentTarget.value }
+                return result
+              })
+            }}
+          />
+        ),
+      },
+      {
+        title: 'Data6.2',
+        dataIndex: 'data6.2',
+        width: 200,
+        render: (value, _row, index) => (
+          <Input
+            value={value}
+            onChange={(e) => {
+              setData((prevState) => {
+                const result = prevState.slice()
+                result[index] = { ...result[index], data6: e.currentTarget.value }
+                return result
+              })
+            }}
+          />
+        ),
+      },
+      {
+        title: 'Data6.3',
+        dataIndex: 'data6.3',
+        width: 200,
+        render: (value, _row, index) => (
+          <Input
+            value={value}
+            onChange={(e) => {
+              setData((prevState) => {
+                const result = prevState.slice()
+                result[index] = { ...result[index], data6: e.currentTarget.value }
+                return result
+              })
+            }}
+          />
+        ),
+      },
+      {
+        title: 'Data6.4',
+        dataIndex: 'data6.4',
+        width: 200,
+        render: (value, _row, index) => (
+          <Input
+            value={value}
+            onChange={(e) => {
+              setData((prevState) => {
+                const result = prevState.slice()
+                result[index] = { ...result[index], data6: e.currentTarget.value }
+                return result
+              })
+            }}
+          />
+        ),
+      },
+      {
+        title: 'Data6.5',
+        dataIndex: 'data6.5',
+        width: 200,
         render: (value, _row, index) => (
           <Input
             value={value}
@@ -221,6 +288,7 @@ const ExpandableDemo: FC = () => {
         dataSource={data}
         columns={columns}
         estimatedRowHeight={57}
+        estimatedColumnWidth={200}
         expandable={expandable}
         sticky
       />

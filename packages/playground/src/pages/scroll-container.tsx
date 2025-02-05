@@ -232,6 +232,7 @@ const ScrollContainer: FC = () => {
           columns={columns}
           estimatedRowHeight={57}
           sticky
+          estimatedColumnWidth={200}
         />
       </div>
     </div>

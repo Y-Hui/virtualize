@@ -28,8 +28,16 @@ const menus = [
     label: 'Summary',
   },
   {
+    path: '/rows-and-columns',
+    label: 'Rows & Columns',
+  },
+  {
     path: '/full',
     label: 'Full',
+  },
+  {
+    path: '/details',
+    label: 'Details Layout',
   },
 ]
 
