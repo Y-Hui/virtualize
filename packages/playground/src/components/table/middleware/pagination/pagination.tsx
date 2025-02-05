@@ -2,7 +2,7 @@ import type { FC } from 'react'
 import type { TablePaginationConfig } from './types'
 import { Pagination as AntdPagination } from 'antd'
 import clsx from 'clsx'
-import { useState } from 'react'
+import { memo, useState } from 'react'
 
 const Pagination: FC<TablePaginationConfig> = (props) => {
   const {
@@ -50,4 +50,4 @@ const Pagination: FC<TablePaginationConfig> = (props) => {
   )
 }
 
-export default Pagination
+export default memo(Pagination)
