@@ -5,10 +5,10 @@ import '@are-visual/virtual-table/middleware/horizontal-scroll-bar/styles.scss'
 import '@are-visual/virtual-table/middleware/loading/styles.scss'
 import '@are-visual/virtual-table/middleware/selection/styles.scss'
 import '@are-visual/virtual-table/middleware/summary/styles.scss'
+import './sizes.scss'
 
 import type {
   ColumnType,
-  SizeType,
   VirtualTableProps as VirtualTableCoreProps,
 } from '@are-visual/virtual-table'
 import type { ColumnExtra } from '@are-visual/virtual-table/core'
@@ -31,6 +31,9 @@ import { tablePagination } from './middleware/pagination'
 import { tableSelection } from './middleware/selection'
 
 export type { ColumnType, ExpandableConfig, TableRowSelection, TableSummaryOptions }
+
+export type SizeType = 'small' | 'middle' | 'large'
+
 export interface VirtualTableProps<T>
   extends Omit<
     VirtualTableCoreProps<T>,

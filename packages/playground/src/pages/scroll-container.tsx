@@ -217,7 +217,7 @@ const ScrollContainer: FC = () => {
         Cell 中全部渲染组件，渲染压力提升，此时渲染不及时，容易白屏。Column
         数量也会影响性能
       </p>
-      <div
+      <VirtualTable
         style={{
           boxSizing: 'border-box',
           height: 500,
@@ -225,16 +225,13 @@ const ScrollContainer: FC = () => {
           overflow: 'auto',
           overscrollBehavior: 'contain',
         }}
-      >
-        <VirtualTable
-          rowKey="key"
-          dataSource={data}
-          columns={columns}
-          estimatedRowHeight={57}
-          sticky
-          estimatedColumnWidth={200}
-        />
-      </div>
+        rowKey="key"
+        dataSource={data}
+        columns={columns}
+        estimatedRowHeight={57}
+        sticky
+        estimatedColumnWidth={200}
+      />
     </div>
   )
 }

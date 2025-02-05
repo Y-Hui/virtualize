@@ -1,0 +1,13 @@
+.virtual-table {
+  &-small {
+    --virtual-table-cell-padding: 8px;
+  }
+
+  &-middle {
+    --virtual-table-cell-padding: 12px 8px;
+  }
+
+  &-large {
+    --virtual-table-cell-padding: 16px;
+  }
+}

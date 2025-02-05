@@ -31,7 +31,6 @@ const ContainerScroll: FC = () => {
 
   return (
     <VirtualTable
-      className="virtual-table-small"
       style={{
         boxSizing: 'border-box',
         height: 500,

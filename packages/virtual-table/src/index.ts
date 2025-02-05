@@ -14,7 +14,6 @@ export type {
   OnRowType,
   PipelineRender,
   PipelineRenderOptions,
-  SizeType,
   StickyContextState,
   TableColumnsContextType,
   TablePipeline,

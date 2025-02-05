@@ -13,7 +13,6 @@ export type OnRowType<T = any> = (
 
 export type { FixedType }
 export type AlignType = 'left' | 'right' | 'center'
-export type SizeType = 'small' | 'middle' | 'large'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ColumnExtra { }

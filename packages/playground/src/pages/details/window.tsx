@@ -30,7 +30,6 @@ const WindowScroll: FC = () => {
 
   return (
     <VirtualTable
-      className="virtual-table-small"
       rowKey="key"
       pipeline={pipeline}
       dataSource={dataSource}

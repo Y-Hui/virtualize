@@ -6,6 +6,7 @@
   --virtual-table-split-shadow: rgba(5, 5, 5, 0.06);
   --virtual-table-header-split: #c2c2c2;
   --virtual-table-fixed-cell-background: #fff;
+  --virtual-table-cell-padding: 8px;
 }
 
 [class^='virtual-table'] {
@@ -49,6 +50,7 @@
 
   &-header-cell {
     position: relative;
+    padding: var(--virtual-table-cell-padding);
     text-align: start;
     background-color: var(--virtual-table-header-bg);
     border-bottom: 1px solid var(--virtual-table-border-color);
@@ -91,6 +93,7 @@
 
   &-cell {
     position: relative;
+    padding: var(--virtual-table-cell-padding);
     transition:
       background 0.2s,
       border-color 0.2s;
@@ -165,27 +168,6 @@
 
   &-align-center {
     text-align: center;
-  }
-
-  &-small {
-    .virtual-table-header-cell,
-    .virtual-table-cell {
-      padding: 8px;
-    }
-  }
-
-  &-middle {
-    .virtual-table-header-cell,
-    .virtual-table-cell {
-      padding: 12px 8px;
-    }
-  }
-
-  &-large {
-    .virtual-table-header-cell,
-    .virtual-table-cell {
-      padding: 16px;
-    }
   }
 
   &-bordered {

@@ -357,7 +357,6 @@ const FullDemo: FC = () => {
       <div>
         <VirtualTable
           pipeline={pipeline}
-          className="virtual-table-small"
           // style={{
           //   boxSizing: 'border-box',
           //   height: 500,

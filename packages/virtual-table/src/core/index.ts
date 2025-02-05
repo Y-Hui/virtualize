@@ -52,6 +52,5 @@ export type {
   ColumnType,
   FixedType,
   OnRowType,
-  SizeType,
 } from './types'
 export { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verification'

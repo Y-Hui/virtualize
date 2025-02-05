@@ -40,7 +40,6 @@ const RowsAndColumns: FC = () => {
   return (
     <>
       <VirtualTable
-        className="virtual-table-small"
         style={{
           boxSizing: 'border-box',
           height: 500,
@@ -61,7 +60,6 @@ const RowsAndColumns: FC = () => {
       <br />
       <br />
       <VirtualTable
-        className="virtual-table-small"
         style={{
           boxSizing: 'border-box',
           height: 500,
