@@ -1,5 +1,5 @@
 import type { CSSProperties, FC, RefObject } from 'react'
-import { useHorizontalScrollContext } from '@are-visual/virtual-table'
+import { onResize, useHorizontalScrollContext } from '@are-visual/virtual-table'
 import { getScrollbarSize } from '@are-visual/virtual-table/middleware/utils/getScrollbarSize'
 import clsx from 'clsx'
 import { useEffect, useRef, useState } from 'react'
@@ -27,14 +27,10 @@ const ScrollBar: FC<ScrollBarProps> = (props) => {
   useEffect(() => {
     const body = bodyRef.current
     if (body == null) return
-    const observer = new ResizeObserver((entries) => {
-      const { width: widthRect } = entries[0].contentRect
-      setWidth(widthRect)
+    return onResize(body, ({ width }) => {
+      if (width === 0) return
+      setWidth(width)
     })
-    observer.observe(body)
-    return () => {
-      observer.disconnect()
-    }
   }, [bodyRef])
 
   const [size] = useState(getScrollbarSize)
