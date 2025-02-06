@@ -56,7 +56,7 @@ function TableBody<T>(props: TableBodyProps<T>) {
 
   const { columns, descriptor } = columnDescriptor
 
-  const { addShouldSyncElement } = useHorizontalScrollContext()
+  const { listen, notify } = useHorizontalScrollContext()
 
   const { widthList, setWidthList } = useColumnSizes()
   const columnWidthsRef = useRef(new Map<Key, number>())
@@ -120,8 +120,21 @@ function TableBody<T>(props: TableBodyProps<T>) {
   useEffect(() => {
     const node = wrapperRef.current
     if (node == null) return
-    return addShouldSyncElement('virtual-table-body', node)
-  }, [addShouldSyncElement])
+
+    const key = 'virtual-table-body'
+    const onScroll = () => {
+      const nextScrollLeft = node.scrollLeft
+      notify(key, nextScrollLeft)
+    }
+    const dispose = listen(key, (scrollLeft) => {
+      node.scrollLeft = scrollLeft
+    })
+    node.addEventListener('scroll', onScroll)
+    return () => {
+      node.removeEventListener('scroll', onScroll)
+      dispose()
+    }
+  }, [listen, notify])
 
   const mergedRef = useMergedRef(wrapperRef, bodyWrapperRef)
 

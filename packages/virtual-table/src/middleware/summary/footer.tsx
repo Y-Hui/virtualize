@@ -14,15 +14,27 @@ export interface FooterProps {
 const Footer: FC<FooterProps> = (props) => {
   const { columns, fixed, children } = props
 
-  const { addShouldSyncElement } = useHorizontalScrollContext()
+  const { listen, notify } = useHorizontalScrollContext()
   const [scrollbarHeight] = useState(() => getScrollbarSize().height)
 
   const wrapperRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    const wrapperNode = wrapperRef.current
-    if (wrapperNode == null) return
-    return addShouldSyncElement('virtual-table-summary', wrapperNode)
-  }, [addShouldSyncElement])
+    const node = wrapperRef.current
+    if (node == null) return
+    const key = 'virtual-table-summary'
+    const onScroll = () => {
+      const nextScrollLeft = node.scrollLeft
+      notify(key, nextScrollLeft)
+    }
+    const dispose = listen(key, (scrollLeft) => {
+      node.scrollLeft = scrollLeft
+    })
+    node.addEventListener('scroll', onScroll)
+    return () => {
+      node.removeEventListener('scroll', onScroll)
+      dispose()
+    }
+  }, [listen, notify])
 
   return (
     <div

@@ -1,9 +1,8 @@
-import type { CSSProperties, ForwardedRef, ReactNode } from 'react'
+import type { CSSProperties, ForwardedRef, ReactNode, RefObject } from 'react'
 import type { PipelineRender } from './pipeline/types'
 import clsx from 'clsx'
-import { forwardRef, useEffect, useMemo, useRef, useState } from 'react'
+import { forwardRef, useEffect, useRef, useState } from 'react'
 import { useMergedRef } from '../utils/ref'
-import { useHorizontalScrollContext } from './context/horizontal-scroll'
 import { pipelineRender } from './pipeline/render-pipeline'
 
 export interface TableRootProps {
@@ -12,6 +11,7 @@ export interface TableRootProps {
   children?: ReactNode
   hasFixedLeftColumn?: boolean
   hasFixedRightColumn?: boolean
+  bodyScrollContainer: RefObject<HTMLElement>
   renderRoot?: PipelineRender
 }
 
@@ -23,6 +23,7 @@ function TableRoot(props: TableRootProps, ref: ForwardedRef<HTMLDivElement>) {
     hasFixedLeftColumn,
     hasFixedRightColumn,
     renderRoot,
+    bodyScrollContainer,
   } = props
 
   const rootNode = useRef<HTMLDivElement>(null)
@@ -30,15 +31,11 @@ function TableRoot(props: TableRootProps, ref: ForwardedRef<HTMLDivElement>) {
   const [hasFixedLeft, setHasFixedLeft] = useState(false)
   const [hasFixedRight, setHasFixedRight] = useState(false)
 
-  const { getElements } = useHorizontalScrollContext()
-
-  const elements = useMemo(() => getElements(), [getElements])
-
   useEffect(() => {
+    const node = bodyScrollContainer.current
+    if (node == null) return
     const onCheckHasFixedEdge = () => {
-      const scrollElement = elements[0] as HTMLElement | undefined
-      if (scrollElement == null) return
-      const { scrollLeft, clientWidth, scrollWidth } = scrollElement
+      const { scrollLeft, clientWidth, scrollWidth } = node
       if (hasFixedLeftColumn) {
         setHasFixedLeft(scrollLeft !== 0)
       }
@@ -46,19 +43,12 @@ function TableRoot(props: TableRootProps, ref: ForwardedRef<HTMLDivElement>) {
         setHasFixedRight(!(scrollLeft + clientWidth >= scrollWidth))
       }
     }
-
     onCheckHasFixedEdge()
-
-    elements.forEach((node) => {
-      node.addEventListener('scroll', onCheckHasFixedEdge)
-    })
-
+    node.addEventListener('scroll', onCheckHasFixedEdge)
     return () => {
-      elements.forEach((node) => {
-        node.removeEventListener('scroll', onCheckHasFixedEdge)
-      })
+      node.removeEventListener('scroll', onCheckHasFixedEdge)
     }
-  }, [elements, hasFixedLeftColumn, hasFixedRightColumn])
+  }, [bodyScrollContainer, hasFixedLeftColumn, hasFixedRightColumn])
 
   const mergedRef = useMergedRef(ref, rootNode)
   return pipelineRender(

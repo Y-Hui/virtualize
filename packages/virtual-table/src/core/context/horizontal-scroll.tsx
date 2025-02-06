@@ -1,11 +1,11 @@
 import type { PropsWithChildren } from 'react'
-import { createContext, useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { createContext, useContext, useMemo, useRef } from 'react'
+
+type Listener = (scrollLeft: number) => void
 
 export interface HorizontalScrollContextState {
-  getElements: () => HTMLElement[]
-  /** VirtualTable 中 header、body 水平滚动为内部容器，需要同步滚动时调用此函数 */
-  addShouldSyncElement: (key: string, element: HTMLElement) => () => void
-  removeShouldSyncElement: (key: string) => void
+  listen: (key: string, listener: Listener) => () => void
+  notify: (key: string, scrollLeft: number) => void
 }
 
 const HorizontalScroll = createContext<HorizontalScrollContextState | null>(null)
@@ -17,80 +17,32 @@ if (__DEV__) {
 export function HorizontalScrollContext(props: PropsWithChildren) {
   const { children } = props
 
-  const elementsRef = useRef<Record<string, HTMLElement>>({})
-  const [elements, setElements] = useState<Record<string, HTMLElement>>({})
-
-  const removeShouldSyncElement = useCallback((key: string) => {
-    delete elementsRef.current[key]
-    setElements({ ...elementsRef.current })
-  }, [])
-
-  const addShouldSyncElement = useCallback((key: string, element: HTMLElement) => {
-    const target = elementsRef.current[key]
-    if (target !== element) {
-      elementsRef.current[key] = element
-      setElements({ ...elementsRef.current })
-    }
-    return () => {
-      removeShouldSyncElement(key)
-    }
-  }, [removeShouldSyncElement])
-
+  const listenerMap = useRef(new Map<string, Listener>())
   const context = useMemo((): HorizontalScrollContextState => {
     return {
-      getElements() {
-        return Object.values(elements)
+      listen(key, listener) {
+        listenerMap.current.set(key, listener)
+        return () => {
+          listenerMap.current.delete(key)
+        }
       },
-      addShouldSyncElement,
-      removeShouldSyncElement,
+      notify(key, scrollLeft) {
+        let rAF = window.requestAnimationFrame as ((fn: () => void) => void) | undefined
+        if (rAF == null) {
+          rAF = (fn: () => void) => {
+            fn()
+          }
+        }
+        rAF(() => {
+          listenerMap.current.forEach((listener, itemKey) => {
+            if (itemKey !== key) {
+              listener(scrollLeft)
+            }
+          })
+        })
+      },
     }
-  }, [addShouldSyncElement, elements, removeShouldSyncElement])
-
-  // 水平滚动容器同步
-  useLayoutEffect(() => {
-    const nodes = Object.values(elements)
-
-    const disabledElement = new Set<HTMLElement>()
-    const updateScrollLeft = (currentElement: HTMLElement, scrollLeft: number) => {
-      nodes.forEach((el) => {
-        if (el === currentElement) return
-        disabledElement.add(el)
-
-        el.scrollLeft = scrollLeft
-      })
-    }
-
-    const onScroll = (e: Event) => {
-      const target = e.target as HTMLElement
-
-      if (disabledElement.has(target)) {
-        disabledElement.delete(target)
-        return
-      }
-
-      const sync = () => {
-        const { scrollLeft } = target
-        updateScrollLeft(target, scrollLeft)
-      }
-
-      const rAF = window.requestAnimationFrame as typeof window.requestAnimationFrame | undefined
-      if (rAF != null) {
-        rAF(sync)
-      } else {
-        sync()
-      }
-    }
-
-    nodes.forEach((node) => {
-      node.addEventListener('scroll', onScroll)
-    })
-
-    return () => {
-      nodes.forEach((node) => {
-        node.removeEventListener('scroll', onScroll)
-      })
-    }
-  }, [elements])
+  }, [])
 
   return <HorizontalScroll.Provider value={context}>{children}</HorizontalScroll.Provider>
 }

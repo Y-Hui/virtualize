@@ -14,14 +14,26 @@ export interface ScrollBarProps {
 
 const ScrollBar: FC<ScrollBarProps> = (props) => {
   const { className, style, bottom, zIndex, bodyRef } = props
-  const { addShouldSyncElement } = useHorizontalScrollContext()
+  const { listen, notify } = useHorizontalScrollContext()
 
   const wrapperRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    const wrapperNode = wrapperRef.current
-    if (wrapperNode == null) return
-    return addShouldSyncElement('virtual-table-sticky-bottom-scroll', wrapperNode)
-  }, [addShouldSyncElement])
+    const node = wrapperRef.current
+    if (node == null) return
+    const key = 'virtual-table-sticky-bottom-scroll'
+    const onScroll = () => {
+      const nextScrollLeft = node.scrollLeft
+      notify(key, nextScrollLeft)
+    }
+    const dispose = listen(key, (scrollLeft) => {
+      node.scrollLeft = scrollLeft
+    })
+    node.addEventListener('scroll', onScroll)
+    return () => {
+      node.removeEventListener('scroll', onScroll)
+      dispose()
+    }
+  }, [listen, notify])
 
   const [width, setWidth] = useState(0)
   useEffect(() => {

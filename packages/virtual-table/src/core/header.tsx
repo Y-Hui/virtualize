@@ -68,14 +68,26 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
     }
     return isValidFixedRight(x.column.fixed)
   })
-  const { addShouldSyncElement } = useHorizontalScrollContext()
+  const { listen, notify } = useHorizontalScrollContext()
 
   const headerWrapperRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const node = headerWrapperRef.current
     if (node == null) return
-    return addShouldSyncElement('virtual-table-header', node)
-  }, [addShouldSyncElement])
+    const key = 'virtual-table-header'
+    const onScroll = () => {
+      const nextScrollLeft = node.scrollLeft
+      notify(key, nextScrollLeft)
+    }
+    const dispose = listen(key, (scrollLeft) => {
+      node.scrollLeft = scrollLeft
+    })
+    node.addEventListener('scroll', onScroll)
+    return () => {
+      node.removeEventListener('scroll', onScroll)
+      dispose()
+    }
+  }, [listen, notify])
 
   const row = pipelineRender(
     <tr>

@@ -290,6 +290,7 @@ function VirtualTableCore<T>(
       hasFixedLeftColumn={hasFixedLeftColumn}
       hasFixedRightColumn={hasFixedRightColumn}
       renderRoot={renderRoot}
+      bodyScrollContainer={bodyWrapperRef}
     >
       {contentNode}
     </TableRoot>,

@@ -449,24 +449,30 @@ const {
 
 ##### useHorizontalScrollContext
 
-当你自定义的插件需要同步水平滚动时，可以使用这个 hook。使用 `addShouldSyncElement` 设置需要同步的 DOM。
+当你自定义的插件需要同步水平滚动时，可以使用这个 hook。使用 `listen` 进行滚动同步。
 
 可参考 [horizontalScrollBar 水平滚动条](./packages/virtual-table/src/middleware/horizontal-scroll-bar)的实现。
 
 ```tsx
 import { useHorizontalScrollContext } from '@are-visual/virtual-table'
 
-const { getElements, addShouldSyncElement, removeShouldSyncElement} = useHorizontalScrollContext()
+const { listen, notify } = useHorizontalScrollContext()
 
-const needSyncScrollElement = useRef()
+const element = useRef()
 useEffect(() => {
-  const node = needSyncScrollElement.current
+  const node = element.current
   
   if(node == null) return
   
-  // addShouldSyncElement 会返回一个已设置 key 的清除函数（removeShouldSyncElement）
-  return addShouldSyncElement('union-key', node)
-}, [])
+  // listen 会返回一个清除函数
+  return listen('union-key', (scrollLeft) => {
+    node.scrollLeft = scrollLeft
+  })
+}, [listen])
+
+
+// element 滚动时，调用 notify 函数，同步其他容器
+notify('union-key', element.scrollLeft)
 ```
 
 ##### useTableRowManager
