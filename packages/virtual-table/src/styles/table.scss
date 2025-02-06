@@ -42,7 +42,7 @@
     position: sticky;
     top: 0;
     left: 0;
-    z-index: 3;
+    z-index: 2;
     background-color: var(--virtual-table-fixed-cell-background);
   }
 
@@ -103,7 +103,7 @@
 
   &-sticky-cell {
     position: sticky !important;
-    z-index: 2;
+    z-index: 1;
 
     &:not(.virtual-table-header-cell) {
       background-color: var(--virtual-table-fixed-cell-background);
