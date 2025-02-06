@@ -115,6 +115,7 @@ function App() {
 | rowClassName         | 表格行样式类名                                          | (*record*, *index*) => string           |                                |      |
 | onRow                | 设置行属性                                              | (*record*, *index*) => TdHTMLAttributes |                                |      |
 | getOffsetTop         | 计算顶部偏移量                                          | () => number                            | 使用 最外层 div 计算 offsetTop |      |
+| virtualHeader        | 开启表头虚拟滚动                                        | boolean                                 | `false`                        |      |
 
 #### getOffsetTop
 

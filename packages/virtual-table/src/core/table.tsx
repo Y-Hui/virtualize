@@ -3,7 +3,7 @@ import type { TableBodyProps } from './body'
 import type { TableColumnsContextType } from './context/column-sizes'
 import type { TableRowManagerContextType } from './context/row-manager'
 import type { NecessaryProps } from './internal'
-import type { OnRowType } from './types'
+import type { ColumnDescriptor, OnRowType } from './types'
 import clsx from 'clsx'
 import {
   forwardRef,
@@ -53,6 +53,9 @@ export interface VirtualTableCoreProps<T>
   /** 横向虚拟化时，在头和尾额外渲染多少列 @default 3 */
   overscanColumns?: number
 
+  /** 开启表头虚拟滚动 @default false */
+  virtualHeader?: boolean
+
   pipeline?: TablePipeline<T>
 
   getOffsetTop?: () => number
@@ -80,6 +83,7 @@ function VirtualTableCore<T>(
     rowClassName: rawRowClassName,
     onRow,
     getOffsetTop: getOffsetTopImpl,
+    virtualHeader = false,
   } = props
 
   const rootNode = useRef<HTMLDivElement>(null)
@@ -217,11 +221,32 @@ function VirtualTableCore<T>(
     }
   }, [rowHeightList, updateRowHeight])
 
+  const fullHeaderColumns = useMemo(() => {
+    return {
+      columns: pipelineColumns,
+      descriptor: pipelineColumns.map((column): ColumnDescriptor => {
+        const key = getKey(column)
+        return {
+          key,
+          type: 'normal',
+          column,
+        }
+      }),
+    }
+  }, [pipelineColumns])
+
+  const headerColumns = useMemo(() => {
+    if (virtualHeader) {
+      return columns
+    }
+    return fullHeaderColumns
+  }, [virtualHeader, fullHeaderColumns, columns])
+
   const contentNode = pipelineRender(
     <>
       <TableHeader
         wrapperRef={headerWrapperRef}
-        columns={columns}
+        columns={headerColumns}
         stickyHeader={stickyHeader}
         renderHeaderWrapper={renderHeaderWrapper}
         renderHeaderRoot={renderHeaderRoot}
