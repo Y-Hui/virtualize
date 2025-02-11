@@ -1,12 +1,24 @@
 .virtual-table {
-  border-spacing: 0;
-  border-collapse: collapse;
-  table-layout: fixed;
-  width: 100%;
-
-  &-wrapper {
+  &-header-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: 1;
     overflow: auto hidden;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
+
+  &-header-root {
+    border-spacing: 0;
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  &-header {}
 
   &-header-cell {
     position: relative;
@@ -17,6 +29,24 @@
     font-weight: 600;
     font-size: 14px;
   }
+
+  &-body-wrapper {
+    overflow: auto hidden;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &-body-root {
+    border-spacing: 0;
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  &-body {}
 
   &-cell {
     position: relative;

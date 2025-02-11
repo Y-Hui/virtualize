@@ -85,7 +85,7 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
   }, [])
 
   return (
-    <div className="virtual-table-wrapper">
+    <div className="virtual-table-wrapper" data-step="2">
       <div ref={headWrapper} className="virtual-table-header-wrapper">
         <table className="virtual-table-header-root">
           {colGroup}

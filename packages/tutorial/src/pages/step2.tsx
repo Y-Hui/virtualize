@@ -1,6 +1,6 @@
-import type { ColumnType } from '@/components/virtual-table_step1/types'
+import type { ColumnType } from '@/components/virtual-table_step2/types'
 import type { FC } from 'react'
-import VirtualTable from '@/components/virtual-table_step1/table'
+import VirtualTable from '@/components/virtual-table_step2/table'
 
 const size = 100
 
@@ -20,10 +20,10 @@ const columns = Array.from({ length: size }, (_, index): ColumnType<Record<strin
   }
 })
 
-const Step1: FC = () => {
+const Step2: FC = () => {
   return (
     <VirtualTable rowKey="key" columns={columns} dataSource={dataSource} />
   )
 }
 
-export default Step1
+export default Step2
