@@ -188,6 +188,8 @@ importers:
         specifier: ^2.0.5
         version: 2.0.5(react@18.3.1)
 
+  packages/tutorial: {}
+
   packages/virtual-table:
     dependencies:
       clsx:

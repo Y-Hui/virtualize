@@ -1,0 +1,25 @@
+.virtual-table {
+  border-spacing: 0;
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+
+  &-header-cell {
+    position: relative;
+    padding: 8px;
+    text-align: start;
+    background-color: #fafafa;
+    border-bottom: 1px solid #f0f0f0;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  &-cell {
+    position: relative;
+    padding: 8px;
+    transition: background 0.2s,
+      border-color 0.2s;
+    border-bottom: 1px solid #f0f0f0;
+    overflow-wrap: break-word;
+  }
+}
