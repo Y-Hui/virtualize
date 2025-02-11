@@ -1,12 +1,14 @@
-[data-step="0"] {
-  &.virtual-table {
+[data-step="1"] {
+  &.virtual-table-wrapper {
+    overflow: auto hidden;
+  }
+
+  .virtual-table {
     border-spacing: 0;
     border-collapse: collapse;
     table-layout: fixed;
     width: 100%;
-  }
 
-  .virtual-table {
     &-header-cell {
       position: relative;
       padding: 8px;

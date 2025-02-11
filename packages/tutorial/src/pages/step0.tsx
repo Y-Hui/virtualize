@@ -1,4 +1,4 @@
-import type { ColumnType } from '@/components/virtual-table/types'
+import type { ColumnType } from '@/components/virtual-table_step0/types'
 import type { FC } from 'react'
 import VirtualTable from '@/components/virtual-table_step0/table'
 

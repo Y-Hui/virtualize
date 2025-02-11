@@ -30,7 +30,7 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
   const { rowKey, dataSource, columns } = props
 
   return (
-    <div className="virtual-table-wrapper">
+    <div className="virtual-table-wrapper" data-step="1">
       <table className="virtual-table">
         <colgroup>
           {columns.map((column, columnIndex) => {

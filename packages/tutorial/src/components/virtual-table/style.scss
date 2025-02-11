@@ -4,6 +4,10 @@
   table-layout: fixed;
   width: 100%;
 
+  &-wrapper {
+    overflow: auto hidden;
+  }
+
   &-header-cell {
     position: relative;
     padding: 8px;

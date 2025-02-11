@@ -1,6 +1,6 @@
-import type { ColumnType } from '@/components/virtual-table/types'
+import type { ColumnType } from '@/components/virtual-table_step1/types'
 import type { FC } from 'react'
-import VirtualTable from '@/components/virtual-table_step0/table'
+import VirtualTable from '@/components/virtual-table_step1/table'
 
 const size = 100
 

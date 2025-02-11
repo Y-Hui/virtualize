@@ -1,4 +1,5 @@
 import type { FC } from 'react'
+import { Suspense } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 
 const menus = [
@@ -31,7 +32,9 @@ const App: FC = () => {
         })}
       </nav>
       <main style={{ paddingLeft: 220 }}>
-        <Outlet />
+        <Suspense fallback="loading...">
+          <Outlet />
+        </Suspense>
       </main>
     </>
   )

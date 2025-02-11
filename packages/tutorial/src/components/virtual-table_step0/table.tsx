@@ -30,7 +30,7 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
   const { rowKey, dataSource, columns } = props
 
   return (
-    <table className="virtual-table">
+    <table className="virtual-table" data-step="0">
       <colgroup>
         {columns.map((column, columnIndex) => {
           const key = getKey(column)
