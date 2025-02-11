@@ -8,6 +8,7 @@ import App from './app'
 const Step0 = lazy(() => import('./pages/step0'))
 const Step1 = lazy(() => import('./pages/step1'))
 const Step2 = lazy(() => import('./pages/step2'))
+const Step3 = lazy(() => import('./pages/step3'))
 
 const router = createHashRouter([
   {
@@ -25,6 +26,10 @@ const router = createHashRouter([
       {
         path: '/step/2',
         element: <Step2 />,
+      },
+      {
+        path: '/step/3',
+        element: <Step3 />,
       },
     ],
   },

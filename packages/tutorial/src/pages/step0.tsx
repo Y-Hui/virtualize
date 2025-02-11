@@ -1,28 +1,32 @@
-import type { ColumnType } from '@/components/virtual-table_step0/types'
 import type { FC } from 'react'
+import ActionArea from '@/components/action-area'
 import VirtualTable from '@/components/virtual-table_step0/table'
-
-const size = 100
-
-const dataSource = Array.from({ length: size }, (_, index) => {
-  return { key: index.toString() }
-})
-
-const columns = Array.from({ length: size }, (_, index): ColumnType<Record<string, string>> => {
-  return {
-    fixed: [0].includes(index) ? 'left' : [size - 1].includes(index) ? 'right' : undefined,
-    dataIndex: `data${index}`,
-    title: `Data${index}`,
-    width: 180,
-    render(_v, _record, i) {
-      return `[${i}] Data(${i})`
-    },
-  }
-})
+import { useState } from 'react'
+import { makeColumns, makeDataSource } from './utils/mock'
 
 const Step0: FC = () => {
+  const [dataCount, setDataCount] = useState(100)
+  const [columnCount, setColumnCount] = useState(100)
+
+  const [dataSource, setDataSource] = useState(() => makeDataSource(dataCount))
+  const [columns, setColumns] = useState(() => makeColumns(columnCount))
+
   return (
-    <VirtualTable rowKey="key" columns={columns} dataSource={dataSource} />
+    <>
+      <ActionArea
+        dataCount={dataCount}
+        onDataCountChange={(nextCount) => {
+          setDataCount(nextCount)
+          setDataSource(makeDataSource(nextCount))
+        }}
+        columnCount={columnCount}
+        onColumnCountChange={(nextCount) => {
+          setColumnCount(nextCount)
+          setColumns(makeColumns(nextCount))
+        }}
+      />
+      <VirtualTable rowKey="key" columns={columns} dataSource={dataSource} />
+    </>
   )
 }
 

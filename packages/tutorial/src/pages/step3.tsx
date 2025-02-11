@@ -1,10 +1,10 @@
 import type { FC } from 'react'
 import ActionArea from '@/components/action-area'
-import VirtualTable from '@/components/virtual-table_step2/table'
+import VirtualTable from '@/components/virtual-table/table'
 import { useState } from 'react'
 import { makeColumns, makeDataSource } from './utils/mock'
 
-const Step2: FC = () => {
+const Step3: FC = () => {
   const [dataCount, setDataCount] = useState(100)
   const [columnCount, setColumnCount] = useState(100)
 
@@ -30,4 +30,4 @@ const Step2: FC = () => {
   )
 }
 
-export default Step2
+export default Step3

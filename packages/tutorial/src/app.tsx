@@ -18,6 +18,11 @@ const menus = [
     label: 'Step2',
     description: 'Sticky head',
   },
+  {
+    path: '/step/3',
+    label: 'Step3',
+    description: 'Row virtualize',
+  },
 ]
 
 const App: FC = () => {
