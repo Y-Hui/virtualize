@@ -47,12 +47,12 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
           {columns.map((column, columnIndex) => {
             const key = getKey(column)
             return (
-              <td
+              <th
                 className="virtual-table-header-cell"
                 key={typeof key === 'symbol' ? columnIndex : key}
               >
                 {column.title}
-              </td>
+              </th>
             )
           })}
         </tr>

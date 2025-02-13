@@ -21,7 +21,7 @@ const menus = [
   {
     path: '/step/3',
     label: 'Step3',
-    description: 'Row virtualize',
+    description: 'Fixed columns',
   },
 ]
 

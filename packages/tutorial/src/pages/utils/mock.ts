@@ -10,10 +10,10 @@ export function makeDataSource(size: number) {
   })
 }
 
-export function makeColumns(size: number) {
+export function makeColumns(size: number, fixedLeftIndex: number[] = [], fixedRightIndex: number[] = []) {
   return Array.from({ length: size }, (_, index): ColumnType<Data> => {
     return {
-      fixed: [0].includes(index) ? 'left' : [size - 1].includes(index) ? 'right' : undefined,
+      fixed: fixedLeftIndex.includes(index) ? 'left' : fixedRightIndex.includes(index) ? 'right' : undefined,
       dataIndex: `data${index}`,
       title: `Data${index}`,
       width: 180,

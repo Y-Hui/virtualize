@@ -1,7 +1,12 @@
 import './style.scss'
 
+import type { Key } from 'react'
 import type { AnyObject, ColumnType } from './types'
-import { useEffect, useRef } from 'react'
+import clsx from 'clsx'
+import { useEffect, useRef, useState } from 'react'
+import Colgroup from './colgroup'
+import { useCheckFixed } from './useCheckFixed'
+import { useColumnSticky } from './useColumnSticky'
 import { getKey } from './utils/get-key'
 
 export interface VirtualTableProps<T> {
@@ -29,20 +34,6 @@ function getTableCellContent<T extends AnyObject>(
 
 function VirtualTable<T>(props: VirtualTableProps<T>) {
   const { rowKey, dataSource, columns } = props
-
-  const colGroup = (
-    <colgroup>
-      {columns.map((column, columnIndex) => {
-        const key = getKey(column)
-        return (
-          <col
-            key={typeof key === 'symbol' ? columnIndex : key}
-            style={{ width: column.width, minWidth: column.minWidth }}
-          />
-        )
-      })}
-    </colgroup>
-  )
 
   const headWrapper = useRef<HTMLDivElement>(null)
   const bodyWrapper = useRef<HTMLDivElement>(null)
@@ -94,19 +85,31 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
     }
   }, [])
 
+  const [columnSizes, setColumnSizes] = useState(() => new Map<Key, number>())
+  const { hasFixedLeft, hasFixedRight } = useCheckFixed({ bodyScrollContainer: bodyWrapper, columns })
+  const calcFixedStyle = useColumnSticky({ columns, columnSizes })
+
   return (
-    <div className="virtual-table-wrapper" data-step="2">
+    <div
+      className={clsx(
+        'virtual-table',
+        hasFixedLeft && 'virtual-table-has-fix-left',
+        hasFixedRight && 'virtual-table-has-fix-right',
+      )}
+    >
       <div ref={headWrapper} className="virtual-table-header-wrapper">
         <table className="virtual-table-header-root">
-          {colGroup}
+          <Colgroup columns={columns} />
           <thead className="virtual-table-header">
             <tr>
               {columns.map((column, columnIndex) => {
                 const key = getKey(column)
+                const { className, style } = calcFixedStyle(column)
                 return (
                   <th
-                    className="virtual-table-header-cell"
+                    className={clsx('virtual-table-header-cell', className)}
                     key={typeof key === 'symbol' ? columnIndex : key}
+                    style={style}
                   >
                     {column.title}
                   </th>
@@ -119,7 +122,13 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
 
       <div ref={bodyWrapper} className="virtual-table-body-wrapper">
         <table className="virtual-table-body-root">
-          {colGroup}
+          <Colgroup
+            columns={columns}
+            onColumnSizesMeasure={(e) => {
+              // TODO: 对比数据是否变化再更新
+              setColumnSizes(e)
+            }}
+          />
           <tbody className="virtual-table-body">
             {dataSource?.map((e, rowIndex) => {
               const rowData = e as AnyObject
@@ -128,10 +137,12 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
                 <tr key={key}>
                   {columns.map((column, columnIndex) => {
                     const columnKey = getKey(column)
+                    const { className, style } = calcFixedStyle(column)
                     return (
                       <td
                         key={typeof columnKey === 'symbol' ? columnIndex : columnKey}
-                        className="virtual-table-cell"
+                        className={clsx('virtual-table-cell', className)}
+                        style={style}
                       >
                         {getTableCellContent(rowIndex, rowData, column)}
                       </td>

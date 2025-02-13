@@ -1,6 +1,6 @@
 import type { FC } from 'react'
 import ActionArea from '@/components/action-area'
-import VirtualTable from '@/components/virtual-table/table'
+import VirtualTable from '@/components/virtual-table_step3/table'
 import { useState } from 'react'
 import { makeColumns, makeDataSource } from './utils/mock'
 
@@ -9,7 +9,7 @@ const Step3: FC = () => {
   const [columnCount, setColumnCount] = useState(100)
 
   const [dataSource, setDataSource] = useState(() => makeDataSource(dataCount))
-  const [columns, setColumns] = useState(() => makeColumns(columnCount))
+  const [columns, setColumns] = useState(() => makeColumns(columnCount, [0, 1], [dataCount - 1, dataCount - 2]))
 
   return (
     <>
@@ -22,10 +22,14 @@ const Step3: FC = () => {
         columnCount={columnCount}
         onColumnCountChange={(nextCount) => {
           setColumnCount(nextCount)
-          setColumns(makeColumns(nextCount))
+          setColumns(makeColumns(nextCount, [0, 1], [nextCount - 1, nextCount - 2]))
         }}
       />
-      <VirtualTable rowKey="key" columns={columns} dataSource={dataSource} />
+      <VirtualTable
+        rowKey="key"
+        columns={columns}
+        dataSource={dataSource}
+      />
     </>
   )
 }
