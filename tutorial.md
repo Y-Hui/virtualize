@@ -792,15 +792,15 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
    显然使用虚拟列表时滚动容器的内容太短，稍微滚动一点点就到底了，甚至第一个 Row 都还没离开屏幕。所以我们要让整体的高度接近 44000px，这样才能顺利滚动，才能让虚拟列表正常生效。<br/>
    我们可以设置 `padding-top` 和 `padding-bottom`，这样就撑开列表，也能够顺利滚动。<br/>假如当前渲染的是 `dataSource.slice(10, 20)`
 
-   - `padding-top` 就设置为：0~10 的 Row 的高度总和
-   - `padding-bottom` 就设置为：20~最后一个 Row 的高度总和
+   - `padding-top` 就设置为：0-10 的 Row 的高度总和
+   - `padding-bottom` 就设置为：20-最后一个 Row 的高度总和
 
 3. Row 的高度不是固定的，所以我们有一个大致高度，而要准确计算头和尾的 `padding`我们就要准确记录每一个 Row 的真实高度，这样才能计算。
 
 4. 需要两个变量，`startIndex` 和 `endIndex` 用来从 `dataSource` 里面截取需要渲染的数据。
 
 5. 给滚动容器设置 scroll 事件，获取 scrollTop，用来更新 `startIndex` 和 `endIndex`。<br/>
-   什么情况下需要更新 `startIndex` 和 `endIndex` ？如下图所示，目前显示的范围是 R1~R9，当 R1 的下边缘离开可视区（橙色部分）时就需要显示 R2~R10，也就是 scrollTop 大于当前锚点元素的 bottom 时，就该更新了。<br/>
+   什么情况下需要更新 `startIndex` 和 `endIndex` ？如下图所示，目前显示的范围是 R1-R9，当 R1 的下边缘离开可视区（橙色部分）时就需要显示 R2-R10，也就是 scrollTop 大于当前锚点元素的 bottom 时，就该更新了。<br/>
    R1 离开后， R2 就是可视区域内的第一个元素（锚点），以它为起点，截取 9 条数据。<br/>
    如何确定谁才是锚点？<br/>
    第一个 bottom 大于 scrollTop 的 Row，就被认为是锚点。如下图所示，R1 仍然有一部分在可视区，它就还是锚点，R1 的下边缘离开可视区后，第一个 bottom 大于 scrollTop 的是 R2，所以 R2 成为了新的锚点元素。<br/>
