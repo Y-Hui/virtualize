@@ -1,3 +1,7 @@
+body {
+  margin: 0;
+}
+
 .sidebar {
   position: fixed;
   left: 0;
@@ -37,9 +41,9 @@
 }
 
 .action-area {
+  margin: 8px 8px 18px 8px;
   display: flex;
   align-items: stretch;
-  margin-bottom: 18px;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 10px;

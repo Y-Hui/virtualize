@@ -1,6 +1,6 @@
 /* eslint-disable react-compiler/react-compiler */
 import type { ScrollElement } from './utils/dom'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getScrollElement, isRoot, isWindow } from './utils/dom'
 
 interface UseRowVirtualizeArgs<T> {
@@ -17,14 +17,39 @@ interface RowRect {
   height: number
 }
 
+function anchorQuery(rects: RowRect[], scrollTop: number) {
+  let left = 0
+  let right = rects.length - 1
+  let index = -1
+
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2)
+
+    if (rects[mid].bottom > scrollTop) {
+      index = mid
+      right = mid - 1
+    } else {
+      left = mid + 1
+    }
+  }
+
+  if (index === -1) {
+    return undefined
+  }
+
+  return rects[index]
+}
+
 export function useRowVirtualize<T>(args: UseRowVirtualizeArgs<T>) {
   const { dataSource, estimateSize, getScrollContainer, overscan = 0 } = args
 
+  // 行高信息
   const rowHeights = useRef<number[]>([])
   const fillRowHeights = () => {
     const len = dataSource?.length ?? 0
     for (let i = 0; i < len; i++) {
       const target = rowHeights.current[i] as number | undefined
+      // 由于 fillRowHeights 是在渲染阶段调用，防止重复渲染时 estimateSize 覆盖了真实 DOM 的高度
       if (target == null) {
         rowHeights.current[i] = estimateSize
       }
@@ -33,10 +58,44 @@ export function useRowVirtualize<T>(args: UseRowVirtualizeArgs<T>) {
   }
   fillRowHeights()
 
+  // 布局信息
+  const rowRects = useRef<RowRect[]>([])
+  const updateRowRectList = (shouldSkip = false) => {
+    if (shouldSkip && rowRects.current.length > 0) {
+      return
+    }
+    const { rects } = rowHeights.current.reduce((result, height, index) => {
+      const nextTop = result.top + height
+      result.rects.push({
+        index,
+        top: result.top,
+        height,
+        bottom: nextTop,
+      })
+      result.top = nextTop
+      return result
+    }, { top: 0, rects: [] as RowRect[] })
+    rowRects.current = rects
+  }
+
+  // 更新行高（真实 DOM 渲染后调用）
+  const updateRowHeight = useCallback((index: number, height: number) => {
+    const prevHeight = rowHeights.current[index]
+    rowHeights.current[index] = height
+    updateRowRectList(prevHeight === height)
+  }, [])
+
+  const anchorRef = useRef<RowRect>({
+    index: 0,
+    height: estimateSize,
+    top: 0,
+    bottom: estimateSize,
+  })
   const [startIndex, setStartIndex] = useState(0)
   const [endIndex, setEndIndex] = useState(0)
 
   const initial = useRef(false)
+  const scrollTopRef = useRef(0)
   useEffect(() => {
     const container = getScrollContainer()
     if (container == null) return
@@ -89,11 +148,33 @@ export function useRowVirtualize<T>(args: UseRowVirtualizeArgs<T>) {
     }
 
     const updateBoundary = (scrollTop: number) => {
+      const anchor = anchorQuery(rowRects.current, scrollTop)
+      if (anchor != null) {
+        console.log(anchor)
+        anchorRef.current = anchor
+        setStartIndex(Math.max(0, anchor.index - overscan))
+        setEndIndex(anchor.index + count + overscan)
+      }
     }
 
     const onScroll = () => {
       const scrollTop = getScrollTop()
-      updateBoundary(scrollTop)
+
+      // 是否为向下滚动
+      const isScrollDown = scrollTop > scrollTopRef.current
+
+      if (isScrollDown) {
+        // 如果滚动距离比较小，没有超出锚点元素的边界，就不需要计算 startIndex、endIndex 了
+        if (scrollTop > anchorRef.current.bottom) {
+          updateBoundary(scrollTop)
+        }
+      } else {
+        if (scrollTop < anchorRef.current.top) {
+          updateBoundary(scrollTop)
+        }
+      }
+
+      scrollTopRef.current = scrollTop
     }
     container.addEventListener('scroll', onScroll)
     return () => {
@@ -115,5 +196,5 @@ export function useRowVirtualize<T>(args: UseRowVirtualizeArgs<T>) {
   const topBlank = sum(0, startIndex)
   const bottomBlank = sum(endIndex)
 
-  return { dataSource: dataSlice, topBlank, bottomBlank }
+  return { dataSource: dataSlice, startIndex, topBlank, bottomBlank, updateRowHeight }
 }

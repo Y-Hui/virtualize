@@ -1,13 +1,21 @@
 import './style.scss'
 
+import type { Key } from 'react'
 import type { AnyObject, ColumnType } from './types'
-import { useEffect, useRef } from 'react'
+import clsx from 'clsx'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import Colgroup from './colgroup'
+import { useCheckFixed } from './useCheckFixed'
+import { useColumnSticky } from './useColumnSticky'
+import { useRowVirtualize } from './useRowVirtualize'
+import { getScrollParent } from './utils/dom'
 import { getKey } from './utils/get-key'
 
 export interface VirtualTableProps<T> {
   rowKey: keyof T | (string & {})
   columns: ColumnType<T>[]
   dataSource?: T[]
+  estimatedRowHeight?: number
 }
 
 function getTableCellContent<T extends AnyObject>(
@@ -28,25 +36,26 @@ function getTableCellContent<T extends AnyObject>(
 }
 
 function VirtualTable<T>(props: VirtualTableProps<T>) {
-  const { rowKey, dataSource, columns } = props
+  const { rowKey, dataSource: originalDataSource, columns, estimatedRowHeight = 40 } = props
 
-  const colGroup = (
-    <colgroup>
-      {columns.map((column, columnIndex) => {
-        const key = getKey(column)
-        return (
-          <col
-            key={typeof key === 'symbol' ? columnIndex : key}
-            style={{ width: column.width, minWidth: column.minWidth }}
-          />
-        )
-      })}
-    </colgroup>
-  )
+  const rootNode = useRef<HTMLDivElement>(null)
+  const getScrollContainer = useCallback(() => {
+    const root = rootNode.current
+    if (root == null) return
+    return getScrollParent(root)
+  }, [])
+
+  const { dataSource, topBlank, bottomBlank, startIndex, updateRowHeight } = useRowVirtualize({
+    dataSource: originalDataSource,
+    estimateSize: estimatedRowHeight,
+    overscan: 5,
+    getScrollContainer,
+  })
 
   const headWrapper = useRef<HTMLDivElement>(null)
   const bodyWrapper = useRef<HTMLDivElement>(null)
 
+  // 横向滚动同步
   useEffect(() => {
     const head = headWrapper.current
     const body = bodyWrapper.current
@@ -63,11 +72,20 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
       }
     }
 
+    const skipEventNodes = new Set<HTMLElement>()
     const onScroll = (e: Event) => {
       const element = e.target as HTMLElement
+      if (skipEventNodes.has(element)) {
+        skipEventNodes.delete(element)
+        return
+      }
       nodes.forEach((node) => {
         if (node === element) return
+        skipEventNodes.add(node)
         rAF(() => {
+          // 设置 scrollLeft 后会触发 scroll 事件
+          // 但是此处正在进行滚动同步，所以要忽略 node 所触发的 scroll 事件
+          // 使用 skipEventNodes 来记录 node 并跳过
           node.scrollLeft = element.scrollLeft
         })
       })
@@ -84,22 +102,35 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
     }
   }, [])
 
+  const [columnSizes, setColumnSizes] = useState(() => new Map<Key, number>())
+  const { hasFixedLeft, hasFixedRight } = useCheckFixed({ bodyScrollContainer: bodyWrapper, columns })
+  const calcFixedStyle = useColumnSticky({ columns, columnSizes })
+
   return (
-    <div className="virtual-table-wrapper">
+    <div
+      ref={rootNode}
+      className={clsx(
+        'virtual-table',
+        hasFixedLeft && 'virtual-table-has-fix-left',
+        hasFixedRight && 'virtual-table-has-fix-right',
+      )}
+    >
       <div ref={headWrapper} className="virtual-table-header-wrapper">
         <table className="virtual-table-header-root">
-          {colGroup}
+          <Colgroup columns={columns} />
           <thead className="virtual-table-header">
             <tr>
               {columns.map((column, columnIndex) => {
                 const key = getKey(column)
+                const { className, style } = calcFixedStyle(column)
                 return (
-                  <td
-                    className="virtual-table-header-cell"
+                  <th
+                    className={clsx('virtual-table-header-cell', className)}
                     key={typeof key === 'symbol' ? columnIndex : key}
+                    style={style}
                   >
                     {column.title}
-                  </td>
+                  </th>
                 )
               })}
             </tr>
@@ -108,20 +139,41 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
       </div>
 
       <div ref={bodyWrapper} className="virtual-table-body-wrapper">
-        <table className="virtual-table-body-root">
-          {colGroup}
+        <table
+          className="virtual-table-body-root"
+          style={{
+            paddingBottom: bottomBlank,
+            paddingTop: topBlank,
+          }}
+        >
+          <Colgroup
+            columns={columns}
+            onColumnSizesMeasure={(e) => {
+              // TODO: 对比数据是否变化再更新
+              setColumnSizes(e)
+            }}
+          />
           <tbody className="virtual-table-body">
-            {dataSource?.map((e, rowIndex) => {
+            {dataSource?.map((e, index) => {
+              const rowIndex = startIndex + index
               const rowData = e as AnyObject
               const key = rowData[rowKey as string]
               return (
-                <tr key={key}>
+                <tr
+                  key={key}
+                  ref={(node) => {
+                    if (node == null) return
+                    updateRowHeight(rowIndex, node.offsetHeight)
+                  }}
+                >
                   {columns.map((column, columnIndex) => {
                     const columnKey = getKey(column)
+                    const { className, style } = calcFixedStyle(column)
                     return (
                       <td
                         key={typeof columnKey === 'symbol' ? columnIndex : columnKey}
-                        className="virtual-table-cell"
+                        className={clsx('virtual-table-cell', className)}
+                        style={style}
                       >
                         {getTableCellContent(rowIndex, rowData, column)}
                       </td>

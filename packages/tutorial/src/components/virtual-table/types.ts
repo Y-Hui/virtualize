@@ -2,10 +2,13 @@ import type { Key, ReactNode } from 'react'
 
 export type AnyObject = Record<string, any>
 
+export type FixedType = 'left' | 'right'
+
 interface ColumnTypeCommon<T> {
   width?: string | number
   minWidth?: number
   title?: ReactNode
+  fixed?: FixedType
   render?: (value: any, record: T, index: number) => ReactNode
 }
 

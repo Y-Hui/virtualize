@@ -37,6 +37,7 @@ const ActionArea: FC<ActionAreaProps> = (props) => {
             onColumnCountChange?.(nextCount)
           }}
         >
+          <Radio value={10}>10 items</Radio>
           <Radio value={100}>100 items</Radio>
           <Radio value={500}>500 items</Radio>
           <Radio value={1000}>1000 items</Radio>

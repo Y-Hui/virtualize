@@ -23,6 +23,11 @@ const menus = [
     label: 'Step3',
     description: 'Fixed columns',
   },
+  {
+    path: '/step/4',
+    label: 'Step4',
+    description: 'Row virtualize',
+  },
 ]
 
 const App: FC = () => {
