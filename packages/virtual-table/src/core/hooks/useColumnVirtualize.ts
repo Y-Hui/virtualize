@@ -1,5 +1,4 @@
 import type { Key, RefObject } from 'react'
-import type { ScrollElement } from '../../utils/dom'
 import type { ColumnDescriptor, ColumnType } from '../types'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { findLastIndex } from '../../utils/find-last-index'
@@ -12,7 +11,6 @@ interface UseColumnVirtualizeOptions<T> {
   estimateSize: number
   overscan: number
   columns: ColumnType<T>[]
-  getScroller: () => ScrollElement | undefined
   bodyWrapper: RefObject<HTMLDivElement>
   columnWidths: Map<Key, number>
   disabled?: boolean
@@ -70,7 +68,6 @@ export function useColumnVirtualize<T>(options: UseColumnVirtualizeOptions<T>) {
     estimateSize,
     overscan,
     columns: rawColumns,
-    getScroller,
     bodyWrapper,
     columnWidths,
     disabled = false,
@@ -171,7 +168,7 @@ export function useColumnVirtualize<T>(options: UseColumnVirtualizeOptions<T>) {
       scrollContainer.removeEventListener('scroll', onScroll)
       stop()
     }
-  }, [getScroller, bodyWrapper, estimateSize, updateBoundary, overscan, findAnchorRef, disabled])
+  }, [bodyWrapper, estimateSize, updateBoundary, overscan, findAnchorRef, disabled])
 
   const sum = (startIndex: number, endIndex?: number) => {
     return rects.slice(startIndex, endIndex).reduce((a, b) => a + b.width, 0)

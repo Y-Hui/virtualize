@@ -183,7 +183,6 @@ function VirtualTableCore<T>(
     estimateSize: estimatedColumnWidth ?? 100,
     overscan: overscanColumns,
     columns: pipelineColumns,
-    getScroller,
     bodyWrapper: bodyWrapperRef,
     columnWidths,
     disabled: estimatedColumnWidth == null,
