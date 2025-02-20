@@ -12,7 +12,7 @@
 ## 🎯 设计 & 🏗️ 实现
 
 > 笔者尝试过使用 antd Table 提供的 components + react-window 来实现虚拟化。虽然成功实现虚拟列表，但是有以下几点原因放弃继续实现。<br/>
-> 1. 因为表格的特殊性，column.width 与渲染结果某些情况下并非完全一致，而 react-window 默认使用 absolute，导致无法直接使用 colgroup 标签直接控制列宽。
+> 1. 因为表格的特殊性，column.width 与渲染结果某些情况下并非完全一致，而 react-window 默认使用 absolute，导致无法使用 colgroup 标签控制列宽。
 > 2. 自定义 body 意味着 antd Table 所有功能全部失效（列固定、 展开、选择等），需要重新实现。
 > 3. 仅仅自定义 body 时，还要与默认的 head 进行适配，同步滚动、列固定。
 > 4. 既然重写了全部功能，那也没必要留着 antd Table 这个躯壳。
@@ -49,7 +49,7 @@ type ColumnTypeWithKey<T> = ColumnTypeCommon<T> & {
 }
 
 type ColumnTypeWithDataIndex<T> = ColumnTypeCommon<T> & {
-  // 这个联合类型能够给你提示 T 类型中所有的 key，同时也允许你自定义任何的 string 而不报错
+  // 这个联合类型能够给你提示 T 类型中所有的 key，同时也允许你自定义任意 string 而不报错
   dataIndex: keyof T | (string & {})
   [key: string]: unknown
 }
@@ -778,7 +778,9 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
 
 根据前文的解释，我们想一想要怎么实现这个虚拟列表：
 
-1. 需要知道可见范围内可以渲染多少个 Row，记为变量 `count`<br/>做这个计算需要这些数据：
+1. 需要两个变量，`startIndex` 和 `endIndex` 用来从 `dataSource` 里面截取需要渲染的数据。
+
+2. 需要知道可见范围内可以渲染多少个 Row，记为变量 `count`<br/>做这个计算需要这些数据：
 
    - 容器高度（可能是 `window` 或者 `overflow: scroll` 实现的滚动容器）
    - 行高（列表内容不一定，所以高度可能不是固定的，所以只能给一个大致高度用来计算出可以显示的数量，计算结果不够精准也没关系，反正是一个虚拟列表，多一个 Row 或者少一个 Row 对于渲染时间的影响也很小）
@@ -786,7 +788,7 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
    直接使用容器高度除行高就能得到 `count`，计算时也要考虑小数，例如：容器高度 800px，大致行高为 44px<br/>
    800 / 44 = 18.181818 需要向上取整为 19
 
-2. 如果有 1000 条数据，容器高度 800px，大致行高为 44px，能渲染 19 条数据。<br/>
+3. 如果有 1000 条数据，容器高度 800px，大致行高为 44px，能渲染 19 条数据。<br/>
    全量渲染时：滚动容器的内容高度是 1000 * 44 = 44000px，可以滚动 44000 - 800 = 43200px<br/>
    虚拟渲染时：滚动容器的内容高度是 19 * 44 = 836px，可以滚动 836 - 800 = 36px<br/>
    显然使用虚拟列表时滚动容器的内容太短，稍微滚动一点点就到底了，甚至第一个 Row 都还没离开屏幕。所以我们要让整体的高度接近 44000px，这样才能顺利滚动，才能让虚拟列表正常生效。<br/>
@@ -795,9 +797,7 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
    - `padding-top` 就设置为：0-10 的 Row 的高度总和
    - `padding-bottom` 就设置为：20-最后一个 Row 的高度总和
 
-3. Row 的高度不是固定的，所以我们有一个大致高度，而要准确计算头和尾的 `padding`我们就要准确记录每一个 Row 的真实高度，这样才能计算。
-
-4. 需要两个变量，`startIndex` 和 `endIndex` 用来从 `dataSource` 里面截取需要渲染的数据。
+4. 因为要实现不定高度的虚拟列表，所以无法得知每一个 Row 的高度，就需要采用`预估高度`的方案。因为预估高度和实际总是会有差距，所以要在真实 DOM 选然后，变更成实际高度，这样在准确计算头尾 `padding` 时才能更加准确。
 
 5. 给滚动容器设置 scroll 事件，获取 scrollTop，用来更新 `startIndex` 和 `endIndex`。<br/>
    什么情况下需要更新 `startIndex` 和 `endIndex` ？如下图所示，目前显示的范围是 R1-R9，当 R1 的下边缘离开可视区（橙色部分）时就需要显示 R2-R10，也就是 scrollTop 大于当前锚点元素的 bottom 时，就该更新了。<br/>
@@ -814,7 +814,205 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
 结合上面的梳理，再来看看下面的图片，想必你应该清楚虚拟列表的工作原理了。
 ![after-scrolling](./docs/tutorial/after-scrolling.png)
 
-🚧 TODO
+#### 1. startIndex & endIndex
+
+```ts
+const [startIndex, setStartIndex] = useState(0)
+const [endIndex, setEndIndex] = useState(0)
+
+const dataSlice = useMemo(() => {
+  if (dataSource == null) {
+    return undefined
+  }
+  return dataSource.slice(startIndex, endIndex)
+}, [dataSource, endIndex, startIndex])
+```
+
+#### 2. 计算 count
+
+```ts
+useEffect(() => {
+  // 通过 <div class="virtual-table"> 向上查询设置了 overflow 样式的节点
+	const container = getScrollContainer()
+  if (container == null) return
+
+  // 当前容器内可以展示多少条数据
+  let count = 0
+
+  const updateCount = (containerHeight: number) => {
+    count = Math.ceil(containerHeight / estimateSize)
+  }
+
+  const getSize = () => {
+    if (isWindow(container)) {
+      return {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      }
+    }
+    return {
+      width: container.offsetWidth,
+      height: container.offsetHeight,
+    }
+  }
+
+  updateCount(getSize().height)
+}, [estimateSize, getScrollContainer])
+```
+
+#### 3. 记录 Row 真实高度，计算前后 padding
+
+```tsx
+// 行高信息（先填充预估高度，DOM渲染后再更新成实际高度）
+const rowHeights = useRef<number[]>([])
+const fillRowHeights = () => {
+  const len = dataSource?.length ?? 0
+  for (let i = 0; i < len; i++) {
+    const target = rowHeights.current[i] as number | undefined
+    // 由于 fillRowHeights 是在渲染阶段调用，防止重复渲染时 estimateSize 覆盖了真实 DOM 的高度
+    if (target == null) {
+      rowHeights.current[i] = estimateSize
+    }
+  }
+  rowHeights.current = rowHeights.current.slice(0, len)
+}
+fillRowHeights()
+
+// 布局信息（也就是锚点元素需要的信息，top,bottom,height,index）
+const rowRects = useRef<RowRect[]>([])
+const updateRowRectList = (shouldSkip = false) => {
+  if (shouldSkip && rowRects.current.length > 0) {
+    return
+  }
+  const { rects } = rowHeights.current.reduce((result, height, index) => {
+    const nextTop = result.top + height
+    result.rects.push({
+      index,
+      top: result.top,
+      height,
+      bottom: nextTop,
+    })
+    result.top = nextTop
+    return result
+  }, { top: 0, rects: [] as RowRect[] })
+  rowRects.current = rects
+}
+
+// 更新行高（真实 DOM 渲染后调用）
+const updateRowHeight = useCallback((index: number, height: number) => {
+  const prevHeight = rowHeights.current[index]
+  rowHeights.current[index] = height
+  updateRowRectList(prevHeight === height)
+}, [])
+
+const sum = (startIndex: number, endIndex?: number) => {
+  return rowHeights.current.slice(startIndex, endIndex).reduce((a, b) => a + b, 0)
+}
+
+const topBlank = sum(0, startIndex)
+const bottomBlank = sum(endIndex)
+
+
+
+// ----------------------------------------------------------------
+// 渲染时
+<table
+  className="virtual-table-body-root"
+  style={{
+    paddingBottom: bottomBlank,
+    paddingTop: topBlank,
+  }}
+>
+  <tbody>
+    {dataSource.map((rowData, rowIndex) => {
+      return (
+        <tr
+          ref={(node) => {
+            if (node == null) return
+            updateRowHeight(rowIndex, node.offsetHeight)
+          }}
+        />
+      )
+    })}
+  </tbody>
+</table>
+```
+
+#### 4. 绑定 scroll 事件，查找锚点，更新 startIndex、endIndex
+
+```ts
+// 记录上一次的滚动位置，防止滚动距离较小的时候依然执行查找
+const scrollTopRef = useRef(0)
+
+const getScrollTop = () => {
+  let result = 0
+  if (isWindow(container) || isRoot(container)) {
+    result = window.scrollY
+  } else {
+    const element = getScrollElement(container)
+    result = element.scrollTop
+  }
+  return Math.max(result, 0)
+}
+
+const anchorRef = useRef<RowRect>({
+  index: 0,
+  height: estimateSize,
+  top: 0,
+  bottom: estimateSize,
+})
+
+const updateBoundary = (scrollTop: number) => {
+  // 查找锚点元素
+  const anchor = anchorQuery(rowRects.current, scrollTop)
+  // anchorQuery() 可以视为 rowRects.cirrent.find 的优化版本
+  // const anchor = rowRects.cirrent.find((x) => x.bottom > scrollTop)
+
+  if (anchor != null) {
+    anchorRef.current = anchor
+    // overscan 是额外渲染多少条
+    setStartIndex(Math.max(0, anchor.index - overscan))
+    setEndIndex(anchor.index + count + overscan)
+  }
+}
+
+const onScroll = () => {
+  const scrollTop = getScrollTop()
+
+  // 是否为向下滚动
+  const isScrollDown = scrollTop > scrollTopRef.current
+
+  if (isScrollDown) {
+    // 如果滚动距离比较小，没有超出锚点元素的边界，就不需要计算 startIndex、endIndex 了
+    if (scrollTop > anchorRef.current.bottom) {
+      updateBoundary(scrollTop)
+    }
+  } else {
+    if (scrollTop < anchorRef.current.top) {
+      updateBoundary(scrollTop)
+    }
+  }
+
+  scrollTopRef.current = scrollTop
+}
+
+const initial = useRef(false)
+// 第一次渲染时 start、end 都为 0，先初始化
+if (!initial.current) {
+  initial.current = true
+  const scrollTop = getScrollTop()
+  let nextStartIndex = 0
+  // 判断一下当前滚动位置，计算 startIndex（场景：SPA 页面切换且渲染非异步数据）
+  if (scrollTop >= estimateSize) {
+    nextStartIndex = Math.max(Math.floor(scrollTop / estimateSize) - 1 - overscan, 0)
+  }
+  const nextEndIndex = nextStartIndex + count + overscan
+  setStartIndex(nextStartIndex)
+  setEndIndex(nextEndIndex)
+}
+```
+
+以上代码出于教学目的，有所调整，建议查看源码。
 
 [查看源码](https://github.com/Y-Hui/virtualize/tree/main/packages/tutorial/src/components/virtual-table_step4)<br/>
 [查看在线 Demo](https://y-hui.github.io/virtualize/tutorial/#/step/4)
