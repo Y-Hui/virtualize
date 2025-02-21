@@ -160,7 +160,6 @@ export default VirtualTable
 
 ![tutorial-01.png](./docs/tutorial/tutorial-01.png)
 
-
 [查看源码](https://github.com/Y-Hui/virtualize/tree/main/packages/tutorial/src/components/virtual-table_step0)<br/>
 [查看在线 Demo](https://y-hui.github.io/virtualize/tutorial/#/step/0)
 
@@ -1019,7 +1018,76 @@ if (!initial.current) {
 
 ### Step 5: 列虚拟化
 
-🚧 TODO
+列虚拟化几乎与行虚拟化一致，唯一区别是虚拟化时需要跳过固定列。<br/>为了撑开水平滚动，使用空白区域占位。
+
+```html
+<table>
+  <colgroup>
+    <col /> // 固定列1
+    <col /> // 固定列2
+    
+    <col /> // 左侧空白占位，设置宽度，撑开容器
+    
+    
+    <col /> // 真实可见的内容
+    <col /> // 真实可见的内容
+    <col /> // 真实可见的内容
+    
+    
+    <col /> // 右侧空白占位，设置宽度，撑开容器
+
+    <col /> // 右侧固定列2
+    <col /> // 右侧固定列1
+  </colgroup>
+  
+  <tbody></tbody>
+</table>
+```
+伪代码
+```
+// 找到左右固定列的边界
+const lastFixedLeftIndex = findIndex(leftFixedEdge)
+const firstFixedRightIndex = findIndex(rightFixedEdge)
+
+// 左右固定列边界的 key
+const leftKey = findKey(leftFixedEdge)
+const rightKey = findKet(rightFixedEdge)
+
+const [startIndex, setStartIndex] = useState(0)
+const [endIndex, setEndIndex] = useState(0)
+
+// 从 columns 中截取可显示的部分
+const columnSlice = [
+  ...columns.slice(0, lastFixedLeftIndex + 1),
+  ...columns.slice(startIndex, endIndex),
+  ...columns.slice(firstFixedRightIndex),
+].removeDuplication() // 删除截取后重复的 column
+
+const leftBlank = sum(0, startIndex) - fixedLeftColumnsWidth
+const rightBlank = sum(endIndex, lastIndex) - fixedRightColumnsWidth
+
+// 遍历 columnSlice，并添加空白节点，设置空白宽度
+// 组件渲染时直接使用 descriptor
+const descriptor = columnSlice.reduce((result, column) => {
+  const key = getKey(column)
+  if (key === leftKey) {
+    result.push({ key, type: 'normal', column })
+    result.push({ key: '_blank_left', type: 'blank', width: leftBlank })
+  } else if (key === rightKey) {
+    result.push({ key: '_blank_right', type: 'blank', width: rightBlank })
+    result.push({ key, type: 'normal', column })
+  } else {
+    result.push({ key, type: 'normal', column })
+  }
+  return result
+}, [])
+
+// 滚动查找锚点逻辑与行虚拟化中几乎一致。
+const onScroll = () => {}
+```
+
+[查看源码](https://github.com/Y-Hui/virtualize/tree/main/packages/tutorial/src/components/virtual-table_step5)<br/>
+[查看在线 Demo](https://y-hui.github.io/virtualize/tutorial/#/step/5)
 
 ### Step 6: 插件机制
 

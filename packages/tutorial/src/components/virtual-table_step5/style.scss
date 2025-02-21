@@ -1,0 +1,121 @@
+.virtual-table {
+  &-header-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    overflow: auto hidden;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &-header-root {
+    border-spacing: 0;
+    border-collapse: separate;
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  &-header {}
+
+  &-header-cell {
+    position: relative;
+    padding: 8px;
+    text-align: start;
+    background-color: #fafafa;
+    border-bottom: 1px solid #f0f0f0;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  &-body-wrapper {
+    overflow: auto hidden;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &-body-root {
+    border-spacing: 0;
+    border-collapse: separate;
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  &-body {}
+
+  &-cell {
+    position: relative;
+    padding: 8px;
+    transition: background 0.2s,
+      border-color 0.2s;
+    border-bottom: 1px solid #f0f0f0;
+    overflow-wrap: break-word;
+  }
+
+  &-sticky-cell {
+    position: sticky !important;
+    z-index: 1;
+
+    &:not(.virtual-table-header-cell) {
+      background-color: #fff;
+    }
+  }
+
+  &-cell-fix-left-last {
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: -1px;
+      width: 30px;
+      transform: translateX(100%);
+      transition: box-shadow 0.3s;
+      pointer-events: none;
+    }
+  }
+
+  &-cell-fix-right-first {
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: -1px;
+      left: 0;
+      width: 30px;
+      transform: translateX(-100%);
+      transition: box-shadow 0.3s;
+      pointer-events: none;
+    }
+  }
+
+
+  &-has-fix-left {
+    .virtual-table-sticky-cell:not(.virtual-table-header-cell) {
+      background-color: #fff;
+    }
+
+    .virtual-table-cell-fix-left-last::after {
+      box-shadow: inset 10px 0 8px -8px rgba(5, 5, 5, 0.06);
+    }
+
+    .virtual-table-cell-fix-left-last::before {
+      background-color: transparent !important;
+    }
+  }
+
+  &-has-fix-right {
+    .virtual-table-cell-fix-right-first::after {
+      box-shadow: inset -10px 0 8px -8px rgba(5, 5, 5, 0.06);
+    }
+
+    .virtual-table-cell-fix-right-first::after {
+      background-color: transparent;
+    }
+  }
+}
