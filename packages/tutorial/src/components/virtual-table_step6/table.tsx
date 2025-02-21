@@ -184,8 +184,6 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
           columns,
           columnDescriptor: descriptor,
           column,
-          // TODO:
-          columnIndex: 0,
           columnWidths: columnSizes,
         })
       })}
@@ -264,8 +262,6 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
               )
               return pipelineRender(cellNode, renderCell, {
                 column,
-                // TODO:
-                columnIndex: 0,
               })
             })}
           </tr>

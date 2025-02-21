@@ -33,6 +33,11 @@ const menus = [
     label: 'Step5',
     description: 'Column virtualize',
   },
+  {
+    path: '/step/6',
+    label: 'Step6',
+    description: 'Plugins',
+  },
 ]
 
 const App: FC = () => {

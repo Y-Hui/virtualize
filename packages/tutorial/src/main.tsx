@@ -11,6 +11,7 @@ const Step2 = lazy(() => import('./pages/step2'))
 const Step3 = lazy(() => import('./pages/step3'))
 const Step4 = lazy(() => import('./pages/step4'))
 const Step5 = lazy(() => import('./pages/step5'))
+const Step6 = lazy(() => import('./pages/step6'))
 
 const router = createHashRouter([
   {
@@ -40,6 +41,10 @@ const router = createHashRouter([
       {
         path: '/step/5',
         element: <Step5 />,
+      },
+      {
+        path: '/step/6',
+        element: <Step6 />,
       },
     ],
   },

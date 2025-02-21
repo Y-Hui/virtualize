@@ -1,4 +1,4 @@
-import type { FC } from 'react'
+import type { FC, ReactNode } from 'react'
 import { Radio } from 'antd'
 
 export interface ActionAreaProps {
@@ -7,10 +7,12 @@ export interface ActionAreaProps {
 
   columnCount: number
   onColumnCountChange?: (count: number) => void
+
+  children?: ReactNode
 }
 
 const ActionArea: FC<ActionAreaProps> = (props) => {
-  const { dataCount, onDataCountChange, columnCount, onColumnCountChange } = props
+  const { dataCount, onDataCountChange, columnCount, onColumnCountChange, children } = props
 
   return (
     <div className="action-area">
@@ -43,6 +45,7 @@ const ActionArea: FC<ActionAreaProps> = (props) => {
           <Radio value={1000}>1000 items</Radio>
         </Radio.Group>
       </div>
+      {children}
     </div>
   )
 }

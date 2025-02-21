@@ -1091,11 +1091,222 @@ const onScroll = () => {}
 
 ### Step 6: 插件机制
 
-🚧 TODO
+Table 组件在 B 端业务中通常具有很多功能，比如：加载状态、空状态、单选、多选、展开、总结栏等。
 
-## 🎈 建议
+那么 VirtualTable 自然也需要这些，要实现这些功能只是时间问题。最大的问题是，我们实现上面的功能后，若某天需要一个“调整列宽”的功能该怎么办？那只能修改源码支持它，否则我们在编写组件时就要实现它，但是我们的实现也可能不符合开发者需求。
 
-🚧 TODO
+为了方便后续扩展，我们可以设计一个插件机制，所有的功能全部通过插件的方式来实现，VirtualTable 需要尽可能开放底层，插件才能实现各自的需求。
+
+在编写代码前，我们通过伪代码来想象插件如何使用，再尽可能编写代码实现它。
+
+```tsx
+const columns = [/* 原本的 columns */]
+
+const plugin = useTablePlugin({
+  use: [
+    loading({ show: true }),
+    empty({ show: false }),
+    
+    // 多选插件会添加一个 column 显示复选框
+    selection({ selectedKeys: [], onChange: () => {} }), // 受控用法
+    selection({ onChange: () => {} }), // 非受控用法
+    
+    columnResize(), // 给所有 columns 添加 resize 功能。
+  ],
+})
+
+<VirtualTable instance={plugin} columns={columns} />
+```
+
+看上面的伪代码可以知道：
+
+- loading、empty 插件要渲染 DOM 元素
+- selection 插件会对 columns 进行扩展/编辑
+- selection 插件支持受控和非受控两种用法，所以插件内部是有状态的。
+- selection 插件并没有直接传入 columns 参数，它依然能够修改 columns。
+- columnResize 插件既然要给所有的 columns 添加 resize 功能，那它肯定要读取所有的 columns，即使是 selection 添加的 column。
+
+插件最好是一个 React hook，这样内部才能有状态，而且需要接收 Table 数据（下文称呼为 context），并做出修改。
+
+
+运行后，use 数组内是一个个 React hook：
+
+```ts
+const pipeline = useTablePlugin({
+  use: [
+    useTableLoading, // loading() 调用后的结果
+    useTableEmpty, // empty() 调用后的结果
+    useTableSelection, // selection() 调用后的结果
+    useColumnResize, // columnResize() 调用后的结果
+  ]
+})
+```
+
+这样编写插件，就能实现我们的设想：
+
+```tsx
+function selection(options) {
+  // 返回一个 hook
+  // 接收 table 数据（context）
+  return function useSelection(context) {
+    const { onChange } = options
+    const { columns } = context
+    
+    // 应该直接生成新的 columns，而不是修改原数据，这样才符合单向数据、纯函数的概念，避免一些低级 BUG
+    const newColumns = useMemo(() => {
+      return [
+        { key: 'table-selection' },
+        ...columns,
+      ]
+    }, [])
+    
+    // 修改数据后，再把新的 context 返回出去
+    return {
+      ...tableData,
+      columns: newColumns,
+    }
+  }
+}
+```
+
+![plugin.png](./docs/tutorial/plugin.png)
+
+上面这个公式即为插件的核心思想，插件接收 context，处理后返回新的 context。因为 context 和 newContext 结构一致，所以我们可以把多个插件组合起来，这其实就是函数式编程中的 pipe。
+
+
+
+![pipeline](./docs/tutorial/pipeline.png)
+
+如图所示，每一个管道输入的 data 就是上一个管道的输出，我们的插件也是如此。
+
+> useTablePlugin 改名为 useTablePipeline，强调 pipe。
+
+
+现在我们设计 `useTablePipeline`，让所有插件和 VirtualTable 联动起来。
+
+```tsx
+interface MiddlewareContext<T> {
+  readonly dataSource: T[]
+  readonly columns: ColumnType<T>[]
+  readonly rowKey: keyof T | (string & {})
+}
+
+interface MiddlewareResult<T> extends MiddlewareContext<T> {
+  /** 自定义组件根节点渲染，可以用来实现 loading */
+  render: (children: ReactNode, options: { columns: ColumnType<T>[] }) => ReactNode
+  
+  /** 自定义 thead 渲染 */
+  renderHeader: (children: ReactNode, options: { columns: ColumnType<T>[] }) => ReactNode
+  
+  /** 自定义 tr 节点渲染 */
+  renderRow: (children: ReactNode, options: { columns: ColumnType<T>[] }) => ReactNode
+  
+  /** 自定义 td 节点渲染 */
+  renderCell: (children: ReactNode, options: { columns: ColumnType<T>[] }) => ReactNode
+
+  // more render
+}
+
+type Middleware<T> = (context: MiddlewareContext<T>) => MiddlewareResult<T>
+  
+class TablePipeline {
+  constructor(hooks) {
+    this.use = this.use.bind(this)
+    this.setHooks(hooks)
+  }
+
+  hooks = []
+
+  setHooks() {}
+  
+  use(context) {
+    // 遍历 hooks 属性，调用所有的 hook
+  }
+}
+
+function useTablePipeline(options) {
+  return new TablePipeline(options.use)
+}
+```
+
+输入的 MiddlewareContext 中只有 Table 数据，输出的 MiddlewareResult 中还包含很多 render 函数，这些 render 函数就是为了开放底层，让插件的实现有更多可能。
+
+例如“总结栏”组件，总结栏可以在 Table 底部，或者在 thead 中，有了 `renderHeader` 函数，总结栏的实现才有可能。
+
+```tsx
+function summary() {
+  return function useSummary(context) {
+    return {
+      ...context,
+      renderHeader(children) {
+        return (
+          <>
+            {children}
+      			<tfoot>
+              <tr>
+                <td>顶部总结栏</td>
+              </tr>
+            </tfoot>
+          </>
+        )
+      }
+    }
+  }
+}
+```
+
+组件内部调用 render 函数：
+
+```tsx
+function pipelineRender(node, render, options) {
+  if (typeof render === 'function') {
+    return render(node, options)
+  }
+  return node
+}
+
+function VirtualTable(props) {
+  const { pipeline, dataSource, columns } = props
+  
+  const { renderHeader } = pipeline.use({ dataSource, columns })
+  
+  const header = pipelineRender(<thead />, renderHeader, {/* 自定义参数，方便 render 有需要时使用 */})
+  
+  return (
+    <table>
+      {header}
+    </table>
+  )
+}
+```
+
+我们已经知道了 use 数组中就是 React hook，把这些 hook 存在 TablePipeline `hooks` 属性中，在 VirtualTable 组件中调用 `use 函数`，并且传入 context。
+
+![pipeline-flow](./docs/tutorial/pipeline-flow.png)
+
+
+
+也许你会觉得这个模式有点眼熟，这其实和 HOC 非常类似。
+
+```ts
+// useTablePlugin 用法
+const plugin = useTablePlugin({
+  use: [
+    loading({ show: true }),
+    empty({ show: false }),
+    selection({ selectedKeys: [], onChange: () => {} }),
+    columnResize(),
+  ],
+})
+
+// HOC
+const NewTable = withLoading(withEmpty(withColumnResize(withSelection(VirtualTable))))
+```
+
+但是实际组件用法与 HOC 又不太一样，HOC 是内部返回新的组件，每使用一个 HOC 都会增加一个层级，并且参数只能通过 props 传递，而我们的插件则是一个个 hook，插件直接消费所需的参数，只能说各有千秋。
+
+[查看源码](https://github.com/Y-Hui/virtualize/tree/main/packages/tutorial/src/components/virtual-table_step6)<br/>
+[查看在线 Demo](https://y-hui.github.io/virtualize/tutorial/#/step/6)
 
 ## 📚 参考
 
