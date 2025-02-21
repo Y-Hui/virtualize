@@ -28,7 +28,7 @@ OK，明确之后，那就：**Let's make a shit.** 😆
 ### Step 0: 起步
 我们要设计的就是一个 Table 组件，任何功能都先抛开，先把 Table 实现了，其他事情才有可能。
 
-因为我们参考的是 antd 的 API，所以我们先定义一下 Table 的 Props。<br/>在 antd 中，column 内 `dataIndex` 和 `key` 二选一，都是作为列的 `key` 存在，antd 没有对它进行类型约束，所以这两个都不填写也不报错，但是我希望这两个二选一，必填。
+因为我们参考的是 antd 的 API，所以先定义一下 Table 的 Props。<br/>在 antd 中，column 内 `dataIndex` 和 `key` 二选一，都是作为列的 `key` 存在，antd 没有对它进行类型约束，所以这两个都不填写也不报错，但是我们希望这两个二选一，必填。
 
 ```ts
 // virtual-table/types.ts
@@ -156,7 +156,7 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
 export default VirtualTable
 ```
 
-这样一来，我们这个 Table 组件就正常工作了，接下来实现相应的功能就可以了。
+这样一来，我们这个 Table 组件就正常工作了，接下来实现相应的功能就可以。
 
 ![tutorial-01.png](./docs/tutorial/tutorial-01.png)
 
@@ -750,9 +750,9 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
 
 我们知道 table 中所有的 tr（下文称呼为 Row）是遍历 dataSource 渲染出来的，数据有多少条，Row 也就有多少个。若有 1000 条数据，那么渲染就会更久，在此期间页面交互响应停止，产生“卡死”的现象。
 
-我们都知道，屏幕尺寸是有限的，即使 Row 有 1000 个，但是屏幕也只能展示一小部分，不滑动鼠标滚轮的情况下，绝大部分的 Row 都是看不到的。
+我们都知道，屏幕尺寸是有限的，即使有 1000 个 Row，但是屏幕也只能展示一小部分，不滑动鼠标滚轮的情况下，绝大部分的 Row 都是看不到的。
 
-为了这些暂时不可见的 Row 耗费大量时间渲染，导致交互卡死是不划算的，那么我们可不可以只渲染当前屏幕中可以见到的 Row，而那些看不到的，就不渲染它们，一小部分 Row 的渲染总是比 1000 个 Row 要快很多的。等到用户滑动鼠标滚轮时，再及时显示下一批可见的 Row。
+为了这些暂时不可见的 Row 耗费大量时间渲染是不划算的，那么我们可不可以只渲染当前屏幕中可以见到的 Row，而那些看不到的，等到用户滑动鼠标滚轮时，再销毁离开屏幕的 Row 同时显示新的可见的 Row。一小部分 Row 的渲染总是比 1000 个 Row 要快得多。
 
 例如：当前屏幕只能显示 10 个 Row，一个 Row 的高度为 50px，现在有 1000 条数据，滚动距离（scrollTop）为 0.<br/>
 既然只能显示 10 个，那我们就渲染第 1 条～第 10 条。<br/>
@@ -778,11 +778,12 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
 根据前文的解释，我们想一想要怎么实现这个虚拟列表：
 
 1. 需要两个变量，`startIndex` 和 `endIndex` 用来从 `dataSource` 里面截取需要渲染的数据。
+   dataSource.slice(startIndex, endIndex)
 
-2. 需要知道可见范围内可以渲染多少个 Row，记为变量 `count`<br/>做这个计算需要这些数据：
+2. 需要知道可见范围内可以渲染多少个 Row，记为变量 `count`<br/>需要这些数据才能计算：
 
    - 容器高度（可能是 `window` 或者 `overflow: scroll` 实现的滚动容器）
-   - 行高（列表内容不一定，所以高度可能不是固定的，所以只能给一个大致高度用来计算出可以显示的数量，计算结果不够精准也没关系，反正是一个虚拟列表，多一个 Row 或者少一个 Row 对于渲染时间的影响也很小）
+   - 行高（列表内容不一定，所以高度可能不是固定的，所以只能给一个大致高度用来计算出可以显示的数量，计算结果不够精准也没关系，多一个 Row 或者少一个 Row 对于渲染时间的影响也很小）
 
    直接使用容器高度除行高就能得到 `count`，计算时也要考虑小数，例如：容器高度 800px，大致行高为 44px<br/>
    800 / 44 = 18.181818 需要向上取整为 19
@@ -1043,8 +1044,10 @@ if (!initial.current) {
   <tbody></tbody>
 </table>
 ```
+
 伪代码
-```
+
+```ts
 // 找到左右固定列的边界
 const lastFixedLeftIndex = findIndex(leftFixedEdge)
 const firstFixedRightIndex = findIndex(rightFixedEdge)
@@ -1128,20 +1131,6 @@ const plugin = useTablePlugin({
 
 插件最好是一个 React hook，这样内部才能有状态，而且需要接收 Table 数据（下文称呼为 context），并做出修改。
 
-
-运行后，use 数组内是一个个 React hook：
-
-```ts
-const pipeline = useTablePlugin({
-  use: [
-    useTableLoading, // loading() 调用后的结果
-    useTableEmpty, // empty() 调用后的结果
-    useTableSelection, // selection() 调用后的结果
-    useColumnResize, // columnResize() 调用后的结果
-  ]
-})
-```
-
 这样编写插件，就能实现我们的设想：
 
 ```tsx
@@ -1167,6 +1156,18 @@ function selection(options) {
     }
   }
 }
+```
+运行后，use 数组内是一个个 React hook：
+
+```ts
+const pipeline = useTablePlugin({
+  use: [
+    useTableLoading, // loading() 调用后的结果
+    useTableEmpty, // empty() 调用后的结果
+    useTableSelection, // selection() 调用后的结果
+    useColumnResize, // columnResize() 调用后的结果
+  ]
+})
 ```
 
 ![plugin.png](./docs/tutorial/plugin.png)
@@ -1307,6 +1308,41 @@ const NewTable = withLoading(withEmpty(withColumnResize(withSelection(VirtualTab
 
 [查看源码](https://github.com/Y-Hui/virtualize/tree/main/packages/tutorial/src/components/virtual-table_step6)<br/>
 [查看在线 Demo](https://y-hui.github.io/virtualize/tutorial/#/step/6)
+
+## 🎈 结语
+
+至此，我们已经实现了一个有插件机制的虚拟表格。但它依然不能够满足生产环境的需要，依然存在许多问题。
+
+例如：
+
+- 窗口、容器 resize 时，需要重新计算 count
+
+- 切换 display: none 时，容器尺寸发生变化，count、startIndex、endIndex 被影响导致显示错误
+- Table 上方有其他内容时，滚动时锚点元素计算会出错
+
+因为本篇文章只是梳理和阐述我们开发这个组件的思路，所以没有面面俱到。
+
+想要开箱即用的同学可以使用 [@are-visual/virtual-table](https://github.com/Y-Hui/virtualize).
+
+```bash
+npm install @are-visual/virtual-table
+
+yarn add @are-visual/virtual-table
+
+pnpm add @are-visual/virtual-table
+```
+
+[@are-visual/virtual-table](https://github.com/Y-Hui/virtualize) 组件开发完成后才编写此文，它解决了上面提到的问题，并且还有很多内置插件：
+
+- [columnResize 列宽调整](https://github.com/Y-Hui/virtualize/blob/main/packages/virtual-table/src/middleware/column-resize)
+- [tableEmpty 空提示](https://github.com/Y-Hui/virtualize/blob/main/packages/virtual-table/src/middleware/empty)
+- [tableExpandable 行展开](https://github.com/Y-Hui/virtualize/blob/main/packages/virtual-table/src/middleware/expandable)
+- [horizontalScrollBar 水平滚动条](https://github.com/Y-Hui/virtualize/blob/main/packages/virtual-table/src/middleware/horizontal-scroll-bar)
+- [tableLoading 加载状态](https://github.com/Y-Hui/virtualize/blob/main/packages/virtual-table/src/middleware/loading)
+- [tableSelection 单选/多选](https://github.com/Y-Hui/virtualize/blob/main/packages/virtual-table/src/middleware/selection)
+- [tableSummary 总结栏](https://github.com/Y-Hui/virtualize/blob/main/packages/virtual-table/src/middleware/summary)
+
+有了这些插件，能够做到让你开箱即用，快速进入业务开发，你也可以根据你的业务需求，编写自己的插件。
 
 ## 📚 参考
 
