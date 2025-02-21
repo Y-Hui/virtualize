@@ -82,7 +82,6 @@ function Row<T>(props: RowProps<T>) {
             column={column}
             rowIndex={rowIndex}
             rowData={rowData}
-            columnIndex={index}
             renderCell={renderCell}
           />
         )

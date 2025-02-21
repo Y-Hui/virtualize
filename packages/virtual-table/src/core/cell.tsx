@@ -16,7 +16,6 @@ type NativeProps = DetailedHTMLProps<
 
 export interface CellProps<T> extends Omit<NativeProps, 'children'> {
   column: ColumnType<T>
-  columnIndex: number
   rowIndex: number
   rowData: T
   renderCell?: MiddlewareRenderCell
@@ -46,7 +45,6 @@ function Cell<T>(props: CellProps<T>) {
     column,
     rowData,
     rowIndex,
-    columnIndex,
     renderCell,
     ...restProps
   } = props
@@ -91,7 +89,7 @@ function Cell<T>(props: CellProps<T>) {
       {getTableCellContent(rowIndex, rowData as AnyObject, column)}
     </td>,
     renderCell,
-    { column, columnIndex },
+    { column },
   )
 }
 

@@ -11,7 +11,7 @@ npm install @are-visual/virtual-table
 
 yarn add @are-visual/virtual-table
 
-pnpm install @are-visual/virtual-table
+pnpm add @are-visual/virtual-table
 ```
 
 #### Usage
@@ -147,7 +147,7 @@ function App() {
 - [tableExpandable 行展开](./packages/virtual-table/src/middleware/expandable)
 - [horizontalScrollBar 水平滚动条](./packages/virtual-table/src/middleware/horizontal-scroll-bar)
 - [tableLoading 加载状态](./packages/virtual-table/src/middleware/loading)
-- [tableSelection 数据选择](./packages/virtual-table/src/middleware/selection)
+- [tableSelection 单选/多选](./packages/virtual-table/src/middleware/selection)
 - [tableSummary 总结栏](./packages/virtual-table/src/middleware/summary)
 
 ```tsx
@@ -165,7 +165,7 @@ function App() {
 
   const pipeline = useTablePipeline({
     use: [
-      // 数据选择插件
+      // 单选/多选插件
       tableSelection({
         selectedRowKeys,
         onChange(selectedRowKeys, selectedRows, info) {
@@ -274,7 +274,6 @@ Context
 ```ts
 interface RenderOptions<T = any> {
   column: ColumnType<T>
-  columnIndex: number
   columnWidths: Map<Key, number>
   rowIndex: number
   columns: ColumnType<T>[]
@@ -319,7 +318,7 @@ type MiddlewareRenderHeaderRow<T = any> = (
 
 type MiddlewareRenderHeaderCell<T = any> = (
   children: ReactNode,
-  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'column' | 'columnIndex' | 'columnWidths'>
+  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'column' | 'columnWidths'>
 ) => ReactNode
 
 type MiddlewareRenderBodyWrapper<T = any> = (
@@ -344,7 +343,7 @@ type MiddlewareRenderRow<T = any> = (
 
 type MiddlewareRenderCell<T = any> = (
   children: ReactNode,
-  options: Pick<RenderOptions<T>, 'column' | 'columnIndex'>
+  options: Pick<RenderOptions<T>, 'column'>
 ) => ReactNode
 ```
 

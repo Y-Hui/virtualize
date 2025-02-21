@@ -138,7 +138,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
                 column.title,
               ),
               renderHeaderCell,
-              { column, columns, columnIndex: index, columnWidths: widthList, columnDescriptor: descriptor },
+              { column, columns, columnWidths: widthList, columnDescriptor: descriptor },
             )}
           </Fragment>
         )
