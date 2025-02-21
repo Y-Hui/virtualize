@@ -190,6 +190,21 @@ function App() {
 }
 ```
 
+#### 插件顺序
+
+你可以指定 `priority` 来编排插件的顺序，数字越大越靠后。
+例如下面的 `columnResize`，其他插件修改 columns 后，才会轮到 columnResize 执行，这样它才能获取到最新最完整的 columns.
+
+```ts
+const pipeline = useTablePipeline({
+  use: [
+    tableLoading({ loading: true }),
+
+    { priority: 100, hook: columnResize()},
+  ],
+})
+```
+
 #### 自定义插件
 
 插件本身就是一个 react hook，它接受 `@are-visual/virtual-table` 传递的数据，处理再返回。
