@@ -168,7 +168,7 @@ export default VirtualTable
 
 ![tutorial-02.png](./docs/tutorial/tutorial-02.png)
 
-表格内容超出容器，滚动时覆盖了 sidebar，正常来讲，一个左右布局的后台页面，Table 应当占满右侧内容区域，并在 Table 内部水平滚动，不影响整个网页。
+表格内容超出容器，滚动时覆盖了 sidebar，正常来讲，一个左右布局的后台页面，table 应当占满右侧内容区域，并在 table 内部水平滚动，不影响整个网页。
 
 目前可以有两种方案：
 1. 编写文档告知用户自行设置 CSS 实现 columns 较多时开启水平滚动。
@@ -661,7 +661,7 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
 
 ![antd-has-fixed.png](./docs/tutorial/antd-has-fixed.png)
 
-在 antd table 中，最后一个固定列会添加阴影样式，能够暗示用户有内容被遮挡，可以滑动查看，现在我们缺少这个阴影，导致的效果就会是这样：
+在 antd Table 组件中，最后一个固定列会添加阴影样式，能够暗示用户有内容被遮挡，可以滑动查看，现在我们缺少这个阴影，导致的效果就会是这样：
 
 ![has-fixed.png](./docs/tutorial/has-fixed.png)
 
@@ -674,7 +674,7 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
 `scrollLeft < MAX` 时，有内容被右侧列所遮挡，需要显示阴影效果。<br/>
 `MAX` 其实就是滚动条最大滚动值。
 
-得益于我们先前的布局调整，现在水平滚动条全在 table 内部，我们可以很方便获取滚动容器的 DOM 节点，获取 `scrollLeft` 并计算。
+得益于我们先前的布局调整，现在水平滚动条全在 VirtualTable 内部，我们可以很方便获取滚动容器的 DOM 节点，获取 `scrollLeft` 并计算。
 
 ```ts
 interface UseCheckFixedArgs {
@@ -797,17 +797,17 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
    - `padding-top` 就设置为：0-10 的 Row 的高度总和
    - `padding-bottom` 就设置为：20-最后一个 Row 的高度总和
 
-4. 因为要实现不定高度的虚拟列表，所以无法得知每一个 Row 的高度，就需要采用`预估高度`的方案。因为预估高度和实际总是会有差距，所以要在真实 DOM 选然后，变更成实际高度，这样在准确计算头尾 `padding` 时才能更加准确。
+4. 因为要实现不定高度的虚拟列表，所以无法得知每一个 Row 的高度，就需要采用`预估高度`的方案。因为预估高度和实际总是会有差距，所以要在真实 DOM 渲染后，修改为实际高度，这样在计算头尾 `padding` 时才能更加准确。
 
 5. 给滚动容器设置 scroll 事件，获取 scrollTop，用来更新 `startIndex` 和 `endIndex`。<br/>
-   什么情况下需要更新 `startIndex` 和 `endIndex` ？如下图所示，目前显示的范围是 R1-R9，当 R1 的下边缘离开可视区（橙色部分）时就需要显示 R2-R10，也就是 scrollTop 大于当前锚点元素的 bottom 时，就该更新了。<br/>
+   什么情况下需要更新 `startIndex` 和 `endIndex` ？如下图所示，目前显示的范围是 R1-R9，当 R1 的下边缘离开可视区（橙色部分）时就需要显示 R2-R10，也就是 scrollTop 大于 R1 的 bottom 时，就该更新了。<br/>
    R1 离开后， R2 就是可视区域内的第一个元素（锚点），以它为起点，截取 9 条数据。<br/>
    如何确定谁才是锚点？<br/>
    第一个 bottom 大于 scrollTop 的 Row，就被认为是锚点。如下图所示，R1 仍然有一部分在可视区，它就还是锚点，R1 的下边缘离开可视区后，第一个 bottom 大于 scrollTop 的是 R2，所以 R2 成为了新的锚点元素。<br/>
    ![query-anchor](./docs/tutorial/query-anchor.png)
 
 
-6. 查找逻辑在 scroll 事件中，为了跳过不必要的查找，可以优化一下，如果 scrollTop 没有超过锚点元素的 bottom，那就不需要查找。防止滚动距离较小的时候依然执行查找，执行一些不必要的工作。
+6. 查找逻辑在 scroll 事件中，为了跳过不必要的查找，可以优化一下，如果 scrollTop 没有超过锚点元素的 bottom，那就不需要查找。主要场景是滚动距离较小的时候。
 
 
 
@@ -833,7 +833,7 @@ const dataSlice = useMemo(() => {
 ```ts
 useEffect(() => {
   // 通过 <div class="virtual-table"> 向上查询设置了 overflow 样式的节点
-	const container = getScrollContainer()
+  const container = getScrollContainer()
   if (container == null) return
 
   // 当前容器内可以展示多少条数据
@@ -965,8 +965,8 @@ const anchorRef = useRef<RowRect>({
 const updateBoundary = (scrollTop: number) => {
   // 查找锚点元素
   const anchor = anchorQuery(rowRects.current, scrollTop)
-  // anchorQuery() 可以视为 rowRects.cirrent.find 的优化版本
-  // const anchor = rowRects.cirrent.find((x) => x.bottom > scrollTop)
+  // anchorQuery() 可以视为 rowRects.current.find 的优化版本
+  // const anchor = rowRects.current.find((x) => x.bottom > scrollTop)
 
   if (anchor != null) {
     anchorRef.current = anchor
@@ -1074,13 +1074,15 @@ const rightBlank = sum(endIndex, lastIndex) - fixedRightColumnsWidth
 const descriptor = columnSlice.reduce((result, column) => {
   const key = getKey(column)
   if (key === leftKey) {
-    result.push({ key, type: 'normal', column })
-    result.push({ key: '_blank_left', type: 'blank', width: leftBlank })
+    result.push({ type: 'normal', key, column })
+    // 添加左侧占位
+    result.push({ type: 'blank',  key: '_blank_left', width: leftBlank })
   } else if (key === rightKey) {
-    result.push({ key: '_blank_right', type: 'blank', width: rightBlank })
-    result.push({ key, type: 'normal', column })
+    // 添加右侧占位
+    result.push({ type: 'blank',  key: '_blank_right', width: rightBlank })
+    result.push({ type: 'normal', key, column })
   } else {
-    result.push({ key, type: 'normal', column })
+    result.push({ type: 'normal', key, column })
   }
   return result
 }, [])
@@ -1129,14 +1131,14 @@ const plugin = useTablePlugin({
 - selection 插件并没有直接传入 columns 参数，它依然能够修改 columns。
 - columnResize 插件既然要给所有的 columns 添加 resize 功能，那它肯定要读取所有的 columns，即使是 selection 添加的 column。
 
-插件最好是一个 React hook，这样内部才能有状态，而且需要接收 Table 数据（下文称呼为 context），并做出修改。
+插件最好是一个 React hook，这样内部才能有状态，而且需要接收 VirtualTable 数据（下文称呼为 context），并做出修改。
 
 这样编写插件，就能实现我们的设想：
 
 ```tsx
 function selection(options) {
   // 返回一个 hook
-  // 接收 table 数据（context）
+  // 接收 VirtualTable 数据（context）
   return function useSelection(context) {
     const { onChange } = options
     const { columns } = context
@@ -1230,9 +1232,9 @@ function useTablePipeline(options) {
 }
 ```
 
-输入的 MiddlewareContext 中只有 Table 数据，输出的 MiddlewareResult 中还包含很多 render 函数，这些 render 函数就是为了开放底层，让插件的实现有更多可能。
+输入的 MiddlewareContext 中只有 VirtualTable 数据，输出的 MiddlewareResult 中还包含很多 render 函数，这些 render 函数就是为了开放底层，让插件的实现有更多可能。
 
-例如“总结栏”组件，总结栏可以在 Table 底部，或者在 thead 中，有了 `renderHeader` 函数，总结栏的实现才有可能。
+例如“总结栏”组件，总结栏可以在 table 底部，或者在 thead 中，有了 `renderHeader` 函数，总结栏的实现才有可能。
 
 ```tsx
 function summary() {
@@ -1243,7 +1245,7 @@ function summary() {
         return (
           <>
             {children}
-      			<tfoot>
+            <tfoot>
               <tr>
                 <td>顶部总结栏</td>
               </tr>
@@ -1306,6 +1308,8 @@ const NewTable = withLoading(withEmpty(withColumnResize(withSelection(VirtualTab
 
 但是实际组件用法与 HOC 又不太一样，HOC 是内部返回新的组件，每使用一个 HOC 都会增加一个层级，并且参数只能通过 props 传递，而我们的插件则是一个个 hook，插件直接消费所需的参数，只能说各有千秋。
 
+> useTablePipeline 的实现虽然很有趣，但确实很“脏”。
+
 [查看源码](https://github.com/Y-Hui/virtualize/tree/main/packages/tutorial/src/components/virtual-table_step6)<br/>
 [查看在线 Demo](https://y-hui.github.io/virtualize/tutorial/#/step/6)
 
@@ -1318,7 +1322,7 @@ const NewTable = withLoading(withEmpty(withColumnResize(withSelection(VirtualTab
 - 窗口、容器 resize 时，需要重新计算 count
 
 - 切换 display: none 时，容器尺寸发生变化，count、startIndex、endIndex 被影响导致显示错误
-- Table 上方有其他内容时，滚动时锚点元素计算会出错
+- VirtualTable 上方有其他内容时，滚动时锚点元素计算会出错
 
 因为本篇文章只是梳理和阐述我们开发这个组件的思路，所以没有面面俱到。
 
@@ -1341,6 +1345,10 @@ pnpm add @are-visual/virtual-table
 - [tableLoading 加载状态](https://github.com/Y-Hui/virtualize/blob/main/packages/virtual-table/src/middleware/loading)
 - [tableSelection 单选/多选](https://github.com/Y-Hui/virtualize/blob/main/packages/virtual-table/src/middleware/selection)
 - [tableSummary 总结栏](https://github.com/Y-Hui/virtualize/blob/main/packages/virtual-table/src/middleware/summary)
+
+有了这些插件，能够让你开箱即用，快速进入业务开发，你也可以根据你的业务需求，编写自己的插件。
+
+[基于内置封装的类似 antd Table API](https://github.com/Y-Hui/virtualize/tree/main/packages/playground/src/components/table)
 
 有了这些插件，能够做到让你开箱即用，快速进入业务开发，你也可以根据你的业务需求，编写自己的插件。
 
