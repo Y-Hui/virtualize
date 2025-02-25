@@ -1,19 +1,24 @@
 {
   "name": "@are-visual/virtual-table",
-  "private": true,
   "version": "0.0.1",
-  "exports": {
-    ".": {
-      "types": "./index.d.ts",
-      "default": "./index.esm.js"
-    },
-    "./*": {
-      "types": "./*.d.ts",
-      "default": "./*.js"
-    }
-  },
-  "files": ["**"],
+  "main": "./index.esm.js",
+  "types": "./index.d.ts",
   "sideEffects": false,
+  "author": "Y-Hui",
+  "license": "MIT",
+  "keywords": [
+    "react",
+    "virtual",
+    "table",
+    "list",
+    "virtual-table",
+    "virtual-list"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Y-Hui/virtualize.git"
+  },
+  "homepage": "https://y-hui.github.io/virtualize",
   "peerDependencies": {
     "react": ">=16.14.0",
     "react-dom": ">=16.14.0"

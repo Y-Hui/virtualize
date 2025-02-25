@@ -1,5 +1,3 @@
-import './styles.scss'
-
 import type { ComponentType, DetailedHTMLProps, ForwardedRef, InputHTMLAttributes } from 'react'
 import type { SelectionProps as BaseProps } from './types'
 import { useMergedRef } from '@are-visual/virtual-table/utils/ref'

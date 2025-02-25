@@ -7,9 +7,9 @@ import del from 'rollup-plugin-delete'
 import { dts } from 'rollup-plugin-dts'
 import extensions from 'rollup-plugin-extensions'
 import nodeExternals from 'rollup-plugin-node-externals'
-import postcss from 'rollup-plugin-postcss'
 import fs from 'node:fs'
 import Logger from '../utils/logger'
+import { buildStyle } from './build-style'
 import { compile } from './compile'
 import { resolve } from './resolve'
 
@@ -85,13 +85,6 @@ async function compileMiddleware(args: CompileMiddlewareArgs) {
           { find: '../../core', replacement: 'virtual-table' },
         ],
       }),
-      postcss({
-        extensions: ['.css', '.scss'],
-        sourceMap: false,
-        minimize: true,
-        // extract: true,
-        extract: resolve(outputDir, './style.css'),
-      }),
       extensions({ extensions: ['.tsx', '.ts'] }),
       nodeExternals(),
       babel({
@@ -138,14 +131,16 @@ async function compileMiddleware(args: CompileMiddlewareArgs) {
           { find: '../../core', replacement: 'virtual-table' },
         ],
       }),
-      postcss({
-        extensions: ['.css', '.scss'],
-        sourceMap: false,
-        minimize: true,
-        // extract: true,
-        extract: resolve(outputDir, './style.css'),
-      }),
       dts(),
     ],
   })
+
+  const styles = resolveMiddleware(name, 'styles.scss')
+  if (fs.existsSync(styles)) {
+    await buildStyle({
+      input: styles,
+      output: resolve(`dist/virtual-table/middleware/${name}/styles.css`),
+      copyTo: resolve(`dist/virtual-table/middleware/${name}/styles.scss`),
+    })
+  }
 }

@@ -8,10 +8,10 @@ interface BuildStyleArgs {
   copyTo?: string
 }
 
-export function buildStyle(args: BuildStyleArgs) {
+export async function buildStyle(args: BuildStyleArgs) {
   const { input, output, copyTo } = args
   const result = sass.compile(input)
-  writeFile(output, result.css)
+  await writeFile(output, result.css)
   if (copyTo != null) {
     copyFile(input, copyTo)
   }

@@ -77,13 +77,12 @@ export async function buildPackage(name: string, packagePath: string) {
           targets: [
             { src: path.join(root, 'package.json'), dest: resolve(`dist/${name}`) },
             { src: path.join(root, 'LICENSE'), dest: resolve(`dist/${name}`) },
-            { src: path.join(root, 'README.md'), dest: resolve(`dist/${name}`) },
           ],
           verbose: true,
         }),
       ],
     })
-    buildStyle({
+    await buildStyle({
       input: resolve(`${packagePath}/src/styles/table.scss`),
       output: resolve(`dist/${name}/styles/table.css`),
       copyTo: resolve(`dist/${name}/styles/table.scss`),
