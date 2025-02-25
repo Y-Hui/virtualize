@@ -9,6 +9,7 @@ async function main() {
   await buildPackage(packageName, resolvePackages(packageName))
   await buildMiddlewares()
   copyFile(resolve('README.md'), resolve('dist/virtual-table/README.md'))
+  copyFile(resolve('LICENSE'), resolve('dist/virtual-table/LICENSE'))
   runCommand('tsc --project ./packages/virtual-table/tsconfig.build.utils.json')
 }
 

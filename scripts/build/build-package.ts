@@ -76,7 +76,6 @@ export async function buildPackage(name: string, packagePath: string) {
         copy({
           targets: [
             { src: path.join(root, 'package.json'), dest: resolve(`dist/${name}`) },
-            { src: path.join(root, 'LICENSE'), dest: resolve(`dist/${name}`) },
           ],
           verbose: true,
         }),
