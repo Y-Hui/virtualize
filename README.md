@@ -479,14 +479,14 @@ useEffect(() => {
   if(node == null) return
   
   // listen 会返回一个清除函数
-  return listen('union-key', (scrollLeft) => {
+  return listen('union-key', (scrollLeft, targetNode) => {
     node.scrollLeft = scrollLeft
   })
 }, [listen])
 
 
 // element 滚动时，调用 notify 函数，同步其他容器
-notify('union-key', element.scrollLeft)
+notify('union-key', element.scrollLeft, node)
 ```
 
 ##### useTableRowManager

@@ -23,7 +23,7 @@ const ScrollBar: FC<ScrollBarProps> = (props) => {
     const key = 'virtual-table-sticky-bottom-scroll'
     const onScroll = () => {
       const nextScrollLeft = node.scrollLeft
-      notify(key, nextScrollLeft)
+      notify(key, nextScrollLeft, node)
     }
     const dispose = listen(key, (scrollLeft) => {
       node.scrollLeft = scrollLeft

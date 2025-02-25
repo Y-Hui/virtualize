@@ -1,11 +1,11 @@
 import type { PropsWithChildren } from 'react'
 import { createContext, useContext, useMemo, useRef } from 'react'
 
-type Listener = (scrollLeft: number) => void
+type Listener = (scrollLeft: number, node: HTMLElement) => void
 
 export interface HorizontalScrollContextState {
   listen: (key: string, listener: Listener) => () => void
-  notify: (key: string, scrollLeft: number) => void
+  notify: (key: string, scrollLeft: number, node: HTMLElement) => void
 }
 
 const HorizontalScroll = createContext<HorizontalScrollContextState | null>(null)
@@ -26,7 +26,7 @@ export function HorizontalScrollContext(props: PropsWithChildren) {
           listenerMap.current.delete(key)
         }
       },
-      notify(key, scrollLeft) {
+      notify(key, scrollLeft, node) {
         let rAF = window.requestAnimationFrame as ((fn: () => void) => void) | undefined
         if (rAF == null) {
           rAF = (fn: () => void) => {
@@ -36,7 +36,7 @@ export function HorizontalScrollContext(props: PropsWithChildren) {
         rAF(() => {
           listenerMap.current.forEach((listener, itemKey) => {
             if (itemKey !== key) {
-              listener(scrollLeft)
+              listener(scrollLeft, node)
             }
           })
         })

@@ -77,7 +77,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
     const key = 'virtual-table-header'
     const onScroll = () => {
       const nextScrollLeft = node.scrollLeft
-      notify(key, nextScrollLeft)
+      notify(key, nextScrollLeft, node)
     }
     const dispose = listen(key, (scrollLeft) => {
       node.scrollLeft = scrollLeft

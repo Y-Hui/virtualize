@@ -3,6 +3,7 @@ import type { PipelineRender } from './pipeline/types'
 import clsx from 'clsx'
 import { forwardRef, useEffect, useRef, useState } from 'react'
 import { useMergedRef } from '../utils/ref'
+import { useHorizontalScrollContext } from './context/horizontal-scroll'
 import { pipelineRender } from './pipeline/render-pipeline'
 
 export interface TableRootProps {
@@ -31,10 +32,12 @@ function TableRoot(props: TableRootProps, ref: ForwardedRef<HTMLDivElement>) {
   const [hasFixedLeft, setHasFixedLeft] = useState(false)
   const [hasFixedRight, setHasFixedRight] = useState(false)
 
+  const { listen } = useHorizontalScrollContext()
   useEffect(() => {
-    const node = bodyScrollContainer.current
-    if (node == null) return
-    const onCheckHasFixedEdge = () => {
+    if (!hasFixedLeftColumn && !hasFixedRightColumn) {
+      return
+    }
+    const onCheckHasFixedEdge = (node: HTMLElement) => {
       const { scrollLeft, clientWidth, scrollWidth } = node
       if (hasFixedLeftColumn) {
         setHasFixedLeft(scrollLeft !== 0)
@@ -43,12 +46,14 @@ function TableRoot(props: TableRootProps, ref: ForwardedRef<HTMLDivElement>) {
         setHasFixedRight(!(scrollLeft + clientWidth >= scrollWidth))
       }
     }
-    onCheckHasFixedEdge()
-    node.addEventListener('scroll', onCheckHasFixedEdge)
-    return () => {
-      node.removeEventListener('scroll', onCheckHasFixedEdge)
+    const node = bodyScrollContainer.current
+    if (node != null) {
+      onCheckHasFixedEdge(node)
     }
-  }, [bodyScrollContainer, hasFixedLeftColumn, hasFixedRightColumn])
+    return listen('__root', (_scrollLeft, node) => {
+      onCheckHasFixedEdge(node)
+    })
+  }, [bodyScrollContainer, hasFixedLeftColumn, hasFixedRightColumn, listen])
 
   const mergedRef = useMergedRef(ref, rootNode)
   return pipelineRender(

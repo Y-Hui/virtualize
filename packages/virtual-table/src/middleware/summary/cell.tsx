@@ -10,7 +10,6 @@ type NativeProps = DetailedHTMLProps<
 >
 
 export interface CellProps extends NativeProps, Pick<ColumnType<unknown>, 'align'> {
-  // index: number
   columnKey: Key
   colSpan?: number
 }
@@ -44,19 +43,6 @@ function Cell(props: CellProps) {
 
   if (colSpan === 0) {
     return null
-  }
-
-  // const colOffset = Math.max(0, (colSpan ?? 0) - 1)
-  // let index = columnIndex + colOffset
-  // let offset = stickySizes[index]
-
-  if (colSpan != null) {
-    // if (index === lastFixedLeftColumnIndex) {
-    //   index = columnIndex + colOffset
-    // } else if (columnIndex === firstFixedRightColumnIndex) {
-    //   index = columnIndex
-    //   offset = stickySizes[index + colOffset]
-    // }
   }
 
   return (
