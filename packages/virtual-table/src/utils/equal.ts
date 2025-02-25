@@ -87,6 +87,18 @@ export function isShallowEqual(value: unknown, oldValue: unknown) {
     }
     return false
   }
+  if (value instanceof Map && oldValue instanceof Map) {
+    const keys = [...value.keys()]
+    const oldKeys = [...oldValue.keys()]
+    if (shallowEqualArrays(keys, oldKeys)) {
+      const values = [...value.values()]
+      const oldValues = [...oldValue.values()]
+      if (isShallowEqual(values, oldValues)) {
+        return true
+      }
+    }
+    return false
+  }
   if (typeof value === 'object' && value != null) {
     return shallowEqualObjects(value, oldValue as Record<string, unknown>)
   }

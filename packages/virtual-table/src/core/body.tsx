@@ -9,7 +9,7 @@ import type { RowProps } from './row'
 import type { AnyObject, InnerColumnDescriptor } from './types'
 import clsx from 'clsx'
 import { useEffect, useLayoutEffect, useRef } from 'react'
-import { shallowEqualArrays } from '../utils/equal'
+import { isShallowEqual } from '../utils/equal'
 import { useMergedRef } from '../utils/ref'
 import Colgroup from './colgroup'
 import { useColumnSizes } from './context/column-sizes'
@@ -62,14 +62,7 @@ function TableBody<T>(props: TableBodyProps<T>) {
   const columnWidthsRef = useRef(new Map<Key, number>())
   useLayoutEffect(() => {
     const snap = widthList
-    const prevKeys = [...snap.keys()]
-    const nextKeys = [...columnWidthsRef.current.keys()]
-
-    const prevValues = [...snap.values()]
-    const nextValues = [...columnWidthsRef.current.values()]
-
-    if (!shallowEqualArrays(prevKeys, nextKeys) || !shallowEqualArrays(prevValues, nextValues)) {
-      // console.log(new Map(columnWidthsRef.current), { prevKeys, nextKeys, prevValues, nextValues })
+    if (!isShallowEqual(snap, columnWidthsRef.current)) {
       setWidthList(new Map(columnWidthsRef.current))
     }
   })
