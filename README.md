@@ -88,7 +88,7 @@ function App() {
 | align        | 单元格对齐方式                                               | `left` \|`right` \|`center` |        |      |
 | minWidth     | 列最小宽度                                                   | number                                    |        |      |
 | width        | 列宽度                                                       | number \| string                          |        |      |
-| fixed        | 固定列                                                       | `left` | `right` |                           |        |
+| fixed        | 固定列                                                       | `left` \| `right` |                           |        |
 | render       | 自定义单元格渲染内容                                         | (*value*, *record*, *index*) => ReactNode |        |      |
 | onHeaderCell | 设置表头单元格属性 | (column,  index) => TdHTMLAttributes                          |        |      |
 | onCell       | 设置单元格属性 | (column,  index) => TdHTMLAttributes |        |      |
@@ -193,6 +193,7 @@ function App() {
 #### 插件顺序
 
 你可以指定 `priority` 来编排插件的顺序，数字越大越靠后。
+
 例如下面的 `columnResize`，其他插件修改 columns 后，才会轮到 columnResize 执行，这样它才能获取到最新最完整的 columns.
 
 ```ts
@@ -201,6 +202,27 @@ const pipeline = useTablePipeline({
     tableLoading({ loading: true }),
 
     { priority: 100, hook: columnResize()},
+  ],
+})
+```
+
+#### 合并
+
+你可以使用 `pipeline` 属性合并外层传进来的插件，当你基于 VirtualTable 封装顶层组件又希望提供插件能力时，它会很有用。
+
+```ts
+const another = useTablePipeline({
+  use: [
+    tableLoading({ loading: true }),
+    { priority: 100, hook: columnResize()},
+  ],
+})
+
+const mergedPipeline = useTablePipeline({
+  // 与 another 合并
+  pipeline: another,
+  use: [
+    // 一些其他插件
   ],
 })
 ```
