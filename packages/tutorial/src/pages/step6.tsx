@@ -34,7 +34,7 @@ function tableNewColumn() {
           width: 80,
           fixed: 'left',
           render() {
-            return 'New'
+            return <span style={{ color: '#f00', fontWeight: 'bold' }}>New</span>
           },
         },
         ...rawColumns,

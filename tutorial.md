@@ -5,7 +5,7 @@
 
 2024 年<br/> antd 5.x Table 组件原生**支持**虚拟列表，他们有多个纯编辑态的 Table……但是使用后却比较卡顿，页面滚动时掉帧，肉眼可见（大概 30 列左右）。
 
-这天，老朋友找到我，和我吐槽这件事。<br/>那么，来实现一个 Virtual Table 吧，不仅能帮到他，我自己也能使用，而且还能体验造轮子的快乐。
+这天，老朋友找到我，和我吐槽这件事……<br/>
 
 20XX 年<br/> 你有一个纯编辑态的 Table...
 
@@ -20,13 +20,13 @@
 现状（基于 antd Table v5.22.2）
 
 1. antd Table 组件不支持**列虚拟化**。
-2. 20 列时，上下滚动掉帧，列数再增加时，卡顿明显，甚至无法左右滑动。
+2. 20 列时，上下滚动掉帧，列数**再增加**时，左右、上下滚动**卡顿明显**（开发环境）。
 
 ---
 
 目标：
 
-  1. API 设计时，尽量贴合 antd API。
+  1. API 设计时，尽量贴合 antd API（或者组合插件实现高级组件时方便以 antd API 作为原型）
   2. 支持行、列虚拟化（容器或 window）。
   3. 避免 antd Table 多列卡顿问题。
 
@@ -1078,16 +1078,24 @@ const rightBlank = sum(endIndex, lastIndex) - fixedRightColumnsWidth
 
 // 遍历 columnSlice，并添加空白节点，设置空白宽度
 // 组件渲染时直接使用 descriptor
-const descriptor = columnSlice.reduce((result, column) => {
+const descriptor = columnSlice.reduce((result, column, index) => {
   const key = getKey(column)
   if (key === leftKey) {
     result.push({ type: 'normal', key, column })
     // 添加左侧占位
-    result.push({ type: 'blank',  key: '_blank_left', width: leftBlank })
+    result.push({ type: 'blank', key: '_blank_left', width: leftBlank })
+  } else if (leftKey == null && index === 0) {
+    // 添加左侧占位
+    result.push({ type: 'blank', key: '_blank_left', width: leftBlank })
+    result.push({ type: 'normal', key, column })
   } else if (key === rightKey) {
     // 添加右侧占位
-    result.push({ type: 'blank',  key: '_blank_right', width: rightBlank })
+    result.push({ type: 'blank', key: '_blank_right', width: rightBlank })
     result.push({ type: 'normal', key, column })
+  } else if (rightKey == null && index === columnSlice.length - 1) {
+    result.push({ type: 'normal', key, column })
+    // 添加右侧占位
+    result.push({ type: 'blank', key: '_blank_right', width: rightBlank })
   } else {
     result.push({ type: 'normal', key, column })
   }
@@ -1355,7 +1363,7 @@ pnpm add @are-visual/virtual-table
 
 有了这些插件，能够让你开箱即用，快速进入业务开发，你也可以根据你的业务需求，编写自己的插件。
 
-[基于内置封装的类似 antd Table API](https://github.com/Y-Hui/virtualize/tree/main/packages/playground/src/components/table)
+[基于内置插件封装的类 antd API 的 Table](https://github.com/Y-Hui/virtualize/tree/main/packages/playground/src/components/table)
 
 有了这些插件，能够做到让你开箱即用，快速进入业务开发，你也可以根据你的业务需求，编写自己的插件。
 

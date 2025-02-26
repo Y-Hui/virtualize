@@ -8,7 +8,7 @@ const dataSource = Array.from({ length: size }, (_, index) => {
   return { key: index.toString() }
 })
 
-const columns = Array.from({ length: 20 }, (_, index): ColumnType<Record<string, string>> => {
+const columns = Array.from({ length: 100 }, (_, index): ColumnType<Record<string, string>> => {
   return {
     fixed: [0].includes(index) ? 'left' : [size - 1].includes(index) ? 'right' : undefined,
     dataIndex: `data${index}`,
