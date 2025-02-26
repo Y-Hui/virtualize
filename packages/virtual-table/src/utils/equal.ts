@@ -88,11 +88,11 @@ export function isShallowEqual(value: unknown, oldValue: unknown) {
     return false
   }
   if (value instanceof Map && oldValue instanceof Map) {
-    const keys = [...value.keys()]
-    const oldKeys = [...oldValue.keys()]
-    if (shallowEqualArrays(keys, oldKeys)) {
-      const values = [...value.values()]
-      const oldValues = [...oldValue.values()]
+    const keys = Array.from(value.keys())
+    const oldKeys = Array.from(oldValue.keys())
+    if (isShallowEqual(keys, oldKeys)) {
+      const values = Array.from(value.values())
+      const oldValues = Array.from(oldValue.values())
       if (isShallowEqual(values, oldValues)) {
         return true
       }

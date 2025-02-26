@@ -102,7 +102,7 @@ function TableBody<T>(props: TableBodyProps<T>) {
 
     const heights = rowHeights.current
     heights.forEach((row, rowIndex) => {
-      const height = [...row.values()].reduce((res, x) => res + x, 0)
+      const height = Array.from(row.values()).reduce((res, x) => res + x, 0)
       setRowHeight(rowIndex, height)
     })
     updateRowRectList()
@@ -131,12 +131,12 @@ function TableBody<T>(props: TableBodyProps<T>) {
     { columns, columnDescriptor: descriptor },
   )
 
-  const { widthList, setWidthList } = useColumnSizes()
-  const onColumnSizesMeasure = useCallback((columnSizes: Map<Key, number>) => {
-    if (!isShallowEqual(widthList, columnSizes)) {
-      setWidthList(new Map(columnSizes))
+  const { setWidthList } = useColumnSizes()
+  const onColumnSizesMeasure = useCallback((columnSizes: Map<Key, number>, oldValue: Map<Key, number>) => {
+    if (!isShallowEqual(oldValue, columnSizes)) {
+      setWidthList(columnSizes)
     }
-  }, [setWidthList, widthList])
+  }, [setWidthList])
 
   const tableNode = pipelineRender(
     <table

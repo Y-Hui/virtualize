@@ -1,10 +1,13 @@
+import { cleanDir } from '../utils/clean-dir'
 import { copyFile } from '../utils/copy-file'
+import { genPath } from '../utils/gen-path'
 import { runCommand } from '../utils/run-command'
 import { buildMiddlewares } from './build-middlewares'
 import { buildPackage } from './build-package'
 import { resolve, resolvePackages } from './resolve'
 
 async function main() {
+  cleanDir(genPath('/dist'))
   const packageName = 'virtual-table'
   await buildPackage(packageName, resolvePackages(packageName))
   await buildMiddlewares()

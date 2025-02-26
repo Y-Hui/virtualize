@@ -1,10 +1,10 @@
 import type { FC, Key } from 'react'
 import type { ColumnDescriptor } from './types'
-import { useRef } from 'react'
+import { memo, useRef } from 'react'
 
 export interface ColgroupProps {
   columns: ColumnDescriptor[]
-  onColumnSizesMeasure?: (columnSizes: Map<Key, number>) => void
+  onColumnSizesMeasure?: (columnSizes: Map<Key, number>, oldColumnSizes: Map<Key, number>) => void
 }
 
 const Colgroup: FC<ColgroupProps> = (props) => {
@@ -12,18 +12,22 @@ const Colgroup: FC<ColgroupProps> = (props) => {
 
   const enableMeasure = onColumnSizesMeasure != null
   const columnSizes = useRef(new Map<Key, number>())
+  const prevColumnSizes = useRef(new Map<Key, number>())
 
   return (
     <colgroup
       ref={() => {
         if (!enableMeasure) return
-        onColumnSizesMeasure(columnSizes.current)
+        const result = columnSizes.current
+        onColumnSizesMeasure(result, prevColumnSizes.current)
+        prevColumnSizes.current = result
+        columnSizes.current = new Map()
       }}
     >
       {columns.map((item) => {
         const { key } = item
         if (item.type === 'blank') {
-          return <col key={key} className="blank" style={{ width: item.width, color: '#f00' }} />
+          return <col key={key} className="blank" style={{ width: item.width }} />
         }
 
         const { column } = item
@@ -46,4 +50,4 @@ const Colgroup: FC<ColgroupProps> = (props) => {
   )
 }
 
-export default Colgroup
+export default memo(Colgroup)
