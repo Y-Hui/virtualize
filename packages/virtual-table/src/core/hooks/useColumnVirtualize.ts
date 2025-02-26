@@ -202,16 +202,22 @@ export function useColumnVirtualize<T>(options: UseColumnVirtualizeOptions<T>) {
   }, [disabled, rawColumns, startIndex, endIndex, lastFixedLeftIndex, firstFixedRightIndex])
 
   const descriptor = useMemo(() => {
-    return columnSlice.reduce<ColumnDescriptor<T>[]>((result, column) => {
+    return columnSlice.reduce<ColumnDescriptor<T>[]>((result, column, index) => {
       const key = getKey(column)
       if (key === leftKey) {
-        result.push({ key, type: 'normal', column })
-        result.push({ key: '_blank_left', type: 'blank', width: leftBlank })
+        result.push({ type: 'normal', key, column })
+        result.push({ type: 'blank', key: '_blank_left', width: leftBlank })
+      } else if (leftKey == null && index === 0) {
+        result.push({ type: 'blank', key: '_blank_left', width: leftBlank })
+        result.push({ type: 'normal', key, column })
       } else if (key === rightKey) {
-        result.push({ key: '_blank_right', type: 'blank', width: rightBlank })
-        result.push({ key, type: 'normal', column })
+        result.push({ type: 'blank', key: '_blank_right', width: rightBlank })
+        result.push({ type: 'normal', key, column })
+      } else if (rightKey == null && index === columnSlice.length - 1) {
+        result.push({ type: 'normal', key, column })
+        result.push({ type: 'blank', key: '_blank_right', width: rightBlank })
       } else {
-        result.push({ key, type: 'normal', column })
+        result.push({ type: 'normal', key, column })
       }
       return result
     }, [])
