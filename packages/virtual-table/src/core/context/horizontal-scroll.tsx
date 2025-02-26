@@ -5,7 +5,7 @@ type Listener = (scrollLeft: number, node: HTMLElement) => void
 
 export interface HorizontalScrollContextState {
   listen: (key: string, listener: Listener) => () => void
-  notify: (key: string, scrollLeft: number, node: HTMLElement) => void
+  notify: (key: string, options: { scrollLeft: () => number, node: HTMLElement }) => void
 }
 
 const HorizontalScroll = createContext<HorizontalScrollContextState | null>(null)
@@ -19,25 +19,33 @@ export function HorizontalScrollContext(props: PropsWithChildren) {
 
   const listenerMap = useRef(new Map<string, Listener>())
   const context = useMemo((): HorizontalScrollContextState => {
+    const skipEvent = new Set<string>()
     return {
       listen(key, listener) {
-        listenerMap.current.set(key, listener)
+        listenerMap.current.set(key, (scrollLeft, node) => {
+          listener(scrollLeft, node)
+        })
         return () => {
           listenerMap.current.delete(key)
         }
       },
-      notify(key, scrollLeft, node) {
+      notify(key, options) {
+        if (skipEvent.has(key)) {
+          skipEvent.delete(key)
+          return
+        }
+        const { scrollLeft, node } = options
         let rAF = window.requestAnimationFrame as ((fn: () => void) => void) | undefined
         if (rAF == null) {
           rAF = (fn: () => void) => {
             fn()
           }
         }
-        rAF(() => {
-          listenerMap.current.forEach((listener, itemKey) => {
-            if (itemKey !== key) {
-              listener(scrollLeft, node)
-            }
+        listenerMap.current.forEach((listener, itemKey) => {
+          if (key === itemKey) return
+          skipEvent.add(itemKey)
+          rAF(() => {
+            listener(scrollLeft(), node)
           })
         })
       },

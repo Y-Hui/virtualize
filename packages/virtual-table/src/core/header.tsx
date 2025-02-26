@@ -16,6 +16,7 @@ import { useColumnSizes } from './context/column-sizes'
 import { useHorizontalScrollContext } from './context/horizontal-scroll'
 import { useTableSticky } from './context/sticky'
 import { pipelineRender } from './pipeline/render-pipeline'
+import { getKey } from './utils/get-key'
 import { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 export interface TableHeaderProps {
@@ -52,6 +53,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
   } = props
 
   const { columns, descriptor } = columnDescriptor
+  const lastColumn = columns[columns.length - 1]
 
   const { widthList } = useColumnSizes()
   const { size: stickySizes } = useTableSticky()
@@ -76,8 +78,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
     if (node == null) return
     const key = 'virtual-table-header'
     const onScroll = () => {
-      const nextScrollLeft = node.scrollLeft
-      notify(key, nextScrollLeft, node)
+      notify(key, { scrollLeft: () => node.scrollLeft, node })
     }
     const dispose = listen(key, (scrollLeft) => {
       node.scrollLeft = scrollLeft
@@ -94,7 +95,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
       {descriptor.map((item, index) => {
         const { key } = item
         if (item.type === 'blank') {
-          return <th key={key} />
+          return <th key={key} data-blank />
         }
 
         const { column } = item
@@ -103,6 +104,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
           return null
         }
 
+        const isLast = getKey(lastColumn) === key
         const {
           className: thClassName,
           style: thStyle,
@@ -120,6 +122,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
                   colSpan: column.colSpan,
                   className: clsx(
                     'virtual-table-header-cell',
+                    isLast && 'no-split',
                     column.align != null && `virtual-table-align-${column.align}`,
                     isValidFixed(column.fixed) && 'virtual-table-sticky-cell',
                     lastFixedLeftColumnIndex === index && 'virtual-table-cell-fix-left-last',

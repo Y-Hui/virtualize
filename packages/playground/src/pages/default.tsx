@@ -44,7 +44,7 @@ const DefaultDemo: FC = () => {
         dataSource={data}
         columns={columns}
         estimatedRowHeight={100}
-        estimatedColumnWidth={200}
+        estimatedColumnWidth={100}
       />
     </div>
   )

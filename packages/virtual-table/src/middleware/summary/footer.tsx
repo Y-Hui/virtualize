@@ -23,8 +23,7 @@ const Footer: FC<FooterProps> = (props) => {
     if (node == null) return
     const key = 'virtual-table-summary'
     const onScroll = () => {
-      const nextScrollLeft = node.scrollLeft
-      notify(key, nextScrollLeft, node)
+      notify(key, { scrollLeft: () => node.scrollLeft, node })
     }
     const dispose = listen(key, (scrollLeft) => {
       node.scrollLeft = scrollLeft

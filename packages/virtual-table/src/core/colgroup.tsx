@@ -1,21 +1,29 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import type { FC } from 'react'
-import type { ColumnDescriptor, ColumnType } from './types'
+import type { FC, Key } from 'react'
+import type { ColumnDescriptor } from './types'
+import { useRef } from 'react'
 
 export interface ColgroupProps {
   columns: ColumnDescriptor[]
-  colRef?: (instance: HTMLTableColElement | null, column: ColumnType<any>, index: number) => void
+  onColumnSizesMeasure?: (columnSizes: Map<Key, number>) => void
 }
 
 const Colgroup: FC<ColgroupProps> = (props) => {
-  const { columns, colRef } = props
+  const { columns, onColumnSizesMeasure } = props
+
+  const enableMeasure = onColumnSizesMeasure != null
+  const columnSizes = useRef(new Map<Key, number>())
 
   return (
-    <colgroup>
-      {columns.map((item, index) => {
+    <colgroup
+      ref={() => {
+        if (!enableMeasure) return
+        onColumnSizesMeasure(columnSizes.current)
+      }}
+    >
+      {columns.map((item) => {
         const { key } = item
         if (item.type === 'blank') {
-          return <col key={key} style={{ width: item.width }} />
+          return <col key={key} className="blank" style={{ width: item.width, color: '#f00' }} />
         }
 
         const { column } = item
@@ -23,11 +31,10 @@ const Colgroup: FC<ColgroupProps> = (props) => {
         return (
           <col
             key={key}
-            ref={
-              typeof colRef === 'function'
-                ? (instance) => { colRef(instance, column, index) }
-                : colRef
-            }
+            ref={(node) => {
+              if (node == null || !enableMeasure) return
+              columnSizes.current.set(key, node.offsetWidth)
+            }}
             style={{
               width: column.width,
               minWidth: column.minWidth,

@@ -1,4 +1,6 @@
 import type { CSSProperties, Key, Ref } from 'react'
+import type { ScrollElement } from '../utils/dom'
+import type { TableRowManagerContextType } from './context/row-manager'
 import type { NecessaryProps } from './internal'
 import type {
   MiddlewareRenderBody,
@@ -8,26 +10,30 @@ import type {
 import type { RowProps } from './row'
 import type { AnyObject, InnerColumnDescriptor } from './types'
 import clsx from 'clsx'
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { isShallowEqual } from '../utils/equal'
 import { useMergedRef } from '../utils/ref'
 import Colgroup from './colgroup'
 import { useColumnSizes } from './context/column-sizes'
 import { useHorizontalScrollContext } from './context/horizontal-scroll'
+import { TableRowManager } from './context/row-manager'
+import { useRowVirtualize } from './hooks/useRowVirtualize'
 import { pipelineRender } from './pipeline/render-pipeline'
 import Row from './row'
-import { getKey } from './utils/get-key'
 
 export interface TableBodyProps<T>
   extends Omit<NecessaryProps<T>, 'columns'>,
   Pick<RowProps<T>, 'onRow' | 'renderRow' | 'renderCell'> {
   className?: string
   style?: CSSProperties
-  startIndex: number
   columns: InnerColumnDescriptor<T>
   bodyWrapperRef?: Ref<HTMLDivElement>
   bodyRootRef?: Ref<HTMLTableElement>
   bodyRef?: Ref<HTMLTableSectionElement>
+  overscan: number
+  estimateSize: number
+  getOffsetTop: () => number
+  getScroller: () => ScrollElement | undefined
   rowClassName?: (record: T, index: number) => string
   renderBodyWrapper?: MiddlewareRenderBodyWrapper
   renderBodyRoot?: MiddlewareRenderBodyRoot
@@ -41,10 +47,16 @@ function TableBody<T>(props: TableBodyProps<T>) {
     bodyRef,
     className,
     style,
-    dataSource,
+    dataSource: rawData,
     columns: columnDescriptor,
     rowKey,
-    startIndex,
+
+    overscan,
+    estimateSize,
+
+    getScroller,
+    getOffsetTop,
+
     rowClassName,
     onRow,
     renderBodyWrapper,
@@ -54,21 +66,51 @@ function TableBody<T>(props: TableBodyProps<T>) {
     renderCell,
   } = props
 
+  const {
+    startIndex,
+    dataSlice: dataSource,
+    setRowHeight,
+    updateRowRectList,
+    rowHeightList,
+    topBlank,
+    bottomBlank,
+  } = useRowVirtualize({
+    getOffsetTop,
+    dataSource: rawData,
+    getScroller,
+    estimateSize,
+    overscan,
+  })
+
+  const rowHeights = useRef(new Map<number, Map<Key, number>>())
+  const updateRowHeight = useCallback((index: number, key: Key, height: number) => {
+    const target = rowHeights.current.get(index) ?? new Map<Key, number>()
+    target.set(key, height)
+    rowHeights.current.set(index, target)
+  }, [])
+
+  const rowManageState = useMemo<TableRowManagerContextType>(() => {
+    return { updateRowHeight, getRowHeightList: () => rowHeightList.current }
+  }, [rowHeightList, updateRowHeight])
+
   const { columns, descriptor } = columnDescriptor
+  const tbodyRef = useMergedRef(bodyRef, (elm) => {
+    if (elm == null) return
 
-  const { listen, notify } = useHorizontalScrollContext()
+    const bodyHeight = elm.offsetHeight
+    if (bodyHeight === 0) return
 
-  const { widthList, setWidthList } = useColumnSizes()
-  const columnWidthsRef = useRef(new Map<Key, number>())
-  useLayoutEffect(() => {
-    const snap = widthList
-    if (!isShallowEqual(snap, columnWidthsRef.current)) {
-      setWidthList(new Map(columnWidthsRef.current))
-    }
+    const heights = rowHeights.current
+    heights.forEach((row, rowIndex) => {
+      const height = [...row.values()].reduce((res, x) => res + x, 0)
+      setRowHeight(rowIndex, height)
+    })
+    updateRowRectList()
+    rowHeights.current.clear()
   })
 
   const bodyNode = pipelineRender(
-    <tbody ref={bodyRef}>
+    <tbody ref={tbodyRef}>
       {dataSource.map((e, rowIndex) => {
         const _rowKey = (e as AnyObject)[rowKey as string]
         return (
@@ -89,19 +131,22 @@ function TableBody<T>(props: TableBodyProps<T>) {
     { columns, columnDescriptor: descriptor },
   )
 
+  const { widthList, setWidthList } = useColumnSizes()
+  const onColumnSizesMeasure = useCallback((columnSizes: Map<Key, number>) => {
+    if (!isShallowEqual(widthList, columnSizes)) {
+      setWidthList(new Map(columnSizes))
+    }
+  }, [setWidthList, widthList])
+
   const tableNode = pipelineRender(
     <table
       className={clsx(className, 'virtual-table-body')}
-      style={style}
+      style={{ ...style, paddingBottom: bottomBlank, paddingTop: topBlank }}
       ref={bodyRootRef}
     >
       <Colgroup
         columns={descriptor}
-        colRef={(node, column) => {
-          if (node == null) return
-          const key = getKey(column)
-          columnWidthsRef.current.set(key, node.offsetWidth)
-        }}
+        onColumnSizesMeasure={onColumnSizesMeasure}
       />
       {bodyNode}
     </table>,
@@ -109,6 +154,7 @@ function TableBody<T>(props: TableBodyProps<T>) {
     { columns, columnDescriptor: descriptor },
   )
 
+  const { listen, notify } = useHorizontalScrollContext()
   const wrapperRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const node = wrapperRef.current
@@ -116,8 +162,7 @@ function TableBody<T>(props: TableBodyProps<T>) {
 
     const key = 'virtual-table-body'
     const onScroll = () => {
-      const nextScrollLeft = node.scrollLeft
-      notify(key, nextScrollLeft, node)
+      notify(key, { scrollLeft: () => node.scrollLeft, node })
     }
     const dispose = listen(key, (scrollLeft) => {
       node.scrollLeft = scrollLeft
@@ -131,15 +176,19 @@ function TableBody<T>(props: TableBodyProps<T>) {
 
   const mergedRef = useMergedRef(wrapperRef, bodyWrapperRef)
 
-  return pipelineRender(
-    <div
-      ref={mergedRef}
-      className="virtual-table-body-wrapper"
-    >
-      {tableNode}
-    </div>,
-    renderBodyWrapper,
-    { columns, columnDescriptor: descriptor },
+  return (
+    <TableRowManager.Provider value={rowManageState}>
+      {pipelineRender(
+        <div
+          ref={mergedRef}
+          className="virtual-table-body-wrapper"
+        >
+          {tableNode}
+        </div>,
+        renderBodyWrapper,
+        { columns, columnDescriptor: descriptor },
+      )}
+    </TableRowManager.Provider>
   )
 }
 

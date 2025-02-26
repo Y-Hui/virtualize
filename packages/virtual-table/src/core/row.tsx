@@ -62,7 +62,7 @@ function Row<T>(props: RowProps<T>) {
       ref={(node) => {
         if (node == null) return
         // 小心陷阱：当 table 父元素为 display: none 时，依然会触发 updateRowHeight 函数，并设置高度为 0
-        updateRowHeight(rowIndex, node.offsetHeight)
+        updateRowHeight(rowIndex, rowIndex, node.offsetHeight)
       }}
     >
       {descriptor.map((item, index) => {

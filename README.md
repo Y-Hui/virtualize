@@ -508,7 +508,10 @@ useEffect(() => {
 
 
 // element 滚动时，调用 notify 函数，同步其他容器
-notify('union-key', element.scrollLeft, node)
+notify('union-key', {
+  scrollLeft: () => element.scrollLeft,
+  node
+})
 ```
 
 ##### useTableRowManager
@@ -528,7 +531,12 @@ const { getRowHeightList, updateRowHeight } = useTableRowManager()
 ```ts
 interface TableRowManagerContextType {
   getRowHeightList: () => number[]
-  updateRowHeight: (index: number, height: number) => void
+  /**
+   * @param index rowIndex
+   * @param key 唯一的 key，用于去重
+   * @param height 行高
+   */
+  updateRowHeight: (index: number, key: Key, height: number) => void
 }
 ```
 

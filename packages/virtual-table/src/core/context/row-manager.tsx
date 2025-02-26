@@ -1,8 +1,14 @@
+import type { Key } from 'react'
 import { createContext, useContext } from 'react'
 
 export interface TableRowManagerContextType {
   getRowHeightList: () => number[]
-  updateRowHeight: (index: number, height: number) => void
+  /**
+   * @param index rowIndex
+   * @param key 唯一的 key，用于去重
+   * @param height 行高
+   */
+  updateRowHeight: (index: number, key: Key, height: number) => void
 }
 
 export const TableRowManager = createContext<TableRowManagerContextType | null>(null)

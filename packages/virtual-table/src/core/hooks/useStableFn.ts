@@ -5,7 +5,7 @@ export function useStableFn<T extends Function>(callback: T): T {
   const fn = useRef<T | null>(null)
   useLayoutEffect(() => {
     fn.current = callback
-  }, [callback])
+  })
 
   const stableFn = useCallback((...args: unknown[]) => {
     return fn.current?.(...args) as unknown

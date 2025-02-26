@@ -1,11 +1,24 @@
+/* eslint-disable react-compiler/react-compiler */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// import type { Dispatch, SetStateAction } from 'react'
 import type { ScrollElement } from '../../utils/dom'
-import type { RowRect } from './useRowRectManager'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { getScrollElement, isRoot, isWindow } from '../../utils/dom'
 import { onResize } from '../utils/on-resize'
-import { useRowRectManager } from './useRowRectManager'
+
+export interface RowRect {
+  index: number
+  height: number
+  top: number
+  bottom: number
+}
+
+interface UseRowVirtualizeOptions<T = any> {
+  getOffsetTop: () => number
+  dataSource: T[]
+  getScroller: () => ScrollElement | undefined
+  estimateSize: number
+  overscan: number
+}
 
 function anchorQuery(rects: RowRect[], scrollTop: number) {
   let left = 0
@@ -30,14 +43,6 @@ function anchorQuery(rects: RowRect[], scrollTop: number) {
   return rects[index]
 }
 
-interface UseRowVirtualizeOptions<T = any> {
-  getOffsetTop: () => number
-  dataSource: T[]
-  getScroller: () => ScrollElement | undefined
-  estimateSize: number
-  overscan: number
-}
-
 export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
   const {
     getOffsetTop,
@@ -50,27 +55,55 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
   const [startIndex, setStartIndex] = useState(0)
   const [endIndex, setEndIndex] = useState(0)
 
+  const dataSlice = useMemo(() => {
+    return rawData.slice(startIndex, endIndex)
+  }, [rawData, startIndex, endIndex])
+
+  // 行高信息（先填充预估高度，DOM渲染后再更新成实际高度）
+  const rowHeights = useRef<number[]>([])
+  const fillRowHeights = () => {
+    const len = rawData.length
+    for (let i = 0; i < len; i++) {
+      const target = rowHeights.current[i] as number | undefined
+      // 由于 fillRowHeights 是在渲染阶段调用，防止重复渲染时 estimateSize 覆盖了真实 DOM 的高度
+      if (target == null) {
+        rowHeights.current[i] = estimateSize
+      }
+    }
+    rowHeights.current = rowHeights.current.slice(0, len)
+  }
+  fillRowHeights()
+
+  // 布局信息（也就是锚点元素需要的信息，top,bottom,height,index）
+  const rowRects = useRef<RowRect[]>([])
+  const updateRowRectList = (shouldSkip = false) => {
+    if (shouldSkip && rowRects.current.length > 0) {
+      return
+    }
+    const { rects } = rowHeights.current.reduce((result, height, index) => {
+      const nextTop = result.top + height
+      result.rects.push({
+        index,
+        top: result.top,
+        height,
+        bottom: nextTop,
+      })
+      result.top = nextTop
+      return result
+    }, { top: 0, rects: [] as RowRect[] })
+    rowRects.current = rects
+  }
+
+  const setRowHeight = (index: number, height: number) => {
+    rowHeights.current[index] = height
+  }
+
   // 锚点元素，当前虚拟列表中，最接近滚动容器顶部的元素
   const anchorRef = useRef<RowRect>({
     index: 0,
     height: estimateSize,
     top: 0,
     bottom: estimateSize,
-  })
-
-  const {
-    rowHeightList,
-    rects,
-    updateRowHeight,
-    sum,
-  } = useRowRectManager({
-    itemCount: rawData.length,
-    estimateSize,
-    onChange(index, _height, rowRects) {
-      if (anchorRef.current.index === index) {
-        anchorRef.current = rowRects[index]
-      }
-    },
   })
 
   // 用来判断滚动方向
@@ -101,7 +134,7 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
     }
 
     const updateBoundary = (scrollTop: number) => {
-      const anchor = anchorQuery(rects(), scrollTop)
+      const anchor = anchorQuery(rowRects.current, scrollTop)
       if (anchor != null) {
         anchorRef.current = anchor
         setStartIndex(Math.max(0, anchor.index - overscan))
@@ -160,22 +193,22 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
       stopListen()
       container.removeEventListener('scroll', onScroll)
     }
-  }, [estimateSize, getOffsetTop, getScroller, overscan, rects])
+  }, [estimateSize, getOffsetTop, getScroller, overscan])
 
+  const sum = (startIndex: number, endIndex?: number) => {
+    return rowHeights.current.slice(startIndex, endIndex).reduce((a, b) => a + b, 0)
+  }
   // TODO: React Compiler 测试 topBlank 和 bottomBlank
   const topBlank = sum(0, startIndex)
   const bottomBlank = sum(endIndex)
-
-  const dataSlice = useMemo(() => {
-    return rawData.slice(startIndex, endIndex)
-  }, [rawData, startIndex, endIndex])
 
   return {
     startIndex,
     endIndex,
 
-    rowHeightList,
-    updateRowHeight,
+    rowHeightList: rowHeights,
+    updateRowRectList,
+    setRowHeight,
 
     topBlank,
     bottomBlank,

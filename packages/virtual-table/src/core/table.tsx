@@ -1,7 +1,6 @@
 import type { CSSProperties, ForwardedRef, Key, ReactElement, Ref, RefAttributes } from 'react'
 import type { TableBodyProps } from './body'
 import type { TableColumnsContextType } from './context/column-sizes'
-import type { TableRowManagerContextType } from './context/row-manager'
 import type { NecessaryProps } from './internal'
 import type { ColumnDescriptor, OnRowType } from './types'
 import clsx from 'clsx'
@@ -19,11 +18,9 @@ import TableBody from './body'
 import { ColumnSizes } from './context/column-sizes'
 import { ContainerSizeContext } from './context/container-size'
 import { HorizontalScrollContext } from './context/horizontal-scroll'
-import { TableRowManager } from './context/row-manager'
 import { StickyContext } from './context/sticky'
 import TableHeader from './header'
 import { useColumnVirtualize } from './hooks/useColumnVirtualize'
-import { useRowVirtualize } from './hooks/useRowVirtualize'
 import { pipelineRender } from './pipeline/render-pipeline'
 import { TablePipeline } from './pipeline/useTablePipeline'
 import TableRoot from './root'
@@ -53,7 +50,7 @@ export interface VirtualTableCoreProps<T>
   /** 横向虚拟化时，在头和尾额外渲染多少列 @default 3 */
   overscanColumns?: number
 
-  /** 开启表头虚拟滚动 @default false */
+  /** 开启表头虚拟滚动 @default true */
   virtualHeader?: boolean
 
   pipeline?: TablePipeline<T>
@@ -83,7 +80,7 @@ function VirtualTableCore<T>(
     rowClassName: rawRowClassName,
     onRow,
     getOffsetTop: getOffsetTopImpl,
-    virtualHeader = false,
+    virtualHeader = true,
   } = props
 
   const rootNode = useRef<HTMLDivElement>(null)
@@ -164,21 +161,6 @@ function VirtualTableCore<T>(
     }
   }, [columnWidths])
 
-  const {
-    startIndex,
-    dataSlice,
-    updateRowHeight,
-    rowHeightList,
-    topBlank,
-    bottomBlank,
-  } = useRowVirtualize({
-    getOffsetTop,
-    dataSource,
-    getScroller,
-    estimateSize: estimatedRowHeight,
-    overscan: overscanRows,
-  })
-
   const { columns } = useColumnVirtualize<T>({
     estimateSize: estimatedColumnWidth ?? 100,
     overscan: overscanColumns,
@@ -210,15 +192,6 @@ function VirtualTableCore<T>(
 
   const hasFixedLeftColumn = pipelineColumns.some((x) => isValidFixedLeft(x.fixed))
   const hasFixedRightColumn = pipelineColumns.some((x) => isValidFixedRight(x.fixed))
-
-  const rowManager = useMemo((): TableRowManagerContextType => {
-    return {
-      getRowHeightList() {
-        return rowHeightList.current
-      },
-      updateRowHeight,
-    }
-  }, [rowHeightList, updateRowHeight])
 
   const fullHeaderColumns = useMemo(() => {
     return {
@@ -258,15 +231,14 @@ function VirtualTableCore<T>(
         bodyRootRef={mergedBodyRootRef}
         bodyRef={bodyRef}
         className={tableBodyClassName}
-        style={{
-          ...tableBodyStyle,
-          paddingBottom: bottomBlank,
-          paddingTop: topBlank,
-        }}
+        style={tableBodyStyle}
         columns={columns}
         rowKey={rowKey}
-        dataSource={dataSlice}
-        startIndex={startIndex}
+        dataSource={dataSource}
+        overscan={overscanRows}
+        estimateSize={estimatedRowHeight}
+        getScroller={getScroller}
+        getOffsetTop={getOffsetTop}
         rowClassName={onRowClassName}
         onRow={onRowProps}
         renderBodyWrapper={renderBodyWrapper}
@@ -298,15 +270,13 @@ function VirtualTableCore<T>(
   )
 
   return (
-    <TableRowManager.Provider value={rowManager}>
-      <ColumnSizes.Provider value={tableColumnsContext}>
-        <StickyContext columns={pipelineColumns}>
-          <ContainerSizeContext getScroller={getScroller} root={rootNode}>
-            <HorizontalScrollContext>{table}</HorizontalScrollContext>
-          </ContainerSizeContext>
-        </StickyContext>
-      </ColumnSizes.Provider>
-    </TableRowManager.Provider>
+    <ColumnSizes.Provider value={tableColumnsContext}>
+      <StickyContext columns={pipelineColumns}>
+        <ContainerSizeContext getScroller={getScroller} root={rootNode}>
+          <HorizontalScrollContext>{table}</HorizontalScrollContext>
+        </ContainerSizeContext>
+      </StickyContext>
+    </ColumnSizes.Provider>
   )
 }
 

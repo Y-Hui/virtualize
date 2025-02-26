@@ -13,10 +13,15 @@ const ExpandableDemo: FC = () => {
   const expandable = useMemo((): ExpandableConfig<MockData> => {
     return {
       fixed: 'left',
+      columnWidth: 48,
+      expandedRowRender: () => (
+        <>
+          {Array.from({ length: 20 }).map((_v, i) => (
+            <div key={i}>{i + 1}</div>
+          ))}
+        </>
+      ),
       rowExpandable: () => true,
-      expandedRowRender(record) {
-        return record.name
-      },
     }
   }, [])
 
