@@ -93,7 +93,10 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
     <div
       className={clsx(
         'virtual-table',
+        // 需要显示左侧阴影
         hasFixedLeft && 'virtual-table-has-fix-left',
+
+        // 需要显示右侧阴影
         hasFixedRight && 'virtual-table-has-fix-right',
       )}
     >
@@ -102,13 +105,14 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
           <Colgroup columns={columns} />
           <thead className="virtual-table-header">
             <tr>
-              {columns.map((column, columnIndex) => {
+              {columns.map((column) => {
                 const key = getKey(column)
+                // 固定列样式
                 const { className, style } = calcFixedStyle(column)
                 return (
                   <th
                     className={clsx('virtual-table-header-cell', className)}
-                    key={typeof key === 'symbol' ? columnIndex : key}
+                    key={key}
                     style={style}
                   >
                     {column.title}
@@ -137,6 +141,7 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
                 <tr key={key}>
                   {columns.map((column, columnIndex) => {
                     const columnKey = getKey(column)
+                    // 固定列样式
                     const { className, style } = calcFixedStyle(column)
                     return (
                       <td

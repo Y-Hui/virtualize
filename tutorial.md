@@ -26,9 +26,10 @@
 
 目标：
 
-  1. API 设计时，尽量贴合 antd API（或者组合插件实现高级组件时方便以 antd API 作为原型）
-  2. 支持行、列虚拟化（容器或 window）。
-  3. 避免 antd Table 多列卡顿问题。
+    1. API 设计时，尽量贴合 antd API（或者组合插件实现高级组件时方便以 antd API 作为原型）
+    2. 支持行、列虚拟化（容器或 window）。
+    3. 避免 antd Table 多列卡顿问题。
+    4. 设计插件机制，把众多功能改为插件实现，功能实现不侵入表格实现。
 
 **Let's make a shit.** 😆
 
@@ -64,6 +65,8 @@ type ColumnTypeWithDataIndex<T> = ColumnTypeCommon<T> & {
 export type ColumnType<T> = ColumnTypeWithKey<T> | ColumnTypeWithDataIndex<T>
 ```
 
+再定义一个 `getKey` 函数用来遍历渲染时候设置 `key`
+
 ```tsx
 // virtual-table/utils/get-key.ts
 import type { Key } from 'react'
@@ -73,6 +76,8 @@ export function getKey<T>(column: ColumnType<T>) {
   return 'key' in column ? (column.key as Key) : column.dataIndex as string
 }
 ```
+
+接下来就是表格的实现，遍历 `dataSource` 渲染 `tr`，再遍历 columns 渲染 `th`、`td`
 
 ```tsx
 // virtual-table/table.tsx
@@ -109,12 +114,13 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
 
   return (
     <table className="virtual-table">
+      {/* 使用 colgroup + col 控制列宽 */}
       <colgroup>
-        {columns.map((column, columnIndex) => {
+        {columns.map((column) => {
           const key = getKey(column)
           return (
             <col
-              key={typeof key === 'symbol' ? columnIndex : key}
+              key={key}
               style={{ width: column.width, minWidth: column.minWidth }}
             />
           )
@@ -122,12 +128,12 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
       </colgroup>
       <thead className="virtual-table-header">
         <tr>
-          {columns.map((column, columnIndex) => {
+          {columns.map((column) => {
             const key = getKey(column)
             return (
               <td
                 className="virtual-table-header-cell"
-                key={typeof key === 'symbol' ? columnIndex : key}
+                key={key}
               >
                 {column.title}
               </td>
@@ -141,11 +147,11 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
           const key = rowData[rowKey as string]
           return (
             <tr key={key}>
-              {columns.map((column, columnIndex) => {
+              {columns.map((column) => {
                 const columnKey = getKey(column)
                 return (
                   <td
-                    key={typeof columnKey === 'symbol' ? columnIndex : columnKey}
+                    key={columnKey}
                     className="virtual-table-cell"
                   >
                     {getTableCellContent(rowIndex, rowData, column)}
@@ -173,7 +179,7 @@ export default VirtualTable
 ### Step 1: 容器自适应
 我们最终的目标是在容器内/window 进行表格虚拟化。上面的代码运行后，由于没有滚动容器，会尽可能撑开 body，布局无法自适应容器，会造成下面这种效果。
 
-![tutorial-02.png](./docs/tutorial/tutorial-02.png)
+![tutorial-02.gif](./docs/tutorial/tutorial-02.gif)
 
 表格内容超出容器，滚动时覆盖了 sidebar，正常来讲，一个左右布局的后台页面，table 应当占满右侧内容区域，并在 table 内部水平滚动，不影响整个网页。
 
@@ -236,8 +242,6 @@ table 内部进行水平滚动非常简单，我们在外层包裹一个 div 元
 function VirtualTable<T>(props: VirtualTableProps<T>) {
   const { rowKey, dataSource, columns } = props
 
-  const colGroup = (省略)
-
   const headWrapper = useRef<HTMLDivElement>(null)
   const bodyWrapper = useRef<HTMLDivElement>(null)
 
@@ -292,21 +296,13 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
     <div className="virtual-table-wrapper">
       <div ref={headWrapper} className="virtual-table-header-wrapper">
         <table className="virtual-table-header-root">
-          {colGroup}
-          <thead className="virtual-table-header">
-            <tr>
-              {省略}
-            </tr>
-          </thead>
+          {/* 省略 */}
         </table>
       </div>
 
       <div ref={bodyWrapper} className="virtual-table-body-wrapper">
         <table className="virtual-table-body-root">
-          {colGroup}
-          <tbody className="virtual-table-body">
-            {省略}
-          </tbody>
+          {/* 省略 */}
         </table>
       </div>
     </div>
@@ -398,16 +394,21 @@ function Colgroup<T>(props: ColgroupProps<T>) {
     <colgroup
       ref={() => {
         if (!enableMeasure) return
+
+        // 所有 col 渲染结束后，父元素 colgroup 渲染，执行父元素 ref 回调
+        // 在这里所有的 col 都已经渲染了，宽度也有了，使用 onColumnSizesMeasure 把宽度传出去
         onColumnSizesMeasure(columnSizes.current)
       }}
     >
-      {columns.map((column, columnIndex) => {
+      {columns.map((column) => {
         const key = getKey(column)
         return (
           <col
-            key={typeof key === 'symbol' ? columnIndex : key}
+            key={key}
             ref={(node) => {
               if (node == null || !enableMeasure) return
+
+              // 计算列宽
               columnSizes.current.set(key, node.offsetWidth)
             }}
             style={{ width: column.width, minWidth: column.minWidth }}
@@ -429,13 +430,9 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
 
   return (
     <div className="virtual-table">
-      <div className="virtual-table-header-wrapper">
-        <table className="virtual-table-header-root">
-          <Colgroup columns={columns} />
-          {/* 省略 */}
-        </table>
-      </div>
+      {/* 省略 header */}
 
+      {/* 表格 body 部分 */}
       <div className="virtual-table-body-wrapper">
         <table className="virtual-table-body-root">
           <Colgroup
@@ -456,6 +453,10 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
 上面的步骤完成后，我们就得到了准确的列宽，可以编写计算 `left` 和 `right` 的逻辑了。
 
 ```ts
+const { columns } = props
+
+const [columnSizes, setColumnSizes] = useState(() => new Map<Key, number>())
+
 const stickySizes = useMemo(() => {
   const result = new Map<Key, number>()
 
@@ -489,7 +490,36 @@ const stickySizes = useMemo(() => {
 }, [columnSizes, columns])
 ```
 
-再编写一个函数，传入 column 并返回样式
+在渲染逻辑中，我们就可以这样添加 sticky 样式
+
+```tsx
+columns.map((column) => {
+  const key = getKey(column)
+  const isLeft = column.fixed === 'left'
+  const isRight = column.fixed === 'right'
+  const isFixed = isLeft || isRight
+  
+  // 计算是否是最后一个，后面可以用来实现阴影效果
+  const isLeftLast = 省略 // 是否为左侧固定最后一个
+  const isRightFirst = 省略 // 是否为右侧固定最后一个（从左往右数第一个）
+
+  return (
+    <td
+      className={clsx(isFixed && 'virtual-table-sticky-cell', {
+        'virtual-table-cell-fix-left-last': isLeftLast === key,
+        'virtual-table-cell-fix-right-first': isRightFirst === key,
+      })}
+      style={{
+        left: isLeft ? stickySizes.get(key) : undefined,
+        right: isRight ? stickySizes.get(key) : undefined,
+      }}
+    />
+  )
+})
+```
+
+上面这些逻辑我们可以写一个函数，直接传入 column 并返回样式
+
 ```ts
 const lastFixedLeftColumnKey = columns.reduce<Key | undefined>((result, x) => {
   if (x.fixed === 'left') {
@@ -522,76 +552,7 @@ const calcFixedStyle = (column: ColumnType<any>): { className: string, style?: C
 }
 ```
 
-为了逻辑聚合，我们写一个 hook
-```ts
-interface UseColumnStickyArgs {
-  columns: ColumnType<any>[]
-  columnSizes: Map<Key, number>
-}
-
-export function useColumnSticky(args: UseColumnStickyArgs) {
-  const { columns, columnSizes } = args
-
-  const stickySizes = useMemo(() => {
-    const result = new Map<Key, number>()
-    columns.reduce((left, column) => {
-      if (column.fixed != null && ['left', 'right'].includes(column.fixed)) {
-        const key = getKey(column)
-        const size = columnSizes.get(key) ?? 0
-        if (column.fixed === 'left') {
-          result.set(key, left)
-          return left + size
-        }
-      }
-      return left
-    }, 0)
-    columns.reduceRight((right, column) => {
-      if (column.fixed != null && ['left', 'right'].includes(column.fixed)) {
-        const key = getKey(column)
-        const size = columnSizes.get(key) ?? 0
-        if (column.fixed === 'right') {
-          result.set(key, right)
-          return right + size
-        }
-      }
-      return right
-    }, 0)
-    return result
-  }, [columnSizes, columns])
-
-  const lastFixedLeftColumnKey = columns.reduce<Key | undefined>((result, x) => {
-    if (x.fixed === 'left') {
-      return getKey(x)
-    }
-    return result
-  }, undefined)
-  const firstFixedRightColumn = columns.find((x) => x.fixed === 'right')
-  const firstFixedRightColumnKey = firstFixedRightColumn == null ? undefined : getKey(firstFixedRightColumn)
-
-  const calcFixedStyle = (column: ColumnType<any>): { className: string, style?: CSSProperties } => {
-    if (column.fixed != null && ['left', 'right'].includes(column.fixed)) {
-      const key = getKey(column)
-      const isLeft = column.fixed === 'left'
-      const isRight = column.fixed === 'right'
-      return {
-        className: clsx('virtual-table-sticky-cell', {
-          'virtual-table-cell-fix-left-last': isLeft && lastFixedLeftColumnKey === key,
-          'virtual-table-cell-fix-right-first': isRight && firstFixedRightColumnKey === key,
-        }),
-        style: {
-          left: isLeft ? stickySizes.get(key) : undefined,
-          right: isRight ? stickySizes.get(key) : undefined,
-        },
-      }
-    }
-    return {
-      className: '',
-    }
-  }
-
-  return calcFixedStyle
-}
-```
+为了逻辑聚合，封装成 `useColumnSticky` hook。
 
 ```tsx
 function VirtualTable<T>(props: VirtualTableProps<T>) {
@@ -609,11 +570,13 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
             <tr>
               {columns.map((column, columnIndex) => {
                 const key = getKey(column)
+
+                // 固定列样式
                 const { className, style } = calcFixedStyle(column)
                 return (
                   <th
                     className={clsx('virtual-table-header-cell', className)}
-                    key={typeof key === 'symbol' ? columnIndex : key}
+                    key={key}
                     style={style}
                   >
                     {column.title}
@@ -642,10 +605,12 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
                 <tr key={key}>
                   {columns.map((column, columnIndex) => {
                     const columnKey = getKey(column)
+
+                    // 固定列样式
                     const { className, style } = calcFixedStyle(column)
                     return (
                       <td
-                        key={typeof columnKey === 'symbol' ? columnIndex : columnKey}
+                        key={key}
                         className={clsx('virtual-table-cell', className)}
                         style={style}
                       >
@@ -666,11 +631,11 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
 
 现在 sticky 已经正常了，还有一件事。
 
-![antd-has-fixed.png](./docs/tutorial/antd-has-fixed.png)
-
 在 antd Table 组件中，最后一个固定列会添加阴影样式，能够暗示用户有内容被遮挡，可以滑动查看，现在我们缺少这个阴影，导致的效果就会是这样：
 
-![has-fixed.png](./docs/tutorial/has-fixed.png)
+| antd Table                                            | virtual-table                               |
+| ----------------------------------------------------- | ------------------------------------------- |
+| ![antd-has-fixed](./docs/tutorial/antd-has-fixed.gif) | ![has-fixed](./docs/tutorial/has-fixed.gif) |
 
 那么，什么情况下才应该显示阴影效果呢？<br/>
 `scrollLeft == 0` 时，说明没有内容被左侧列所遮挡，不显示阴影效果。<br/>
@@ -703,14 +668,20 @@ export function useCheckFixed(args: UseCheckFixedArgs) {
     if (node == null) return
     const onCheckHasFixedEdge = () => {
       const { scrollLeft, clientWidth, scrollWidth } = node
+      // 左侧固定列存在，scrollLeft == 0，就不需要显示阴影
       if (hasFixedLeftColumn) {
         setHasFixedLeft(scrollLeft !== 0)
       }
+      
+      // 右侧固定列存在，scrollLeft == MAX，就不需要显示阴影
       if (hasFixedRightColumn) {
         setHasFixedRight(!(scrollLeft + clientWidth >= scrollWidth))
       }
     }
+    
+    // 初始化时，先计算一次，因为 scrollLeft 可能不是 0，那就要及时显示
     onCheckHasFixedEdge()
+
     node.addEventListener('scroll', onCheckHasFixedEdge)
     return () => {
       node.removeEventListener('scroll', onCheckHasFixedEdge)
@@ -732,7 +703,10 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
     <div
       className={clsx(
         'virtual-table',
+        // 需要显示左侧阴影
         hasFixedLeft && 'virtual-table-has-fix-left',
+        
+        // 需要显示右侧阴影
         hasFixedRight && 'virtual-table-has-fix-right',
       )}
     >
@@ -814,7 +788,7 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
    ![query-anchor](./docs/tutorial/query-anchor.png)
 
 
-6. 查找逻辑在 scroll 事件中，为了跳过不必要的查找，可以优化一下，如果 scrollTop 没有超过锚点元素的 bottom，那就不需要查找。主要场景是滚动距离较小的时候。
+6. 因为查找逻辑在 scroll 事件中，甚至一点微小的滚动也会触发锚点查找，可以优化一下，如果 scrollTop 没有超过锚点元素的 bottom，那就直接跳过。
 
 
 
@@ -1239,6 +1213,10 @@ class TablePipeline {
   
   use(context) {
     // 遍历 hooks 属性，调用所有的 hook
+    // 因为插件有很多个，每个插件都有调用 render/renderHeader/renderRow/renderCell 函数的可能
+    // 所以，也和 pipe 一样，第二个插件的 render 函数的参数是第一个插件的返回值
+    // 可以先用数组把每个插件中的 render 函数都存起来，再转换为这种形式
+    // render2(render1(node))
   }
 }
 
@@ -1365,7 +1343,22 @@ pnpm add @are-visual/virtual-table
 
 [基于内置插件封装的类 antd API 的 Table](https://github.com/Y-Hui/virtualize/tree/main/packages/playground/src/components/table)
 
-有了这些插件，能够做到让你开箱即用，快速进入业务开发，你也可以根据你的业务需求，编写自己的插件。
+## 🧐 审稿
+@baozouai [GitHub](https://github.com/baozouai) \| [掘金](https://juejin.cn/user/3526889034488174)
+
+@sxm0617-lemoni [GitHub](https://github.com/sxm0617-lemoni) \| [掘金](https://juejin.cn/user/4343496601764809)
+
+@MrGanMeng [GitHub](https://github.com/MrGanMeng)
+
+@Zhou-Bill [GitHub](https://github.com/Zhou-Bill)
+
+@Duke-mq [GitHub](https://github.com/Duke-mq)
+
+@JH-Anthony [GitHub](https://github.com/JH-Anthony)
+
+@ihoneys [GitHub](https://github.com/ihoneys)
+
+@asmuzi [GitHub](https://github.com/asmuzi)
 
 ## 📚 参考
 

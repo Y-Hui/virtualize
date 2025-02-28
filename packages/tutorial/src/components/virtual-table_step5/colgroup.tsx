@@ -17,6 +17,8 @@ function Colgroup<T>(props: ColgroupProps<T>) {
     <colgroup
       ref={() => {
         if (!enableMeasure) return
+        // 所有 col 渲染结束后，父元素 colgroup 渲染，执行父元素 ref 回调
+        // 在这里所有的 col 都已经渲染了，宽度也有了，使用 onColumnSizesMeasure 把宽度传出去
         onColumnSizesMeasure(columnSizes.current)
       }}
     >
@@ -33,6 +35,7 @@ function Colgroup<T>(props: ColgroupProps<T>) {
             key={key}
             ref={(node) => {
               if (node == null || !enableMeasure) return
+              // 计算列宽
               columnSizes.current.set(key, node.offsetWidth)
             }}
             style={{

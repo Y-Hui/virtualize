@@ -164,7 +164,7 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
 
   const headerRow = pipelineRender(
     <tr>
-      {descriptor.map((item, columnIndex) => {
+      {descriptor.map((item) => {
         const { key } = item
         if (item.type === 'blank') {
           return <th key={key} />
@@ -174,7 +174,7 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
         const cellNode = (
           <th
             className={clsx('virtual-table-header-cell', className)}
-            key={typeof key === 'symbol' ? columnIndex : key}
+            key={key}
             style={style}
           >
             {column.title}
@@ -184,8 +184,6 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
           columns,
           columnDescriptor: descriptor,
           column,
-          // TODO:
-          columnIndex: 0,
           columnWidths: columnSizes,
         })
       })}
@@ -264,8 +262,6 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
               )
               return pipelineRender(cellNode, renderCell, {
                 column,
-                // TODO:
-                columnIndex: 0,
               })
             })}
           </tr>
@@ -333,7 +329,10 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
       ref={rootNode}
       className={clsx(
         'virtual-table',
+        // 需要显示左侧阴影
         hasFixedLeft && 'virtual-table-has-fix-left',
+
+        // 需要显示右侧阴影
         hasFixedRight && 'virtual-table-has-fix-right',
       )}
     >

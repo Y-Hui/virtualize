@@ -82,7 +82,7 @@ export class TablePipeline<T> {
     Object.entries(renderFunctionMap).forEach(([key, renders]) => {
       if (renders.length > 0) {
         context.current[key as keyof MiddlewareRenders] = (children, args) => {
-          // reduce 把 [render1, render2] 转为 render1(render2(children))
+          // reduce 把 [render1, render2] 转为 render2(render1(children))
           return renders.reduce<ReactNode>((node, render) => {
             // @ts-expect-error: There is no way to declare the type correctly, but it works at runtime.
             return render(node, args)

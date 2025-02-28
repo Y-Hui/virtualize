@@ -32,11 +32,11 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
 
   const colGroup = (
     <colgroup>
-      {columns.map((column, columnIndex) => {
+      {columns.map((column) => {
         const key = getKey(column)
         return (
           <col
-            key={typeof key === 'symbol' ? columnIndex : key}
+            key={key}
             style={{ width: column.width, minWidth: column.minWidth }}
           />
         )
@@ -101,12 +101,12 @@ function VirtualTable<T>(props: VirtualTableProps<T>) {
           {colGroup}
           <thead className="virtual-table-header">
             <tr>
-              {columns.map((column, columnIndex) => {
+              {columns.map((column) => {
                 const key = getKey(column)
                 return (
                   <th
                     className="virtual-table-header-cell"
-                    key={typeof key === 'symbol' ? columnIndex : key}
+                    key={key}
                   >
                     {column.title}
                   </th>

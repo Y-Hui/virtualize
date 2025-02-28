@@ -21,14 +21,20 @@ export function useCheckFixed(args: UseCheckFixedArgs) {
     if (node == null) return
     const onCheckHasFixedEdge = () => {
       const { scrollLeft, clientWidth, scrollWidth } = node
+      // 左侧固定列存在，scrollLeft == 0，就不需要显示阴影
       if (hasFixedLeftColumn) {
         setHasFixedLeft(scrollLeft !== 0)
       }
+
+      // 右侧固定列存在，scrollLeft == MAX，就不需要显示阴影
       if (hasFixedRightColumn) {
         setHasFixedRight(!(scrollLeft + clientWidth >= scrollWidth))
       }
     }
+
+    // 初始化时，先计算一次，因为 scrollLeft 可能不是 0，那就要及时显示
     onCheckHasFixedEdge()
+
     node.addEventListener('scroll', onCheckHasFixedEdge)
     return () => {
       node.removeEventListener('scroll', onCheckHasFixedEdge)
