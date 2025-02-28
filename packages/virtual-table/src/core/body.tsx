@@ -11,7 +11,6 @@ import type { RowProps } from './row'
 import type { AnyObject, InnerColumnDescriptor } from './types'
 import clsx from 'clsx'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { isShallowEqual } from '../utils/equal'
 import { useMergedRef } from '../utils/ref'
 import Colgroup from './colgroup'
 import { useColumnSizes } from './context/column-sizes'
@@ -132,11 +131,6 @@ function TableBody<T>(props: TableBodyProps<T>) {
   )
 
   const { setWidthList } = useColumnSizes()
-  const onColumnSizesMeasure = useCallback((columnSizes: Map<Key, number>, oldValue: Map<Key, number>) => {
-    if (!isShallowEqual(oldValue, columnSizes)) {
-      setWidthList(columnSizes)
-    }
-  }, [setWidthList])
 
   const tableNode = pipelineRender(
     <table
@@ -146,7 +140,7 @@ function TableBody<T>(props: TableBodyProps<T>) {
     >
       <Colgroup
         columns={descriptor}
-        onColumnSizesMeasure={onColumnSizesMeasure}
+        onColumnSizesMeasure={setWidthList}
       />
       {bodyNode}
     </table>,

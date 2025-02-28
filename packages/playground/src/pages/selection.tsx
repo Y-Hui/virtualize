@@ -194,6 +194,7 @@ const SelectionDemo: FC = () => {
         sticky
         rowSelection={{
           selections: true,
+          fixed: true,
           type: isRadio ? 'radio' : 'checkbox',
           onChange(selectedRowKeys, selectedRows, info) {
             console.log({ selectedRowKeys, selectedRows, info })

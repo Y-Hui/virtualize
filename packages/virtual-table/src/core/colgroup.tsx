@@ -1,27 +1,28 @@
 import type { FC, Key } from 'react'
 import type { ColumnDescriptor } from './types'
 import { memo, useRef } from 'react'
+import { isShallowEqual } from '../utils/equal'
 
 export interface ColgroupProps {
   columns: ColumnDescriptor[]
-  onColumnSizesMeasure?: (columnSizes: Map<Key, number>, oldColumnSizes: Map<Key, number>) => void
+  onColumnSizesMeasure?: (columnSizes: Map<Key, number>) => void
 }
 
 const Colgroup: FC<ColgroupProps> = (props) => {
   const { columns, onColumnSizesMeasure } = props
 
   const enableMeasure = onColumnSizesMeasure != null
-  const columnSizes = useRef(new Map<Key, number>())
+  const columnSizes = new Map<Key, number>()
   const prevColumnSizes = useRef(new Map<Key, number>())
 
   return (
     <colgroup
       ref={() => {
         if (!enableMeasure) return
-        const result = columnSizes.current
-        onColumnSizesMeasure(result, prevColumnSizes.current)
-        prevColumnSizes.current = result
-        columnSizes.current = new Map()
+        if (!isShallowEqual(columnSizes, prevColumnSizes.current)) {
+          onColumnSizesMeasure(columnSizes)
+          prevColumnSizes.current = columnSizes
+        }
       }}
     >
       {columns.map((item) => {
@@ -37,7 +38,7 @@ const Colgroup: FC<ColgroupProps> = (props) => {
             key={key}
             ref={(node) => {
               if (node == null || !enableMeasure) return
-              columnSizes.current.set(key, node.offsetWidth)
+              columnSizes.set(key, node.offsetWidth)
             }}
             style={{
               width: column.width,
