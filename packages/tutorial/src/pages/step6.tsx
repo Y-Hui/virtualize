@@ -22,19 +22,31 @@ function tableLoading(options?: { loading?: boolean }) {
   }
 }
 
-function tableNewColumn() {
-  return function useTableNewColumn<T>(ctx: MiddlewareContext<T>): MiddlewareResult<T> {
+function tableLineNumber() {
+  return function useLineNumber<T>(ctx: MiddlewareContext<T>): MiddlewareResult<T> {
     const { columns: rawColumns } = ctx
 
     const columns = useMemo<ColumnType<T>[]>(() => {
       return [
         {
-          key: 'new-column',
-          title: 'New',
-          width: 80,
+          key: 'line-number',
+          title: null,
+          width: 50,
           fixed: 'left',
-          render() {
-            return <span style={{ color: '#f00', fontWeight: 'bold' }}>New</span>
+          render(_, _record, index) {
+            return (
+              <span
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  textAlign: 'center',
+                  fontSize: 14,
+                  color: '#666',
+                }}
+              >
+                {index + 1}
+              </span>
+            )
           },
         },
         ...rawColumns,
@@ -59,7 +71,7 @@ const Step6: FC = () => {
   const pipeline = useTablePipeline<Data>({
     use: [
       tableLoading({ loading }),
-      tableNewColumn(),
+      tableLineNumber(),
     ],
   })
 

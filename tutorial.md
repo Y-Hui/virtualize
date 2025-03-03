@@ -1280,8 +1280,6 @@ function VirtualTable(props) {
 
 ![pipeline-flow](./docs/tutorial/pipeline-flow.png)
 
-
-
 也许你会觉得这个模式有点眼熟，这其实和 HOC 非常类似。
 
 ```ts
@@ -1301,7 +1299,86 @@ const NewTable = withLoading(withEmpty(withColumnResize(withSelection(VirtualTab
 
 但是实际组件用法与 HOC 又不太一样，HOC 是内部返回新的组件，每使用一个 HOC 都会增加一个层级，并且参数只能通过 props 传递，而我们的插件则是一个个 hook，插件直接消费所需的参数，只能说各有千秋。
 
-> useTablePipeline 的实现虽然很有趣，但确实很“脏”。
+> 这里的插件机制的实现虽然很有趣，但确实很“脏”。
+
+接下来，看看两个简单的插件。
+
+#### tableLoading（显示加载状态）
+
+```tsx
+import { Spin } from 'antd'
+
+function tableLoading(options?: { loading?: boolean }) {
+  return function useLoading<T>(ctx: MiddlewareContext<T>): MiddlewareResult<T> {
+    const loading = options?.loading ?? false
+
+    return {
+      ...ctx,
+      render(children) {
+        return <Spin spinning={loading}>{children}</Spin>
+      },
+    }
+  }
+}
+
+// 使用
+const [loading, setLoading] = useState(false)
+const pipeline = useTablePipeline<Data>({
+  use: [
+    tableLoading({ loading }),
+  ],
+})
+```
+
+#### tableLineNumber（显示行号）
+
+```tsx
+function tableLineNumber() {
+  return function useLineNumber<T>(ctx: MiddlewareContext<T>): MiddlewareResult<T> {
+    const { columns: rawColumns } = ctx
+
+    const columns = useMemo<ColumnType<T>[]>(() => {
+      return [
+        {
+          key: 'line-number',
+          title: null,
+          width: 50,
+          fixed: 'left',
+          render(_, _record, index) {
+            return (
+              <span
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  textAlign: 'center',
+                  fontSize: 14,
+                  color: '#666',
+                }}
+              >
+                {index + 1}
+              </span>
+            )
+          },
+        },
+        ...rawColumns,
+      ]
+    }, [rawColumns])
+
+    return {
+      ...ctx,
+      columns,
+    }
+  }
+}
+
+// 使用
+const pipeline = useTablePipeline<Data>({
+  use: [
+    tableLineNumber(),
+  ],
+})
+```
+
 
 [查看源码](https://github.com/Y-Hui/virtualize/tree/main/packages/tutorial/src/components/virtual-table_step6)<br/>
 [查看在线 Demo](https://y-hui.github.io/virtualize/tutorial/#/step/6)
