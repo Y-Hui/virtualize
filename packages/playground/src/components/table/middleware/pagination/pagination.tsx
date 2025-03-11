@@ -26,7 +26,7 @@ const Pagination: FC<TablePaginationConfig> = (props) => {
   const [innerPageSize, setInnerPageSize] = useState(defaultPageSize)
 
   const current = isControllableCurrent ? originCurrent : innerCurrent
-  const pageSize = isControllableCurrent ? originPageSize : innerPageSize
+  const pageSize = isControllablePageSize ? originPageSize : innerPageSize
 
   const onUpdate = (page: number, size: number) => {
     if (!isControllableCurrent) {
