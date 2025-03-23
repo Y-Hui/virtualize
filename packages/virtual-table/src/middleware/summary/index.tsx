@@ -71,13 +71,11 @@ function useTableSummary<T = any>(
       handleRowElement(summaryNode as ReactElement<SummaryProps>)
     } else {
       if (__DEV__) {
+        console.error(summaryNode, 'The summary function does not support components other than Fragment and Summary.')
         throw new Error('The summary function does not support components other than Fragment and Summary.')
       }
     }
   } else {
-    if (__DEV__) {
-      throw new Error('The summary function does not support components other than Fragment and Summary.')
-    }
     return ctx
   }
 
