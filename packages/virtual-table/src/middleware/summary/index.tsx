@@ -10,7 +10,7 @@ import Footer from './footer'
 import Summary from './summary'
 
 export interface InlineCellProps<T> extends Omit<CellProps, 'ref' | 'columnKey' | 'render' | 'children'> {
-  render: (dataSource: T[]) => ReactNode
+  render?: (dataSource: T[]) => ReactNode
 }
 
 declare module '@are-visual/virtual-table' {
