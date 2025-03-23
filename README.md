@@ -111,6 +111,7 @@ function App() {
 | overscanRows         | 额外在首尾渲染数据条数                                  | number                                  | 5                             |        |
 | overscanColumns      | 横向虚拟化时，在头和尾额外渲染多少列                    | number                                  | 3                             |        |
 | stickyHeader         | 表头吸顶<br />为 true 时 top 为 0，为 number 则是偏移量 | number \| boolean                       |                               |        |
+| defaultColumnWidth   | 缺失宽度设置时的默认值（与虚拟化无关）                  | number                                  | 100                           | >=0.2  |
 | pipeline             | 插件实例                                                | TablePipeline                           |                               |        |
 | rowClassName         | 表格行样式类名                                          | (*record*, *index*) => string           |                               |        |
 | onRow                | 设置行属性                                              | (*record*, *index*) => TdHTMLAttributes |                               |        |

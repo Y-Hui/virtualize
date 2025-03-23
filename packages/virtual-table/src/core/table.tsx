@@ -53,6 +53,12 @@ export interface VirtualTableCoreProps<T>
   /** 开启表头虚拟滚动 @default true */
   virtualHeader?: boolean
 
+  /**
+   * 缺失宽度设置时的默认值（与虚拟化无关）
+   * @default 100
+   */
+  defaultColumnWidth?: number
+
   pipeline?: TablePipeline<T>
 
   getOffsetTop?: () => number
@@ -76,6 +82,7 @@ function VirtualTableCore<T>(
     overscanRows = 5,
     overscanColumns = 3,
     stickyHeader,
+    defaultColumnWidth = 100,
     pipeline = (TablePipeline.defaultPipeline as TablePipeline<T>),
     rowClassName: rawRowClassName,
     onRow,
@@ -162,25 +169,14 @@ function VirtualTableCore<T>(
   }, [columnWidths, updateColumnWidths])
 
   const { columns } = useColumnVirtualize<T>({
-    estimateSize: estimatedColumnWidth ?? 100,
+    estimateSize: estimatedColumnWidth ?? defaultColumnWidth,
+    defaultColumnWidth,
     overscan: overscanColumns,
     columns: pipelineColumns,
     bodyWrapper: bodyWrapperRef,
     columnWidths,
     disabled: estimatedColumnWidth == null,
   })
-
-  if (__DEV__) {
-    pipelineColumns.forEach((column) => {
-      if (column.width == null && column.minWidth == null) {
-        console.warn('Missing `width` in column', column)
-      }
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (getKey(column) == null) {
-        console.error('Missing `dataIndex` or `key` in column', column)
-      }
-    })
-  }
 
   const onRowClassName = useCallback((record: T, index: number) => {
     return clsx(rawRowClassName?.(record, index), rowClassName?.(record, index))

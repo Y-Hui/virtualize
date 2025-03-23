@@ -9,6 +9,7 @@ import { useStableFn } from './useStableFn'
 
 interface UseColumnVirtualizeOptions<T> {
   estimateSize: number
+  defaultColumnWidth: number
   overscan: number
   columns: ColumnType<T>[]
   bodyWrapper: RefObject<HTMLDivElement>
@@ -66,6 +67,7 @@ function findLastFixedLeftIndex<T>(columns: ColumnType<T>[]) {
 export function useColumnVirtualize<T>(options: UseColumnVirtualizeOptions<T>) {
   const {
     estimateSize,
+    defaultColumnWidth,
     overscan,
     columns: rawColumns,
     bodyWrapper,
@@ -202,8 +204,12 @@ export function useColumnVirtualize<T>(options: UseColumnVirtualizeOptions<T>) {
   }, [disabled, rawColumns, startIndex, endIndex, lastFixedLeftIndex, firstFixedRightIndex])
 
   const descriptor = useMemo(() => {
-    return columnSlice.reduce<ColumnDescriptor<T>[]>((result, column, index) => {
-      const key = getKey(column)
+    return columnSlice.reduce<ColumnDescriptor<T>[]>((result, rawColumn, index) => {
+      const key = getKey(rawColumn)
+      let column = rawColumn
+      if (column.width == null && column.minWidth == null) {
+        column = { ...column, width: defaultColumnWidth }
+      }
       if (key === leftKey) {
         result.push({ type: 'normal', key, column })
         result.push({ type: 'blank', key: '_blank_left', width: leftBlank })
@@ -221,7 +227,7 @@ export function useColumnVirtualize<T>(options: UseColumnVirtualizeOptions<T>) {
       }
       return result
     }, [])
-  }, [columnSlice, leftKey, rightKey, leftBlank, rightBlank])
+  }, [columnSlice, leftKey, rightKey, leftBlank, rightBlank, defaultColumnWidth])
 
   const columns = useMemo(() => {
     return { columns: columnSlice, descriptor }
