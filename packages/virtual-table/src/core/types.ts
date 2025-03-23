@@ -15,9 +15,9 @@ export type { FixedType }
 export type AlignType = 'left' | 'right' | 'center'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ColumnExtra { }
+export interface ColumnExtra<T = any> { }
 
-interface ColumnTypeCommon<T> extends ColumnExtra {
+interface ColumnTypeCommon<T> extends ColumnExtra<T> {
   className?: string
   /** 表头列合并，设置为 0 时，不渲染 */
   colSpan?: number

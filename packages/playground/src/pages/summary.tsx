@@ -12,21 +12,10 @@ const SummaryDemo: FC = () => {
 
   const [data, setData] = useAsyncData()
 
-  const summary = useCallback(() => {
+  const summary = useCallback((dataSource: MockData[]) => {
     return (
-      <Summary fixed={summaryPosition}>
-        <Summary.Row>
-          {(column, key) => {
-            if (column.key === 'name') {
-              return (
-                <Summary.Cell columnKey={key}>
-                  {key.toString()}
-                </Summary.Cell>
-              )
-            }
-            return <Summary.Cell columnKey={key} />
-          }}
-        </Summary.Row>
+      <Summary fixed={summaryPosition} key="summary">
+        <Summary.Outlet dataSource={dataSource} />
       </Summary>
     )
   }, [summaryPosition])
@@ -81,6 +70,11 @@ const SummaryDemo: FC = () => {
         dataIndex: 'name',
         key: 'name',
         width: 200,
+        summary: {
+          render() {
+            return `This's name column`
+          },
+        },
         render: (value, _row, index) => {
           return (
             <Input
@@ -100,6 +94,11 @@ const SummaryDemo: FC = () => {
         title: 'Data1',
         dataIndex: 'data1',
         width: 200,
+        summary: {
+          render() {
+            return `This's Data1 column`
+          },
+        },
         render: (value, _row, index) => (
           <InputNumber
             className="w-full"

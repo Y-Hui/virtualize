@@ -28,9 +28,8 @@ const SummaryRow: FC<SummaryRowProps> = ({ children, ...props }) => {
           })}
         </tr>
       )
-    } else {
-      throw new Error('SummaryRow is missing the columns context and cannot use children as a function.')
     }
+    throw new Error('SummaryRow is missing the columns context and cannot use children as a function.')
   }
 
   return <tr {...props}>{children}</tr>

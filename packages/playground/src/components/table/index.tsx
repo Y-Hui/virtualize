@@ -8,10 +8,10 @@ import '@are-visual/virtual-table/middleware/summary/styles.scss'
 import './sizes.scss'
 
 import type {
+  ColumnExtra,
   ColumnType,
   VirtualTableProps as VirtualTableCoreProps,
 } from '@are-visual/virtual-table'
-import type { ColumnExtra } from '@are-visual/virtual-table/core'
 import type { ExpandableConfig } from '@are-visual/virtual-table/middleware/expandable'
 import type { TableSummaryOptions } from '@are-visual/virtual-table/middleware/summary'
 import type { ForwardedRef, ReactElement, RefAttributes } from 'react'
