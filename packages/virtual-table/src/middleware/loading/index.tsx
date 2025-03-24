@@ -3,6 +3,8 @@ import type { ColumnType, MiddlewareContext, MiddlewareResult } from '@are-visua
 import { createMiddleware, onResize } from '@are-visual/virtual-table'
 import { useEffect, useMemo, useState } from 'react'
 
+export const loadingKey = Symbol.for('virtual-table-loading-mock-data')
+
 function useTableLoading<T = any>(
   ctx: MiddlewareContext<T>,
   options?: { loading?: boolean },
@@ -24,7 +26,7 @@ function useTableLoading<T = any>(
 
   const fakeDataSource = useMemo(() => {
     return Array.from({ length: count }, (_, index) => {
-      return { key: index }
+      return { key: index, [loadingKey]: true }
     }) as T[]
   }, [count])
 
