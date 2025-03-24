@@ -12,7 +12,7 @@ const EmptyRow: FC<EmptyRowProps> = (props) => {
 
   return (
     <tr>
-      <td colSpan={colSpan}>
+      <td colSpan={colSpan} style={{ padding: 0 }}>
         <div
           style={{
             boxSizing: 'border-box',

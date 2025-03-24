@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { MiddlewareContext, MiddlewareRenderBody, MiddlewareResult } from '@are-visual/virtual-table'
+import type { MiddlewareContext, MiddlewareRenderBodyContent, MiddlewareResult } from '@are-visual/virtual-table'
 import type { ComponentType, ReactNode } from 'react'
 import { createMiddleware } from '@are-visual/virtual-table'
-import { cloneElement, createElement, isValidElement, useCallback, useMemo } from 'react'
+import { createElement, useCallback, useMemo } from 'react'
 import EmptyRow from './empty-row'
 
 export interface EmptyOptions {
@@ -24,21 +24,13 @@ function useTableEmpty<T = any>(ctx: MiddlewareContext<T>, args: EmptyOptions): 
     return component
   }, [component])
 
-  const renderBody: MiddlewareRenderBody = useCallback((children, options) => {
-    const { columns } = options
-
-    if (isValidElement(children)) {
-      const childrenProps = children.props as Record<string, unknown>
-      return cloneElement(children, childrenProps, [
-        ...(Array.isArray(childrenProps.children) ? childrenProps.children : []),
-        <EmptyRow key="virtual-table-placeholder$" colSpan={columns.length}>{node}</EmptyRow>,
-      ])
-    }
+  const renderBodyContent: MiddlewareRenderBodyContent = useCallback((children, options) => {
+    const { columnDescriptor } = options
 
     return (
       <>
         {children}
-        {node}
+        <EmptyRow key="virtual-table-placeholder$" colSpan={columnDescriptor.length}>{node}</EmptyRow>
       </>
     )
   }, [node])
@@ -49,7 +41,7 @@ function useTableEmpty<T = any>(ctx: MiddlewareContext<T>, args: EmptyOptions): 
 
   return {
     ...ctx,
-    renderBody,
+    renderBodyContent,
   }
 }
 
