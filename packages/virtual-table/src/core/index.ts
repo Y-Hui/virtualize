@@ -53,5 +53,5 @@ export type {
   FixedType,
   OnRowType,
 } from './types'
-export { getKey } from './utils/get-key'
+export { getKey, getRowKey } from './utils/get-key'
 export { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verification'

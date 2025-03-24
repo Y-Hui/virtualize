@@ -9,7 +9,7 @@ import type {
   MiddlewareRenderBodyWrapper,
 } from './pipeline/types'
 import type { RowProps } from './row'
-import type { AnyObject, InnerColumnDescriptor } from './types'
+import type { InnerColumnDescriptor } from './types'
 import clsx from 'clsx'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useMergedRef } from '../utils/ref'
@@ -20,6 +20,7 @@ import { TableRowManager } from './context/row-manager'
 import { useRowVirtualize } from './hooks/useRowVirtualize'
 import { pipelineRender } from './pipeline/render-pipeline'
 import Row from './row'
+import { getRowKey } from './utils/get-key'
 
 export interface TableBodyProps<T>
   extends Omit<NecessaryProps<T>, 'columns'>,
@@ -120,10 +121,10 @@ function TableBody<T>(props: TableBodyProps<T>) {
   })
 
   const bodyContent = pipelineRender(dataSource.map((e, rowIndex) => {
-    const _rowKey = (e as AnyObject)[rowKey as string]
+    const key = getRowKey(e, rowKey)
     return (
       <Row
-        key={_rowKey}
+        key={key}
         className={clsx(rowClassName?.(e, rowIndex))}
         rowIndex={rowIndex + startIndex}
         rowData={e}

@@ -27,6 +27,7 @@ export {
   Colgroup,
   createMiddleware,
   getKey,
+  getRowKey,
   isValidFixed,
   isValidFixedLeft,
   isValidFixedRight,

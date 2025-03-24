@@ -95,28 +95,28 @@ function App() {
 
 #### Table Props
 
-| Prop Name            | 说明                                                    | 类型                                    | 默认值                        | 版本   |
-| -------------------- | ------------------------------------------------------- | --------------------------------------- | ----------------------------- | ------ |
-| ref                  | 设置最外层 div ref                                      | Ref\<HTMLDivElement\>                   |                               |        |
-| tableBodyRef         | 设置 body 部分 table ref                                | Ref\<HTMLTableElement\>                 |                               |        |
-| className            | 样式类名                                                | string                                  |                               |        |
-| style                | 样式                                                    | CSSProperties                           |                               |        |
-| tableBodyClassName   | body 样式类名                                           | string                                  |                               |        |
-| tableBodyStyle       | body 样式                                               | CSSProperties                           |                               |        |
-| columns              | 表格列配置                                              | ColumnType[]                            |                               |        |
-| dataSource           | 表格数据源                                              | object[]                                |                               |        |
-| rowKey               | 表格行 key 的取值                                       | string                                  | `key`                         |        |
-| estimatedRowHeight   | 预计每行高度                                            | number                                  | 46                            |        |
-| estimatedColumnWidth | 预计每列宽度<br />设置后将会开启横向虚拟化              | number                                  |                               |        |
-| overscanRows         | 额外在首尾渲染数据条数                                  | number                                  | 5                             |        |
-| overscanColumns      | 横向虚拟化时，在头和尾额外渲染多少列                    | number                                  | 3                             |        |
-| stickyHeader         | 表头吸顶<br />为 true 时 top 为 0，为 number 则是偏移量 | number \| boolean                       |                               |        |
-| defaultColumnWidth   | 缺失宽度设置时的默认值（与虚拟化无关）                  | number                                  | 100                           | >=0.2  |
-| pipeline             | 插件实例                                                | TablePipeline                           |                               |        |
-| rowClassName         | 表格行样式类名                                          | (*record*, *index*) => string           |                               |        |
-| onRow                | 设置行属性                                              | (*record*, *index*) => TdHTMLAttributes |                               |        |
-| getOffsetTop         | 计算顶部偏移量                                          | () => number                            | 使用最外层 div 计算 offsetTop |        |
-| virtualHeader        | 表头虚拟化                                              | boolean                                 | `true`                        | >0.1.0 |
+| Prop Name            | 说明                                                    | 类型                                    | 默认值                        | 版本    |
+| -------------------- | ------------------------------------------------------- | --------------------------------------- | ----------------------------- | ------- |
+| ref                  | 设置最外层 div ref                                      | Ref\<HTMLDivElement\>                   |                               |         |
+| tableBodyRef         | 设置 body 部分 table ref                                | Ref\<HTMLTableElement\>                 |                               |         |
+| className            | 样式类名                                                | string                                  |                               |         |
+| style                | 样式                                                    | CSSProperties                           |                               |         |
+| tableBodyClassName   | body 样式类名                                           | string                                  |                               |         |
+| tableBodyStyle       | body 样式                                               | CSSProperties                           |                               |         |
+| columns              | 表格列配置                                              | ColumnType[]                            |                               |         |
+| dataSource           | 表格数据源                                              | object[]                                |                               |         |
+| rowKey               | 表格行 key 的取值                                       | string \| `(data) => React.Key`         | `key`                         | >=0.5.0 |
+| estimatedRowHeight   | 预计每行高度                                            | number                                  | 46                            |         |
+| estimatedColumnWidth | 预计每列宽度<br />设置后将会开启横向虚拟化              | number                                  |                               |         |
+| overscanRows         | 额外在首尾渲染数据条数                                  | number                                  | 5                             |         |
+| overscanColumns      | 横向虚拟化时，在头和尾额外渲染多少列                    | number                                  | 3                             |         |
+| stickyHeader         | 表头吸顶<br />为 true 时 top 为 0，为 number 则是偏移量 | number \| boolean                       |                               |         |
+| defaultColumnWidth   | 缺失宽度设置时的默认值（与虚拟化无关）                  | number                                  | 100                           | >=0.2   |
+| pipeline             | 插件实例                                                | TablePipeline                           |                               |         |
+| rowClassName         | 表格行样式类名                                          | (*record*, *index*) => string           |                               |         |
+| onRow                | 设置行属性                                              | (*record*, *index*) => TdHTMLAttributes |                               |         |
+| getOffsetTop         | 计算顶部偏移量                                          | () => number                            | 使用最外层 div 计算 offsetTop |         |
+| virtualHeader        | 表头虚拟化                                              | boolean                                 | `true`                        | >0.1.0  |
 
 #### getOffsetTop
 
@@ -273,7 +273,7 @@ const mergedPipeline = useTablePipeline({
 | renderBodyWrapper | | MiddlewareRenderBodyWrapper| |
 | renderBodyRoot | | MiddlewareRenderBodyRoot| |
 | renderBody | 自定义 tbody 渲染 | MiddlewareRenderBody| |
-| renderBodyContent | 表格 body 内容自定义 | MiddlewareRenderBodyContent | |
+| renderBodyContent | 表格 body 内容自定义 | MiddlewareRenderBodyContent | >=0.4.0 |
 | renderRow | 表格行自定义渲染 | MiddlewareRenderRow| |
 | renderCell | 单元格自定义渲染 | MiddlewareRenderCell| |
 

@@ -10,7 +10,7 @@ import type {
   OnRowType,
 } from '@are-visual/virtual-table'
 import type { Key, MouseEvent, ReactNode } from 'react'
-import { createMiddleware, isValidFixed, useShallowMemo, useStableFn } from '@are-visual/virtual-table'
+import { createMiddleware, getRowKey, isValidFixed, useShallowMemo, useStableFn } from '@are-visual/virtual-table'
 import { useControllableValue } from '@are-visual/virtual-table/middleware/utils/useControllableValue'
 import clsx from 'clsx'
 import { useCallback, useMemo, useRef } from 'react'
@@ -50,10 +50,6 @@ export const EXPANSION_COLUMN_KEY = 'VirtualTable.EXPANSION_COLUMN'
 
 export function isExpansionColumn<T = any>(column: ColumnType<T>) {
   return column.key === EXPANSION_COLUMN_KEY
-}
-
-function getRowKey<T>(rowData: T, rowKey: (string & {}) | keyof T) {
-  return (rowData as AnyObject)[rowKey as string] as Key
 }
 
 function useTableExpandable<T = any>(
@@ -209,7 +205,7 @@ function useTableExpandable<T = any>(
         width: columnWidth,
         fixed,
         render(_value, record, index) {
-          const key = (record as AnyObject)[rowKey as string] as string | number
+          const key = getRowKey(record, rowKey)
 
           const expandable = rowExpandableRecord[index] ?? false
           const expanded = expansion.includes(key)

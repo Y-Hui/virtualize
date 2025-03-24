@@ -3,7 +3,7 @@ import type { AnyObject, ColumnType, MiddlewareContext, MiddlewareResult } from 
 import type { Key, ReactNode } from 'react'
 import type { SelectionColumnTitleProps, TableRowSelection } from './types'
 
-import { createMiddleware, useShallowMemo, useStableFn } from '@are-visual/virtual-table'
+import { createMiddleware, getRowKey, useShallowMemo, useStableFn } from '@are-visual/virtual-table'
 import { useControllableValue } from '@are-visual/virtual-table/middleware/utils/useControllableValue'
 import { isValidElement, useCallback, useMemo, useRef } from 'react'
 import Selection from './selection'
@@ -22,9 +22,8 @@ function useSelection<T = any>(
 ): MiddlewareResult<T> {
   const disablePlugin = options == null
 
-  const { columns: rawColumns } = ctx
-  const rowKey = ctx.rowKey as string
-  const dataSource = disablePlugin ? EMPTY_ARR : (ctx.dataSource as AnyObject[])
+  const { columns: rawColumns, rowKey } = ctx
+  const dataSource = disablePlugin ? EMPTY_ARR as T[] : ctx.dataSource
 
   const {
     defaultSelectedRowKeys,
@@ -61,7 +60,7 @@ function useSelection<T = any>(
   )
 
   const rowClassName = useCallback((record: T) => {
-    const key = (record as AnyObject)[rowKey] as Key
+    const key = getRowKey(record, rowKey)
     const checked = selectedRowKeys.includes(key)
     return checked ? 'virtual-table-row-selected' : ''
   }, [rowKey, selectedRowKeys])
@@ -69,7 +68,7 @@ function useSelection<T = any>(
   const selectionPropsList = useShallowMemo(() => {
     return dataSource.map((row) => {
       if (!getSelectionProps) return {}
-      return getSelectionProps(row as T)
+      return getSelectionProps(row)
     })
   })
 
@@ -77,7 +76,7 @@ function useSelection<T = any>(
   const allKeys: Key[] = useShallowMemo(() => {
     return dataSource
       .filter((_data, index) => !selectionPropsList[index].disabled)
-      .map((x) => x[rowKey] as Key)
+      .map((x) => getRowKey(x, rowKey))
   })
 
   // preserveSelectedRowKeys=true 时，勾选过的数据，都会在这里存一份
@@ -88,7 +87,7 @@ function useSelection<T = any>(
   const getRowsByKeys = useStableFn((keys: Key[]) => {
     const result: (T | undefined)[] = []
     keys.forEach((key) => {
-      let value = dataSource.find((row) => row[rowKey] === key) as T | undefined
+      let value = dataSource.find((row) => getRowKey(row, rowKey) === key)
 
       // 在 cache 中还是找不到对应的数据，就放弃寻找，填入一个 undefined（与 antd 默认表现一致）
       // 场景: selectedRowKeys 中有一个在 dataSource 中不存在的 key，用这个 key 是找不到数据的
@@ -219,7 +218,7 @@ function useSelection<T = any>(
       fixed: fixed ? 'left' : undefined,
       key: SELECTION_COLUMN_KEY,
       render(_value, record, index) {
-        const key = (record as AnyObject)[rowKey] as Key
+        const key = getRowKey(record, rowKey)
         const checked = selectedRowKeys.includes(key)
         const extraProps = selectionPropsList[index]
 
