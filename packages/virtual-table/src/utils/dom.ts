@@ -50,3 +50,14 @@ export function getScrollElement(el: unknown): Element {
   }
   return document.scrollingElement!
 }
+
+export function getScrollTop(node: ScrollElement) {
+  let result = 0
+  if (isWindow(node) || isRoot(node)) {
+    result = window.scrollY
+  } else {
+    const element = getScrollElement(node)
+    result = element.scrollTop
+  }
+  return result
+}

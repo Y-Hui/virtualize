@@ -23,6 +23,7 @@
     "noFallthroughCasesInSwitch": true,
     "allowJs": true,
     "checkJs": false,
+    "strictNullChecks": true,
     "paths": {
       "@are-visual/virtual-table": ["./packages/virtual-table/src/index.ts"],
       "@are-visual/virtual-table/*": ["./packages/virtual-table/src/*"],

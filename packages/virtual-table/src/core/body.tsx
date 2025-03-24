@@ -81,7 +81,13 @@ function TableBody<T>(props: TableBodyProps<T>) {
     overscan,
   })
 
+  // Record<rowIndex, Map(rowHeight)>
+  // 一个 Row 可能有多个行高。例如：默认情况下，只有一个行高，展开后，展开面板的高度也被认为是同一个 Row 的
+  // 所以可展开时，行高有多个，所有行高之和，则为 Row 的高度
+  // 行高之间使用唯一的 key 作为区分
   const rowHeights = useRef(new Map<number, Map<Key, number>>())
+
+  // 更新行高。一般会在 body 渲染后、展开面板中调用
   const updateRowHeight = useCallback((index: number, key: Key, height: number) => {
     const target = rowHeights.current.get(index) ?? new Map<Key, number>()
     target.set(key, height)
@@ -99,6 +105,8 @@ function TableBody<T>(props: TableBodyProps<T>) {
     const bodyHeight = elm.offsetHeight
     if (bodyHeight === 0) return
 
+    // body 的 ref 回调函数中，说明 body 渲染完成，也就意味着所有的 tr 也已经渲染完成，
+    // 现在可以获取 tr 的高度，记录准确行高
     const heights = rowHeights.current
     heights.forEach((row, rowIndex) => {
       const height = Array.from(row.values()).reduce((res, x) => res + x, 0)

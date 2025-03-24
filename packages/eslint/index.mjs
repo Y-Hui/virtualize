@@ -62,6 +62,7 @@ export default function eslintConfig(...overrides) {
           },
         ],
         'eqeqeq': ['error', 'always', { null: 'ignore' }],
+        '@typescript-eslint/prefer-nullish-coalescing': 'off'
       },
     },
     ...overrides,
