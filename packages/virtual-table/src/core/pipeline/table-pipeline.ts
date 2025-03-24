@@ -54,6 +54,7 @@ export class TablePipeline<T> {
       renderBodyWrapper: [],
       renderBodyRoot: [],
       renderBody: [],
+      renderBodyContent: [],
       renderRow: [],
       renderCell: [],
     }
@@ -78,6 +79,7 @@ export class TablePipeline<T> {
         renderBodyWrapper: _renderBodyWrapper,
         renderBodyRoot: _renderBodyRoot,
         renderBody: _renderBody,
+        renderBodyContent: _renderBodyContent,
         renderRow: _renderRow,
         renderCell: _renderCell,
 

@@ -30,6 +30,7 @@ interface RenderOptions<T = any> {
   column: ColumnType<T>
   columnWidths: Map<Key, number>
   rowIndex: number
+  startRowIndex: number
   columns: ColumnType<T>[]
   rowData: T
   columnDescriptor: ColumnDescriptor<T>[]
@@ -46,9 +47,10 @@ export type MiddlewareRenderHeaderRoot<T = any> = (children: ReactNode, options:
 export type MiddlewareRenderHeader<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>>) => ReactNode
 export type MiddlewareRenderHeaderRow<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>>) => ReactNode
 export type MiddlewareRenderHeaderCell<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'column' | 'columnWidths'>>) => ReactNode
-export type MiddlewareRenderBodyWrapper<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>>) => ReactNode
-export type MiddlewareRenderBodyRoot<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>>) => ReactNode
-export type MiddlewareRenderBody<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>>) => ReactNode
+export type MiddlewareRenderBodyWrapper<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'startRowIndex'>>) => ReactNode
+export type MiddlewareRenderBodyRoot<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'startRowIndex'>>) => ReactNode
+export type MiddlewareRenderBody<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'startRowIndex'>>) => ReactNode
+export type MiddlewareRenderBodyContent<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'startRowIndex'>>) => ReactNode
 export type MiddlewareRenderRow<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'rowIndex' | 'rowData'>>) => ReactNode
 export type MiddlewareRenderCell<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'column'>>) => ReactNode
 
@@ -63,6 +65,7 @@ export type MergedMiddlewareRender<T = any> = MiddlewareRender<T>
   | MiddlewareRenderBodyWrapper<T>
   | MiddlewareRenderBodyRoot<T>
   | MiddlewareRenderBody<T>
+  | MiddlewareRenderBodyContent<T>
   | MiddlewareRenderRow<T>
   | MiddlewareRenderCell<T>
 
@@ -120,6 +123,10 @@ export interface MiddlewareRenders {
    * @note 注意：出于性能考虑，**需要自行对函数 memo**
    */
   renderBody?: MiddlewareRenderBody
+  /**
+   * 默认情况下 children 是 ReactNode[]，即 tbody 下渲染的各个 Row
+   */
+  renderBodyContent?: MiddlewareRenderBodyContent
   /**
    * children 为 tr
    * @note 注意：出于性能考虑，**需要自行对函数 memo**

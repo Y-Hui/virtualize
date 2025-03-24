@@ -136,6 +136,7 @@ function VirtualTableCore<T>(
     renderBodyWrapper,
     renderBodyRoot,
     renderBody,
+    renderBodyContent,
     renderRow,
     renderCell,
 
@@ -240,6 +241,7 @@ function VirtualTableCore<T>(
         renderBodyWrapper={renderBodyWrapper}
         renderBodyRoot={renderBodyRoot}
         renderBody={renderBody}
+        renderBodyContent={renderBodyContent}
         renderRow={renderRow}
         renderCell={renderCell}
       />

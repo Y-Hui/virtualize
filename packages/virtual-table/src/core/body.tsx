@@ -4,6 +4,7 @@ import type { TableRowManagerContextType } from './context/row-manager'
 import type { NecessaryProps } from './internal'
 import type {
   MiddlewareRenderBody,
+  MiddlewareRenderBodyContent,
   MiddlewareRenderBodyRoot,
   MiddlewareRenderBodyWrapper,
 } from './pipeline/types'
@@ -37,6 +38,7 @@ export interface TableBodyProps<T>
   renderBodyWrapper?: MiddlewareRenderBodyWrapper
   renderBodyRoot?: MiddlewareRenderBodyRoot
   renderBody?: MiddlewareRenderBody
+  renderBodyContent?: MiddlewareRenderBodyContent
 }
 
 function TableBody<T>(props: TableBodyProps<T>) {
@@ -61,6 +63,7 @@ function TableBody<T>(props: TableBodyProps<T>) {
     renderBodyWrapper,
     renderBodyRoot,
     renderBody,
+    renderBodyContent,
     renderRow,
     renderCell,
   } = props
@@ -116,26 +119,26 @@ function TableBody<T>(props: TableBodyProps<T>) {
     rowHeights.current.clear()
   })
 
+  const bodyContent = pipelineRender(dataSource.map((e, rowIndex) => {
+    const _rowKey = (e as AnyObject)[rowKey as string]
+    return (
+      <Row
+        key={_rowKey}
+        className={clsx(rowClassName?.(e, rowIndex))}
+        rowIndex={rowIndex + startIndex}
+        rowData={e}
+        columns={columnDescriptor}
+        onRow={onRow}
+        renderRow={renderRow}
+        renderCell={renderCell}
+      />
+    )
+  }), renderBodyContent, { columns, columnDescriptor: descriptor, startRowIndex: startIndex })
+
   const bodyNode = pipelineRender(
-    <tbody ref={tbodyRef}>
-      {dataSource.map((e, rowIndex) => {
-        const _rowKey = (e as AnyObject)[rowKey as string]
-        return (
-          <Row
-            key={_rowKey}
-            className={clsx(rowClassName?.(e, rowIndex))}
-            rowIndex={rowIndex + startIndex}
-            rowData={e}
-            columns={columnDescriptor}
-            onRow={onRow}
-            renderRow={renderRow}
-            renderCell={renderCell}
-          />
-        )
-      })}
-    </tbody>,
+    <tbody ref={tbodyRef}>{bodyContent}</tbody>,
     renderBody,
-    { columns, columnDescriptor: descriptor },
+    { columns, columnDescriptor: descriptor, startRowIndex: startIndex },
   )
 
   const { setWidthList } = useColumnSizes()
@@ -153,7 +156,7 @@ function TableBody<T>(props: TableBodyProps<T>) {
       {bodyNode}
     </table>,
     renderBodyRoot,
-    { columns, columnDescriptor: descriptor },
+    { columns, columnDescriptor: descriptor, startRowIndex: startIndex },
   )
 
   const { listen, notify } = useHorizontalScrollContext()
@@ -188,7 +191,7 @@ function TableBody<T>(props: TableBodyProps<T>) {
           {tableNode}
         </div>,
         renderBodyWrapper,
-        { columns, columnDescriptor: descriptor },
+        { columns, columnDescriptor: descriptor, startRowIndex: startIndex },
       )}
     </TableRowManager.Provider>
   )
