@@ -1,16 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { ColumnType, MiddlewareContext, MiddlewareResult } from '@are-visual/virtual-table'
+import type { MiddlewareContext, MiddlewareResult } from '@are-visual/virtual-table'
 import { createMiddleware, onResize } from '@are-visual/virtual-table'
 import { useEffect, useMemo, useState } from 'react'
+import LoadingRow from './row'
 
-export const loadingKey = Symbol.for('virtual-table-loading-mock-data')
+const EMPTY_ARR: unknown[] = []
 
 function useTableLoading<T = any>(
   ctx: MiddlewareContext<T>,
   options?: { loading?: boolean },
 ): MiddlewareResult<T> {
   const { loading = false } = options ?? {}
-  const { columns: rawColumns, estimatedRowHeight, headerWrapperRef, getScroller } = ctx
+  const { estimatedRowHeight, headerWrapperRef, getScroller } = ctx
 
   const [count, setCount] = useState(10)
 
@@ -26,27 +27,9 @@ function useTableLoading<T = any>(
 
   const fakeDataSource = useMemo(() => {
     return Array.from({ length: count }, (_, index) => {
-      return { key: index, [loadingKey]: true }
-    }) as T[]
-  }, [count])
-
-  const columns = useMemo((): ColumnType<T>[] => {
-    if (!loading) {
-      return rawColumns
-    }
-
-    return rawColumns.map((column): ColumnType<T> => {
-      return {
-        ...column,
-        onCell() {
-          return { className: 'virtual-table-loading-cell', style: { height: estimatedRowHeight } }
-        },
-        render() {
-          return <div className="virtual-table-loading-skeleton" />
-        },
-      }
+      return { key: index }
     })
-  }, [loading, rawColumns, estimatedRowHeight])
+  }, [count])
 
   if (!loading) {
     return ctx
@@ -54,9 +37,19 @@ function useTableLoading<T = any>(
 
   return {
     ...ctx,
-    columns,
-    rowKey: 'key',
-    dataSource: fakeDataSource,
+    dataSource: EMPTY_ARR as T[],
+    renderBodyContent: (_ignore, { columnDescriptor, startRowIndex }) => {
+      return fakeDataSource.map((item, index) => {
+        return (
+          <LoadingRow
+            key={item.key}
+            style={{ height: estimatedRowHeight }}
+            descriptor={columnDescriptor}
+            rowIndex={index + startRowIndex}
+          />
+        )
+      })
+    },
   }
 }
 

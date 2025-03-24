@@ -56,7 +56,7 @@ function SelectionImpl(props: SelectionProps) {
 
 const FullDemo: FC = () => {
   const [summaryPosition, setSummaryPosition] = useState<'bottom' | 'top'>('bottom')
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [sticky, setSticky] = useState(true)
   const [empty, setEmpty] = useState(false)
 
@@ -93,7 +93,7 @@ const FullDemo: FC = () => {
     return tableSummary({
       summary: () => {
         return (
-          <Summary fixed={summaryPosition}>
+          <Summary key="summary" fixed={summaryPosition}>
             <Summary.Row>
               {(column, key) => {
                 if (column.key === 'name') {
@@ -120,7 +120,7 @@ const FullDemo: FC = () => {
         storageKey: 'full-demo',
       }),
       { priority: 200, hook: tableLoading({ loading }) },
-      { priority: 200, hook: tableEmpty({ children: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> }) },
+      { priority: 200, hook: tableEmpty({ visible: !loading, children: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> }) },
       { priority: 200, hook: summary },
       { priority: 200, hook: horizontalScrollBar() },
     ],
