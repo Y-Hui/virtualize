@@ -303,8 +303,9 @@ Context
                     ├── colgroup
                     │
                     └── renderBody(<tbody />)
-                        └── renderRow(<tr />)
-                            └── renderCell(<td />)
+                        └── renderBodyContent(Row[])
+                            └── renderRow(<tr />)
+                                └── renderCell(<td />)
 ```
 
 ##### Render 类型签名
@@ -316,6 +317,7 @@ interface RenderOptions<T = any> {
   rowIndex: number
   columns: ColumnType<T>[]
   rowData: T
+  startRowIndex: number
   columnDescriptor: ColumnDescriptor<T>[]
 }
 
@@ -361,17 +363,22 @@ type MiddlewareRenderHeaderCell<T = any> = (
 
 type MiddlewareRenderBodyWrapper<T = any> = (
   children: ReactNode,
-  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>
+  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'startRowIndex'>
 ) => ReactNode
 
 type MiddlewareRenderBodyRoot<T = any> = (
   children: ReactNode,
-  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>
+  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'startRowIndex'>
 ) => ReactNode
 
 type MiddlewareRenderBody<T = any> = (
   children: ReactNode,
-  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor'>
+  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'startRowIndex'>
+) => ReactNode
+
+type MiddlewareRenderBodyContent<T = any> = (
+  children: ReactNode,
+  options: Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'startRowIndex'>
 ) => ReactNode
 
 type MiddlewareRenderRow<T = any> = (

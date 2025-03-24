@@ -1,7 +1,9 @@
+$virtual-table-sticky-scroll-bottom: var(--virtual-table-sticky-scroll-bottom, 0);
+
 .virtual-table-sticky-scroll {
   overflow: auto;
   position: sticky;
-  bottom: 0;
+  bottom: $virtual-table-sticky-scroll-bottom;
   z-index: 3;
   box-sizing: border-box;
 

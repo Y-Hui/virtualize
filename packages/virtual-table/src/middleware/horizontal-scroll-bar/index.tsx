@@ -3,7 +3,7 @@ import type { ScrollBarProps } from './scroll-bar'
 import { createMiddleware } from '@are-visual/virtual-table'
 import ScrollBar from './scroll-bar'
 
-export type HorizontalScrollBarOptions = ScrollBarProps
+export type HorizontalScrollBarOptions = Omit<ScrollBarProps, 'bodyRef'>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function useHorizontalScrollBar<T = any>(

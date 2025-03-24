@@ -51,10 +51,11 @@ const ScrollBar: FC<ScrollBarProps> = (props) => {
       className={clsx('virtual-table-sticky-scroll', className)}
       style={{
         ...style,
-        paddingTop: size.height > 0 ? 0 : 12,
-        marginTop: size.height > 0 ? 0 : size.height * -1,
-        height: size.height,
-        bottom,
+        // @ts-expect-error 使用 css 变量覆盖 bottom，而不是 bottom，这样需要高优先级的时候，就可以使用 style 代替
+        '--virtual-table-sticky-scroll-bottom': Number.isFinite(bottom) ? `${bottom}px` : bottom,
+        'paddingTop': size.height > 0 ? 0 : 12,
+        'marginTop': size.height > 0 ? 0 : size.height * -1,
+        'height': size.height,
         zIndex,
       }}
       ref={wrapperRef}
