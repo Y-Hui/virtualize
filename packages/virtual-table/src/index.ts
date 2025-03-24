@@ -46,6 +46,6 @@ export {
 export type * from './core/pipeline/types'
 export { onResize } from './core/utils/on-resize'
 export type { ScrollElement } from './utils/dom'
-export { getScrollElement, getScrollParent, getScrollTop, isDocument, isRoot, isWindow } from './utils/dom'
+export { getRelativeOffsetTop, getScrollElement, getScrollParent, getScrollTop, isDocument, isRoot, isWindow } from './utils/dom'
 export { findLastIndex } from './utils/find-last-index'
 export { mergeRefs, useMergedRef } from './utils/ref'

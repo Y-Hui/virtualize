@@ -18,6 +18,7 @@ const RowsAndColumns = lazy(() => import('./pages/rows-and-columns'))
 const FullDemo = lazy(() => import('./pages/full'))
 const AntdDemo = lazy(() => import('./pages/antd'))
 const Details = lazy(() => import('./pages/details/index'))
+const ComplexLayout = lazy(() => import('./pages/complex-layout'))
 
 const router = createHashRouter([
   {
@@ -63,6 +64,10 @@ const router = createHashRouter([
       {
         path: '/details',
         element: <Details />,
+      },
+      {
+        path: '/complex-layout',
+        element: <ComplexLayout />,
       },
     ],
   },

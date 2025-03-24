@@ -39,6 +39,10 @@ const menus = [
     path: '/details',
     label: 'Details Layout',
   },
+  {
+    path: '/complex-layout',
+    label: 'Complex Layout',
+  },
 ]
 
 const Root: FC = () => {

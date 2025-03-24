@@ -51,6 +51,7 @@ export interface VirtualTableProps<T>
   storageKey?: string
   pagination?: false | TablePaginationConfig
   onChange?: (pagination: TablePaginationConfig) => void
+  scrollBarBottom?: number | string
 }
 
 function getDefaultEstimatedRowHeight(size: SizeType, height?: number) {
@@ -87,9 +88,10 @@ function VirtualTable<T>(
     pipeline: extraPipeline,
     expandable,
     summary,
-    pagination,
+    pagination = false,
     onChange,
     storageKey,
+    scrollBarBottom,
     ...rest
   } = props
 
@@ -126,7 +128,7 @@ function VirtualTable<T>(
       { priority: 200, hook: tableLoading({ loading }) },
       { priority: 200, hook: tableEmpty({ children: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> }) },
       { priority: 200, hook: tableSummary(summary == null ? undefined : { summary }) },
-      { priority: 200, hook: horizontalScrollBar() },
+      { priority: 200, hook: horizontalScrollBar({ bottom: scrollBarBottom }) },
     ],
   })
 

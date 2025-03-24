@@ -37,7 +37,7 @@ export function isDocument(arg: unknown): arg is Document {
   return Object.prototype.toString.call(arg) === '[object HTMLDocument]'
 }
 
-export function isRoot(arg: unknown): arg is HTMLElement {
+export function isRoot(arg: unknown): arg is HTMLHtmlElement {
   return Object.prototype.toString.call(arg) === '[object HTMLHtmlElement]'
 }
 
@@ -60,4 +60,12 @@ export function getScrollTop(node: ScrollElement) {
     result = element.scrollTop
   }
   return result
+}
+
+export function getRelativeOffsetTop(el: HTMLElement, ancestor: HTMLElement): number {
+  const elRect = el.getBoundingClientRect()
+  const ancestorRect = ancestor.getBoundingClientRect()
+  const ancestorBorderTop = Number.parseFloat(window.getComputedStyle(ancestor).borderTopWidth) || 0
+  const ancestorScrollTop = ancestor.scrollTop
+  return elRect.top - ancestorRect.top - ancestorBorderTop + ancestorScrollTop
 }

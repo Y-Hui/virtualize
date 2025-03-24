@@ -131,7 +131,7 @@ function App() {
 
 所以，`@are-visual/virtual-table` 提供了 `getOffsetTop` 属性，用于得知额外区域的具体高度，这样在数据可视范围计算时才能避免这个问题。
 
-一般来说，你不太需要关注 `getOffsetTop`，因为它有一个默认实现：使用 table 的 DOM 节点访问 offsetTop 属性作为偏移量。
+一般来说，你不太需要关注 `getOffsetTop`，因为它有一个默认实现：使用 table 的 DOM 节点计算与滚动容器之间的距离作为偏移量。
 
 `getOffsetTop` 总是会在滚动事件中反复调用。
 

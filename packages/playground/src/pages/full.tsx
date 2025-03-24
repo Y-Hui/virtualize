@@ -56,7 +56,7 @@ function SelectionImpl(props: SelectionProps) {
 
 const FullDemo: FC = () => {
   const [summaryPosition, setSummaryPosition] = useState<'bottom' | 'top'>('bottom')
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [sticky, setSticky] = useState(true)
   const [empty, setEmpty] = useState(false)
 
@@ -326,9 +326,6 @@ const FullDemo: FC = () => {
           marginBottom: 30,
           display: 'grid',
           gridTemplateColumns: 'repeat(5, minmax(0, 1fr))',
-          border: '1px solid #f00',
-          height: 500,
-          maxHeight: 100,
         }}
       >
         <div>

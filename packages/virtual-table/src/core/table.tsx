@@ -12,7 +12,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { getScrollParent, isRoot, isWindow } from '../utils/dom'
+import { getRelativeOffsetTop, getScrollParent, isRoot, isWindow } from '../utils/dom'
 import { useMergedRef } from '../utils/ref'
 import TableBody from './body'
 import { ColumnSizes } from './context/column-sizes'
@@ -109,14 +109,15 @@ function VirtualTableCore<T>(
       return getOffsetTopImpl()
     }
     const scrollContainer = getScroller()
-    if (scrollContainer === rootNode.current) {
+    const root = rootNode.current
+    if (root == null || scrollContainer == null || scrollContainer === root) {
       return 0
     }
     if (isWindow(scrollContainer) || isRoot(scrollContainer)) {
-      const top = rootNode.current?.getBoundingClientRect().top ?? 0
+      const top = root.getBoundingClientRect().top
       return window.scrollY + top
     }
-    return rootNode.current?.offsetTop ?? 0
+    return getRelativeOffsetTop(root, scrollContainer)
   }, [getOffsetTopImpl, getScroller])
 
   const {
