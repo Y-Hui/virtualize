@@ -272,7 +272,8 @@ const mergedPipeline = useTablePipeline({
 | renderHeaderCell | 表头单元格自定义渲染 | MiddlewareRenderHeaderCell| |
 | renderBodyWrapper | | MiddlewareRenderBodyWrapper| |
 | renderBodyRoot | | MiddlewareRenderBodyRoot| |
-| renderBody | 表格 body 自定义渲染 | MiddlewareRenderBody| |
+| renderBody | 自定义 tbody 渲染 | MiddlewareRenderBody| |
+| renderBodyContent | 表格 body 内容自定义 | MiddlewareRenderBodyContent | |
 | renderRow | 表格行自定义渲染 | MiddlewareRenderRow| |
 | renderCell | 单元格自定义渲染 | MiddlewareRenderCell| |
 
