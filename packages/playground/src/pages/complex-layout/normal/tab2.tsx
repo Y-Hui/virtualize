@@ -20,39 +20,25 @@ const columns = columnSizes.map((width, index): ColumnType<MockData> => {
   }
 })
 
-const Tab1: FC = () => {
+const Tab2: FC = () => {
   const [data] = useAsyncData()
 
   return (
     <>
-      <VirtualTable
-        style={{ paddingBottom: 50 }}
-        rowKey="key"
-        dataSource={data}
-        columns={columns}
-        estimatedRowHeight={39}
-        estimatedColumnWidth={180}
-        sticky
-        scrollBarBottom={50}
-      />
-      <div
-        style={{
-          marginBottom: 80,
-          height: 800,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontWeight: 700,
-          fontSize: 50,
-          backgroundColor: '#f1f1f1',
-          borderRadius: 10,
-        }}
-      >
-        ANOTHER CONTENT
+      <div style={{ height: 600, overflowY: 'auto', marginBottom: 50 }}>
+        <VirtualTable
+          rowKey="key"
+          dataSource={data}
+          columns={columns}
+          estimatedRowHeight={39}
+          estimatedColumnWidth={100}
+          scrollBarBottom={50}
+          sticky
+        />
+        <footer className="complex-footer" style={{ position: 'sticky', padding: 0 }}>Footer</footer>
       </div>
-      <footer className="complex-footer">Footer</footer>
     </>
   )
 }
 
-export default Tab1
+export default Tab2

@@ -19,7 +19,7 @@ const ComplexLayout: FC = () => {
       <div className="complex" style={{ padding: '50px 0 0 0' }}>
         <Tabs
           className="root-tabs"
-          defaultActiveKey="1"
+          defaultActiveKey="2"
           items={items}
           tabBarExtraContent={{ left: <div style={{ width: 16 }}></div> }}
           type="card"
