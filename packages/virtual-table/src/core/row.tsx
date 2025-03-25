@@ -59,6 +59,7 @@ function Row<T>(props: RowProps<T>) {
       {...rest}
       {...extraProps}
       className={clsx('virtual-table-row', className, extraClassName)}
+      data-row-index={rowIndex}
       ref={(node) => {
         if (node == null) return
         // 小心陷阱：当 table 父元素为 display: none 时，依然会触发 updateRowHeight 函数，并设置高度为 0

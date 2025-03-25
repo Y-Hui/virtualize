@@ -85,6 +85,7 @@ function Cell<T>(props: CellProps<T>) {
         left: isValidFixedLeft(fixed) ? stickySizes.get(key) : undefined,
         right: isValidFixedRight(fixed) ? stickySizes.get(key) : undefined,
       }}
+      data-col-key={key}
     >
       {getTableCellContent(rowIndex, rowData as AnyObject, column)}
     </td>,
