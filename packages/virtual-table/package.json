@@ -1,6 +1,6 @@
 {
   "name": "@are-visual/virtual-table",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "main": "./index.esm.js",
   "types": "./index.d.ts",
   "sideEffects": false,
