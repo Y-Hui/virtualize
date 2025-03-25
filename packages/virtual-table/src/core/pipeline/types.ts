@@ -17,11 +17,13 @@ export interface MiddlewareContext<T> extends Readonly<NecessaryProps<T>> {
   readonly bodyRef: RefObject<HTMLTableSectionElement>
   readonly getScroller: () => ScrollElement | undefined
   readonly getOffsetTop: () => number
+  [key: string]: unknown
 }
 
 export interface MiddlewareResult<T> extends MiddlewareContext<T>, MiddlewareRenders {
   rowClassName?: (record: T, index: number) => string
   onRow?: OnRowType<T>
+  [key: string]: unknown
 }
 
 export type Middleware<T> = (context: MiddlewareContext<T>) => MiddlewareResult<T>
