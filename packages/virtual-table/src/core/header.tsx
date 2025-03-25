@@ -8,7 +8,7 @@ import type {
 } from './pipeline/types'
 import type { InnerColumnDescriptor } from './types'
 import clsx from 'clsx'
-import { createElement, Fragment, useEffect, useRef } from 'react'
+import { createElement, Fragment, memo, useEffect, useRef } from 'react'
 import { findLastIndex } from '../utils/find-last-index'
 import { useMergedRef } from '../utils/ref'
 import Colgroup from './colgroup'
@@ -187,4 +187,4 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
   )
 }
 
-export default TableHeader
+export default memo(TableHeader)

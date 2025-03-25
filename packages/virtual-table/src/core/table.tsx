@@ -159,8 +159,12 @@ function VirtualTableCore<T>(
   const [columnWidths, setColumnWidths] = useState(() => new Map<Key, number>())
   const columnWidthsRef = useRef(columnWidths)
   const updateColumnWidths = useCallback((value: Map<Key, number>) => {
-    columnWidthsRef.current = value
-    setColumnWidths(value)
+    const result = new Map(columnWidthsRef.current)
+    value.forEach((width, key) => {
+      result.set(key, width)
+    })
+    columnWidthsRef.current = result
+    setColumnWidths(result)
   }, [])
 
   const tableColumnsContext = useMemo<TableColumnsContextType>(() => {
