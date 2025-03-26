@@ -2,8 +2,10 @@
 import type { MiddlewareContext, MiddlewareResult } from '@are-visual/virtual-table'
 import type { ReactElement, ReactNode } from 'react'
 import type { CellProps } from './cell'
+import type { FooterProps } from './footer'
 import type { SummaryProps } from './summary'
 import { createMiddleware } from '@are-visual/virtual-table'
+import clsx from 'clsx'
 import { Children, Fragment, isValidElement } from 'react'
 import { SummaryContext } from './context/columns'
 import Footer from './footer'
@@ -19,7 +21,7 @@ declare module '@are-visual/virtual-table' {
   }
 }
 
-export interface TableSummaryOptions<T = any> {
+export interface TableSummaryOptions<T = any> extends Pick<FooterProps, 'bottom' | 'className' | 'style' | 'zIndex'> {
   summary: (data: T[]) => ReactNode
 }
 
@@ -27,7 +29,7 @@ function useTableSummary<T = any>(
   ctx: MiddlewareContext<T>,
   options?: TableSummaryOptions<T>,
 ): MiddlewareResult<T> {
-  const { summary } = options ?? {}
+  const { className, style, zIndex, bottom, summary } = options ?? {}
   const { dataSource } = ctx
 
   let hasFixedTop = false
@@ -87,7 +89,7 @@ function useTableSummary<T = any>(
             return (
               <>
                 {children}
-                <tfoot className="virtual-table-summary-tfoot">
+                <tfoot className={clsx('virtual-table-summary-tfoot', className)} style={style}>
                   <SummaryContext.Provider value={columnDescriptor}>
                     {topNode}
                   </SummaryContext.Provider>
@@ -103,7 +105,14 @@ function useTableSummary<T = any>(
             return (
               <>
                 {children}
-                <Footer fixed={hasFixedBottom} columns={columnDescriptor}>
+                <Footer
+                  className={className}
+                  style={style}
+                  zIndex={zIndex}
+                  bottom={bottom}
+                  fixed={hasFixedBottom}
+                  columns={columnDescriptor}
+                >
                   <SummaryContext.Provider value={columnDescriptor}>
                     {bottomNode}
                   </SummaryContext.Provider>

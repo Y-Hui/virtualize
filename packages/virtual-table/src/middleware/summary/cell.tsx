@@ -10,7 +10,7 @@ type NativeProps = DetailedHTMLProps<
 >
 
 export interface CellProps extends NativeProps, Pick<ColumnType<unknown>, 'align'> {
-  columnKey: Key
+  columnKey?: Key
   colSpan?: number
 }
 
@@ -27,7 +27,7 @@ function Cell(props: CellProps) {
 
   const { size: stickySizes, fixed: columnsFixed } = useTableSticky()
 
-  const stickySize = stickySizes.get(columnKey)
+  const stickySize = columnKey == null ? 0 : stickySizes.get(columnKey)
   const fixed = columnsFixed.find((x) => x.key === columnKey)?.fixed
 
   const { left: lastFixedLeftColumnKey, right: firstFixedRightColumnKey } = useMemo(() => {

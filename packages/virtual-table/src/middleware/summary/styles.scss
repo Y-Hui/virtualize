@@ -1,5 +1,7 @@
 $virtual-table-summary-background: var(--virtual-table-summary-background, #fff);
 $virtual-table-summary-border-color: var(--virtual-table-summary-border-color, var(--virtual-table-border-color, #f0f0f0));
+$virtual-table-summary-sticky-bottom: var(--virtual-table-summary-sticky-bottom, 0px);
+$virtual-table-summary-z-index: var(--virtual-table-summary-sticky-z-index, 2);
 
 .virtual-table-summary-wrapper {
   overflow: auto hidden;
@@ -23,9 +25,9 @@ $virtual-table-summary-border-color: var(--virtual-table-summary-border-color, v
 
   &-sticky-bottom {
     position: sticky;
-    bottom: 0;
+    bottom: $virtual-table-summary-sticky-bottom;
     left: 0;
-    z-index: 2;
+    z-index: $virtual-table-summary-z-index;
   }
 
   &-tfoot {

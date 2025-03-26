@@ -1,18 +1,24 @@
 import type { ColumnDescriptor } from '@are-visual/virtual-table'
-import type { FC, ReactNode } from 'react'
+import type { CSSProperties, FC, ReactNode } from 'react'
 import { Colgroup, useHorizontalScrollContext } from '@are-visual/virtual-table'
 import { getScrollbarSize } from '@are-visual/virtual-table/middleware/utils/getScrollbarSize'
 import clsx from 'clsx'
 import { useEffect, useRef, useState } from 'react'
 
 export interface FooterProps {
+  className?: string
+  style?: CSSProperties
+  /** Summary 位于底部，且设置 fixed 时生效 */
+  zIndex?: number
+  /** Summary 位于底部，且设置 fixed 时生效 */
+  bottom?: number | string
   columns: ColumnDescriptor[]
   fixed?: boolean
   children?: ReactNode
 }
 
 const Footer: FC<FooterProps> = (props) => {
-  const { columns, fixed, children } = props
+  const { className, style, zIndex, bottom, columns, fixed, children } = props
 
   const { listen, notify } = useHorizontalScrollContext()
   const [scrollbarHeight] = useState(() => getScrollbarSize().height)
@@ -40,8 +46,19 @@ const Footer: FC<FooterProps> = (props) => {
       className={clsx(
         'virtual-table-summary-wrapper',
         fixed && 'virtual-table-summary-sticky-bottom virtual-table-summary-top-border',
+        className,
       )}
-      style={{ paddingBottom: scrollbarHeight }}
+
+      style={{
+        ...(fixed
+          ? {
+              '--virtual-table-summary-z-index': zIndex,
+              '--virtual-table-summary-sticky-bottom': Number.isFinite(bottom) ? `${bottom}px` : bottom,
+            }
+          : {}),
+        ...style,
+        paddingBottom: scrollbarHeight,
+      }}
       ref={wrapperRef}
     >
       <table className="virtual-table-summary">

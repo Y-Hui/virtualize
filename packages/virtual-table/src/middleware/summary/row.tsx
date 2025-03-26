@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ColumnType } from '@are-visual/virtual-table'
-import type { CSSProperties, FC, Key, MouseEvent, ReactNode } from 'react'
-import { Fragment, useContext } from 'react'
+import type { CSSProperties, FC, Key, MouseEvent, ReactElement, ReactNode } from 'react'
+import type { CellProps } from './cell'
+import { cloneElement, Fragment, isValidElement, useContext } from 'react'
+import SummaryCell from './cell'
 import { SummaryContext } from './context/columns'
 
 export interface SummaryRowProps {
@@ -24,7 +26,11 @@ const SummaryRow: FC<SummaryRowProps> = ({ children, ...props }) => {
               return <td key={key} />
             }
             const { column } = item
-            return <Fragment key={key}>{children(column, key)}</Fragment>
+            let childNode = children(column, key)
+            if (isValidElement(childNode) && childNode.type === SummaryCell) {
+              childNode = cloneElement(childNode as ReactElement<CellProps>, { columnKey: key })
+            }
+            return <Fragment key={key}>{childNode}</Fragment>
           })}
         </tr>
       )

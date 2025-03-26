@@ -106,13 +106,13 @@ const pipeline = useTablePipeline({
         return (
           <Summary key="summary" fixed>
             <Summary.Row>
-              {columns.map((column, key) => {
+              {(column) => {
                 return (
-                  <Summary.Cell columnKey={key}>
-                    Second Summary Cell
+                  <Summary.Cell>
+                    Content
                 	</Summary.Cell>
                 )
-              })}
+              }}
             </Summary.Row>
             
             <Summary.Row>
@@ -150,34 +150,34 @@ const pipeline = useTablePipeline({
           <>
             <Summary key="top-summary" fixed="top">
               <Summary.Row>
-                {columns.map((column, key) => {
+                {(column) => {
                   return (
-                    <Summary.Cell columnKey={key}>
-                      Second Summary Cell
+                    <Summary.Cell>
+                      Content
                     </Summary.Cell>
                   )
-                })}
+                }}
               </Summary.Row>
               <Summary.Row>
-                {columns.map((column, key) => {
+                {(column) => {
                   return (
-                    <Summary.Cell columnKey={key}>
-                      Second Summary Cell
+                    <Summary.Cell>
+                      Placeholder
                     </Summary.Cell>
                   )
-                })}
+                }}
               </Summary.Row>
             </Summary>
 
             <Summary key="bottom-summary" fixed="bottom">
               <Summary.Row>
-                {columns.map((column, key) => {
+                {(column) => {
                   return (
-                    <Summary.Cell columnKey={key}>
-                      Second Summary Cell
+                    <Summary.Cell>
+                      Content
                     </Summary.Cell>
                   )
-                })}
+                }}
               </Summary.Row>
             </Summary>
           </>
@@ -194,14 +194,20 @@ const pipeline = useTablePipeline({
 
 ### API
 
-| Prop    | 说明       | 类型                  | 默认值 | 版本 |
-| ------- | ---------- | --------------------- | ------ | ---- |
-| summary | 总结栏内容 | (*data*) => ReactNode |        |      |
+| Prop      | 说明                                                      | 类型                  | 默认值 | 版本    |
+| --------- | --------------------------------------------------------- | --------------------- | ------ | ------- |
+| summary   | 总结栏内容                                                | (*data*) => ReactNode |        |         |
+| className | 总结栏类名                                                | string                |        | >=0.7.0 |
+| style     | 总结栏行内样式                                            | CSSProperties         |        | >=0.7.0 |
+| zIndex    | 总结栏位于底部，且设置 fixed 时生效                       | number                | 2      | >=0.7.0 |
+| bottom    | 固定在底部时的偏移量，总结栏位于底部，且设置 fixed 时生效 | number \| string      | 0      | >=0.7.0 |
 
 
 ### CSS Variables
 
-| Variable                             | 说明                         | 默认值   | 版本 |
-| ------------------------------------ | ---------------------------- | -------- | ---- |
-| --virtual-table-summary-background   | 总结栏背景色/单元格背景色    | #fff     |      |
-| --virtual-table-summary-border-color | 总结栏位于底部时，上边框颜色 | \#f0f0f0 |      |
+| Variable                               | 说明                                                      | 默认值   | 版本    |
+| -------------------------------------- | --------------------------------------------------------- | -------- | ------- |
+| --virtual-table-summary-background     | 总结栏背景色/单元格背景色                                 | #fff     |         |
+| --virtual-table-summary-border-color   | 总结栏位于底部时，上边框颜色                              | \#f0f0f0 |         |
+| --virtual-table-summary-sticky-bottom  | 固定在底部时的偏移量，总结栏位于底部，且设置 fixed 时生效 | 0px      | >=0.7.0 |
+| --virtual-table-summary-sticky-z-index | 固定在底部时的层级，总结栏位于底部，且设置 fixed 时生效   | 2        | >=0.7.0 |
