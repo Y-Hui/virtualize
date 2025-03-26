@@ -1,8 +1,6 @@
+import type { TypedFlatConfigItem } from '../types'
 import pluginImport from 'eslint-plugin-import-x'
 
-/**
- * @type {import('typescript-eslint').InfiniteDepthConfigWithExtends}
- */
 export default {
   name: 'imports/rules',
   plugins: {
@@ -18,4 +16,4 @@ export default {
     'import/no-webpack-loader-syntax': 'error',
     'import/newline-after-import': ['error', { count: 1 }],
   },
-}
+} satisfies TypedFlatConfigItem

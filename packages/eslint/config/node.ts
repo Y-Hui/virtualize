@@ -1,8 +1,6 @@
+import type { TypedFlatConfigItem } from '../types'
 import pluginNode from 'eslint-plugin-n'
 
-/**
- * @type {import('typescript-eslint').InfiniteDepthConfigWithExtends}
- */
 export default {
   name: 'node/rules',
   plugins: {
@@ -18,4 +16,4 @@ export default {
     'node/prefer-global/process': ['error', 'never'],
     'node/process-exit-as-throw': 'error',
   },
-}
+} satisfies TypedFlatConfigItem

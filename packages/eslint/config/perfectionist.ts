@@ -1,8 +1,6 @@
+import type { TypedFlatConfigItem } from '../types'
 import pluginPerfectionist from 'eslint-plugin-perfectionist'
 
-/**
- * @type {import('typescript-eslint').InfiniteDepthConfigWithExtends}
- */
 export default {
   name: 'perfectionist/rules',
   plugins: {
@@ -32,4 +30,4 @@ export default {
     'perfectionist/sort-named-exports': ['error', { order: 'asc', type: 'natural' }],
     'perfectionist/sort-named-imports': ['error', { order: 'asc', type: 'natural' }],
   },
-}
+} satisfies TypedFlatConfigItem

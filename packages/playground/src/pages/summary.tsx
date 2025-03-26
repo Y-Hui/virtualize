@@ -16,6 +16,15 @@ const SummaryDemo: FC = () => {
     return (
       <Summary fixed={summaryPosition} key="summary">
         <Summary.Outlet dataSource={dataSource} />
+        <Summary.Row>
+          {(_column) => {
+            return (
+              <Summary.Cell>
+                内容
+              </Summary.Cell>
+            )
+          }}
+        </Summary.Row>
       </Summary>
     )
   }, [summaryPosition])

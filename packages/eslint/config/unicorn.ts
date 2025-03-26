@@ -1,8 +1,6 @@
+import type { TypedFlatConfigItem } from '../types'
 import pluginUnicorn from 'eslint-plugin-unicorn'
 
-/**
- * @type {import('typescript-eslint').InfiniteDepthConfigWithExtends}
- */
 export default {
   name: 'unicorn/rules',
   plugins: {
@@ -25,4 +23,4 @@ export default {
     'unicorn/prefer-type-error': 'error',
     'unicorn/throw-new-error': 'error',
   },
-}
+} satisfies TypedFlatConfigItem

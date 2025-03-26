@@ -1,8 +1,6 @@
+import type { TypedFlatConfigItem } from '../types'
 import pluginAntfu from 'eslint-plugin-antfu'
 
-/**
- * @type {import('typescript-eslint').InfiniteDepthConfigWithExtends}
- */
 export default {
   name: 'opinionated/rules',
   plugins: {
@@ -19,4 +17,4 @@ export default {
     'antfu/no-import-dist': 'error',
     'antfu/no-import-node-modules-by-path': 'error',
   },
-}
+} satisfies TypedFlatConfigItem

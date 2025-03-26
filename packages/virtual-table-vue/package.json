@@ -1,0 +1,26 @@
+{
+  "name": "@are-visual/virtual-table-vue",
+  "version": "0.1.0",
+  "main": "./index.esm.js",
+  "types": "./index.d.ts",
+  "sideEffects": false,
+  "author": "Y-Hui",
+  "license": "MIT",
+  "keywords": [
+    "vue",
+    "virtual",
+    "table",
+    "list",
+    "virtual-table",
+    "virtual-list"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Y-Hui/virtualize.git"
+  },
+  "homepage": "https://y-hui.github.io/virtualize",
+  "devDependencies": {
+    "@vue/tsconfig": "^0.7.0",
+    "vue-tsc": "^2.2.8"
+  }
+}

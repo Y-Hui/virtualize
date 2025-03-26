@@ -1,8 +1,6 @@
-/**
- * @param {string[]} [userIgnores=[]]
- * @return {import('typescript-eslint').InfiniteDepthConfigWithExtends}
- */
-export default function ignores(userIgnores = []) {
+import type { TypedFlatConfigItem } from '../types'
+
+export default function ignores(userIgnores: string[] = []): TypedFlatConfigItem {
   return {
     name: 'ignores/rules',
     ignores: [

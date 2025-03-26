@@ -88,7 +88,7 @@ function VirtualTable<T>(
     pipeline: extraPipeline,
     expandable,
     summary,
-    pagination = false,
+    pagination,
     onChange,
     storageKey,
     scrollBarBottom,

@@ -1,8 +1,6 @@
+import type { TypedFlatConfigItem } from '../types'
 import pluginComments from '@eslint-community/eslint-plugin-eslint-comments'
 
-/**
- * @type {import('typescript-eslint').InfiniteDepthConfigWithExtends}
- */
 export default {
   name: 'comments/rules',
   plugins: {
@@ -14,4 +12,4 @@ export default {
     'eslint-comments/no-unlimited-disable': 'error',
     'eslint-comments/no-unused-enable': 'error',
   },
-}
+} satisfies TypedFlatConfigItem
