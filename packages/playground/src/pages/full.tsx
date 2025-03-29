@@ -12,7 +12,7 @@ import type { SelectionProps } from '@are-visual/virtual-table/middleware/select
 import type { FC } from 'react'
 import { useAsyncData } from '@/utils/mock'
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons'
-import { useTablePipeline, VirtualTable } from '@are-visual/virtual-table'
+import { useTableInstance, useTablePipeline, VirtualTable } from '@are-visual/virtual-table'
 import { columnResize } from '@are-visual/virtual-table/middleware/column-resize'
 import { tableEmpty } from '@are-visual/virtual-table/middleware/empty'
 import { tableExpandable } from '@are-visual/virtual-table/middleware/expandable'
@@ -83,11 +83,19 @@ const FullDemo: FC = () => {
       defaultExpandAllRows: true,
       // defaultExpandedRowKeys: ['key:1'],
       rowExpandable: () => true,
-      expandedRowRender(record) {
-        return record.name
+      expandedRowRender() {
+        return (
+          <>
+            {Array.from({ length: 20 }).map((_v, i) => (
+              <div key={i}>{i + 1}</div>
+            ))}
+          </>
+        )
       },
     })
   }, [])
+
+  const instance = useTableInstance()
 
   const summary = useMemo(() => {
     return tableSummary({
@@ -99,7 +107,13 @@ const FullDemo: FC = () => {
                 if (column.key === 'name') {
                   return (
                     <Summary.Cell columnKey={key}>
-                      {key.toString()}
+                      <Button
+                        onClick={() => {
+                          instance.scrollToRow(499)
+                        }}
+                      >
+                        滚动到底部
+                      </Button>
                     </Summary.Cell>
                   )
                 }
@@ -110,7 +124,7 @@ const FullDemo: FC = () => {
         )
       },
     })
-  }, [summaryPosition])
+  }, [instance, summaryPosition])
 
   const pipeline = useTablePipeline({
     use: [
@@ -353,6 +367,7 @@ const FullDemo: FC = () => {
       </div>
       <div>
         <VirtualTable
+          instance={instance}
           pipeline={pipeline}
           // style={{
           //   boxSizing: 'border-box',

@@ -1,29 +1,31 @@
-import type { CSSProperties, FC, ReactNode } from 'react'
+import type { CSSProperties, FC, Key, ReactNode } from 'react'
 import { useContainerSize, useTableRowManager } from '@are-visual/virtual-table'
 import clsx from 'clsx'
 
 export interface ExpandRowProps {
   className?: string
   style?: CSSProperties
-  rowIndex: number
+  rowKey: Key
   isExpanded?: boolean
   colSpan?: number
   children?: ReactNode
   fixed?: boolean
 }
 
+export const ExpandRowHeightKey = 'ExpandRow'
+
 const ExpandRow: FC<ExpandRowProps> = (props) => {
   const {
     className,
     style,
-    rowIndex,
+    rowKey,
     isExpanded,
     colSpan,
     children,
     fixed,
   } = props
 
-  const { updateRowHeight } = useTableRowManager()
+  const { setRowHeightByRowKey } = useTableRowManager()
   const { tableWidth } = useContainerSize()
 
   return (
@@ -32,7 +34,7 @@ const ExpandRow: FC<ExpandRowProps> = (props) => {
       style={{ ...style, display: isExpanded ? undefined : 'none' }}
       ref={(node) => {
         if (node == null) return
-        updateRowHeight(rowIndex, `row(${rowIndex})-expandable`, node.offsetHeight)
+        setRowHeightByRowKey(rowKey, ExpandRowHeightKey, node.offsetHeight)
       }}
     >
       <td colSpan={colSpan}>

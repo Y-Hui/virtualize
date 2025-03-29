@@ -32,6 +32,7 @@ export {
   isValidFixed,
   isValidFixedLeft,
   isValidFixedRight,
+  NormalRowHeightKey,
   useColumnSizes,
   useContainerSize,
   useHorizontalScrollContext,

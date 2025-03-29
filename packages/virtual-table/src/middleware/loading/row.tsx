@@ -1,5 +1,5 @@
 import type { ColumnDescriptor } from '@are-visual/virtual-table'
-import type { CSSProperties, ReactElement } from 'react'
+import type { CSSProperties, Key, ReactElement } from 'react'
 import { findLastIndex, isValidFixedLeft, isValidFixedRight, useTableRowManager } from '@are-visual/virtual-table'
 import clsx from 'clsx'
 import { memo } from 'react'
@@ -8,13 +8,13 @@ import LoadingCell from './cell'
 export interface RowProps<T> {
   style?: CSSProperties
   descriptor: ColumnDescriptor<T>[]
-  rowIndex: number
+  rowKey: Key
 }
 
 function LoadingRow<T>(props: RowProps<T>) {
-  const { descriptor, style, rowIndex } = props
+  const { descriptor, style, rowKey } = props
 
-  const { updateRowHeight } = useTableRowManager()
+  const { setRowHeightByRowKey } = useTableRowManager()
 
   const lastFixedLeftColumnIndex = findLastIndex(descriptor, (x) => {
     if (x.type === 'blank') {
@@ -35,7 +35,7 @@ function LoadingRow<T>(props: RowProps<T>) {
       style={style}
       ref={(node) => {
         if (node == null) return
-        updateRowHeight(rowIndex, rowIndex, node.offsetHeight)
+        setRowHeightByRowKey(rowKey, 'loading-tr', node.offsetHeight)
       }}
     >
       {descriptor.map((item, index) => {

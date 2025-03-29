@@ -1,4 +1,4 @@
-import type { CSSProperties, Key, Ref } from 'react'
+import type { CSSProperties, Ref } from 'react'
 import type { ScrollElement } from '../utils/dom'
 import type { TableRowManagerContextType } from './context/row-manager'
 import type { InternalInstance } from './hooks/useTableInstance'
@@ -9,7 +9,7 @@ import type {
   MiddlewareRenderBodyRoot,
   MiddlewareRenderBodyWrapper,
 } from './pipeline/types'
-import type { RowProps } from './row'
+import type { OnRefCallbackArgs, RowProps } from './row'
 import type { InnerColumnDescriptor, TableInstance } from './types'
 import clsx from 'clsx'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
@@ -18,7 +18,7 @@ import Colgroup from './colgroup'
 import { useColumnSizes } from './context/column-sizes'
 import { useHorizontalScrollContext } from './context/horizontal-scroll'
 import { TableRowManager } from './context/row-manager'
-import { useRowVirtualize } from './hooks/useRowVirtualize'
+import { NormalRowHeightKey, useRowVirtualize } from './hooks/useRowVirtualize'
 import { pipelineRender } from './pipeline/render-pipeline'
 import Row from './row'
 import { getRowKey } from './utils/get-key'
@@ -76,37 +76,20 @@ function TableBody<T>(props: TableBodyProps<T>) {
   const {
     startIndex,
     dataSlice: dataSource,
-    setRowHeight,
-    updateRowRectList,
+    setRowHeightByRowKey,
+    flushLayout,
     rowHeightList,
     topBlank,
     bottomBlank,
   } = useRowVirtualize({
     getOffsetTop,
+    rowKey,
     dataSource: rawData,
     getScroller,
     estimateSize,
     overscan,
   })
 
-  // Record<rowIndex, Map(rowHeight)>
-  // 一个 Row 可能有多个行高。例如：默认情况下，只有一个行高，展开后，展开面板的高度也被认为是同一个 Row 的
-  // 所以可展开时，行高有多个，所有行高之和，则为 Row 的高度
-  // 行高之间使用唯一的 key 作为区分
-  const rowHeights = useRef(new Map<number, Map<Key, number>>())
-
-  // 更新行高。一般会在 body 渲染后、展开面板中调用
-  const updateRowHeight = useCallback((index: number, key: Key, height: number) => {
-    const target = rowHeights.current.get(index) ?? new Map<Key, number>()
-    target.set(key, height)
-    rowHeights.current.set(index, target)
-  }, [])
-
-  const rowManageState = useMemo<TableRowManagerContextType>(() => {
-    return { updateRowHeight, getRowHeightList: () => rowHeightList.current }
-  }, [rowHeightList, updateRowHeight])
-
-  const { columns, descriptor } = columnDescriptor
   const tbodyRef = useMergedRef(bodyRef, (elm) => {
     if (elm == null) return
 
@@ -114,15 +97,19 @@ function TableBody<T>(props: TableBodyProps<T>) {
     if (bodyHeight === 0) return
 
     // body 的 ref 回调函数中，说明 body 渲染完成，也就意味着所有的 tr 也已经渲染完成，
-    // 现在可以获取 tr 的高度，记录准确行高
-    const heights = rowHeights.current
-    heights.forEach((row, rowIndex) => {
-      const height = Array.from(row.values()).reduce((res, x) => res + x, 0)
-      setRowHeight(rowIndex, height)
-    })
-    updateRowRectList()
-    rowHeights.current.clear()
+    // 现在可以记录所有 tr 的高度
+    flushLayout()
   })
+
+  // 测量行高
+  const onMeasureRowHeight = useCallback((args: OnRefCallbackArgs<T>) => {
+    const { node, rowKey } = args
+    if (node == null) return
+    // 小心陷阱：当 table 父元素为 display: none 时，依然会触发，并设置高度为 0
+    setRowHeightByRowKey(rowKey, NormalRowHeightKey, node.offsetHeight)
+  }, [setRowHeightByRowKey])
+
+  const { columns, descriptor } = columnDescriptor
 
   const bodyContent = pipelineRender(dataSource.map((e, rowIndex) => {
     const key = getRowKey(e, rowKey)
@@ -130,12 +117,14 @@ function TableBody<T>(props: TableBodyProps<T>) {
       <Row
         key={key}
         className={clsx(rowClassName?.(e, rowIndex))}
+        rowKey={key}
         rowIndex={rowIndex + startIndex}
         rowData={e}
         columns={columnDescriptor}
         onRow={onRow}
         renderRow={renderRow}
         renderCell={renderCell}
+        onRefCallback={onMeasureRowHeight}
       />
     )
   }), renderBodyContent, { columns, columnDescriptor: descriptor, startRowIndex: startIndex })
@@ -214,6 +203,13 @@ function TableBody<T>(props: TableBodyProps<T>) {
   internalHook.implScrollToRow((index) => {
     instance.scrollTo({ top: instance.getScrollValueByRowIndex(index) })
   })
+
+  const rowManageState = useMemo<TableRowManagerContextType>(() => {
+    return {
+      setRowHeightByRowKey,
+      getRowHeightList: () => rowHeightList.current,
+    }
+  }, [rowHeightList, setRowHeightByRowKey])
 
   return (
     <TableRowManager.Provider value={rowManageState}>

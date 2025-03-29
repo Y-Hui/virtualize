@@ -32,6 +32,7 @@ export type Middleware<T> = (context: MiddlewareContext<T>) => MiddlewareResult<
 interface RenderOptions<T = any> {
   column: ColumnType<T>
   columnWidths: Map<Key, number>
+  rowKey: Key
   rowIndex: number
   startRowIndex: number
   columns: ColumnType<T>[]
@@ -54,7 +55,7 @@ export type MiddlewareRenderBodyWrapper<T = any> = (children: ReactNode, options
 export type MiddlewareRenderBodyRoot<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'startRowIndex'>>) => ReactNode
 export type MiddlewareRenderBody<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'startRowIndex'>>) => ReactNode
 export type MiddlewareRenderBodyContent<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'startRowIndex'>>) => ReactNode
-export type MiddlewareRenderRow<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'rowIndex' | 'rowData'>>) => ReactNode
+export type MiddlewareRenderRow<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'columns' | 'columnDescriptor' | 'rowKey' | 'rowIndex' | 'rowData'>>) => ReactNode
 export type MiddlewareRenderCell<T = any> = (children: ReactNode, options: Prettify<Pick<RenderOptions<T>, 'column'>>) => ReactNode
 
 export type MergedMiddlewareRender<T = any> = MiddlewareRender<T>

@@ -1,11 +1,10 @@
-import type { DetailedHTMLProps, HTMLAttributes, ReactElement } from 'react'
+import type { DetailedHTMLProps, HTMLAttributes, Key, ReactElement } from 'react'
 import type { MiddlewareRenderCell, MiddlewareRenderRow } from './pipeline/types'
 import type { InnerColumnDescriptor, OnRowType } from './types'
 import clsx from 'clsx'
 import { memo } from 'react'
 import { findLastIndex } from '../utils/find-last-index'
 import Cell from './cell'
-import { useTableRowManager } from './context/row-manager'
 import { pipelineRender } from './pipeline/render-pipeline'
 import { isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
@@ -14,28 +13,37 @@ type NativeProps = DetailedHTMLProps<
   HTMLTableRowElement
 >
 
+export interface OnRefCallbackArgs<T> {
+  node: HTMLTableRowElement | null
+  rowKey: Key
+  rowIndex: number
+  rowData: T
+}
+
 export interface RowProps<T> extends Omit<NativeProps, 'children'> {
   rowIndex: number
+  rowKey: Key
   rowData: T
   columns: InnerColumnDescriptor<T>
   onRow?: OnRowType<T>
   renderRow?: MiddlewareRenderRow
   renderCell?: MiddlewareRenderCell
+  onRefCallback?: (args: OnRefCallbackArgs<T>) => void
 }
 
 function Row<T>(props: RowProps<T>) {
   const {
     className,
+    rowKey,
     rowIndex,
     rowData,
     columns: columnDescriptor,
     onRow,
     renderRow,
     renderCell,
+    onRefCallback,
     ...rest
   } = props
-
-  const { updateRowHeight } = useTableRowManager()
 
   const { columns, descriptor } = columnDescriptor
 
@@ -61,9 +69,7 @@ function Row<T>(props: RowProps<T>) {
       className={clsx('virtual-table-row', className, extraClassName)}
       data-row-index={rowIndex}
       ref={(node) => {
-        if (node == null) return
-        // 小心陷阱：当 table 父元素为 display: none 时，依然会触发 updateRowHeight 函数，并设置高度为 0
-        updateRowHeight(rowIndex, rowIndex, node.offsetHeight)
+        onRefCallback?.({ node, rowKey, rowIndex, rowData })
       }}
     >
       {descriptor.map((item, index) => {
@@ -89,7 +95,7 @@ function Row<T>(props: RowProps<T>) {
       })}
     </tr>,
     renderRow,
-    { columns, rowIndex, rowData, columnDescriptor: descriptor },
+    { columns, rowKey, rowIndex, rowData, columnDescriptor: descriptor },
   )
 }
 

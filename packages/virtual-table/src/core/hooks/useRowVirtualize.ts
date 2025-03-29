@@ -1,8 +1,11 @@
 /* eslint-disable react-compiler/react-compiler */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { Key, MutableRefObject } from 'react'
 import type { ScrollElement } from '../../utils/dom'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import type { NecessaryProps } from '../internal'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getScrollElement, isRoot, isWindow } from '../../utils/dom'
+import { getRowKey } from '../utils/get-key'
 import { onResize } from '../utils/on-resize'
 
 export interface RowRect {
@@ -15,6 +18,7 @@ export interface RowRect {
 interface UseRowVirtualizeOptions<T = any> {
   getOffsetTop: () => number
   dataSource: T[]
+  rowKey: NecessaryProps<T>['rowKey']
   getScroller: () => ScrollElement | undefined
   estimateSize: number
   overscan: number
@@ -43,9 +47,12 @@ function anchorQuery(rects: RowRect[], scrollTop: number) {
   return rects[index]
 }
 
+export const NormalRowHeightKey = 'NormalRow'
+
 export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
   const {
     getOffsetTop,
+    rowKey,
     dataSource: rawData,
     getScroller,
     estimateSize,
@@ -59,28 +66,75 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
     return rawData.slice(startIndex, endIndex)
   }, [rawData, startIndex, endIndex])
 
-  // 行高信息（先填充预估高度，DOM渲染后再更新成实际高度）
-  const rowHeights = useRef<number[]>([])
-  const fillRowHeights = () => {
-    const len = rawData.length
-    for (let i = 0; i < len; i++) {
-      const target = rowHeights.current[i] as number | undefined
-      // 由于 fillRowHeights 是在渲染阶段调用，防止重复渲染时 estimateSize 覆盖了真实 DOM 的高度
-      if (target == null) {
-        rowHeights.current[i] = estimateSize
+  /**
+   * 记录的所有行高信息
+   * 一个 Row 可能有多个行高。例如：默认情况下，只有一个行高，展开后，展开面板的高度也被认为是同一个 Row 的
+   * 所以可展开时，行高有多个，所有行高之和，则为 Row 的高度
+   * 行高之间使用唯一的 key 作为区分
+   * Record<rowKey, Map<key, height>>
+   */
+  const rowHeightByRowKey = useRef(new Map<Key, Map<Key, number>>())
+  const setRowHeightByRowKey = useCallback((rowKey: Key, key: Key, height: number) => {
+    const target = rowHeightByRowKey.current.get(rowKey) ?? new Map<Key, number>()
+    target.set(key, height)
+    rowHeightByRowKey.current.set(rowKey, target)
+  }, [])
+
+  const getAllRowHeights = () => {
+    const heights: number[] = []
+    rawData.forEach((item) => {
+      const key = getRowKey(item, rowKey)
+      const row = rowHeightByRowKey.current.get(key)
+      if (row == null) {
+        heights.push(estimateSize)
+      } else {
+        let height = 0
+        row.forEach((x) => height += x)
+        heights.push(height)
       }
+    })
+    return heights
+  }
+
+  // 行高信息（先填充预估高度，DOM渲染后再更新成实际高度）
+  const fillRowHeights = () => {
+    if (rawData.length === 0) {
+      rowHeightByRowKey.current.clear()
+      return
     }
-    rowHeights.current = rowHeights.current.slice(0, len)
+    rawData.forEach((item) => {
+      const key = getRowKey(item, rowKey)
+      const row = rowHeightByRowKey.current.get(key) ?? new Map<Key, number>()
+      const target = row.get(NormalRowHeightKey)
+      if (target == null) {
+        row.set(NormalRowHeightKey, estimateSize)
+      }
+      rowHeightByRowKey.current.set(key, row)
+    })
   }
   fillRowHeights()
 
+  // 强制设置类型为 number[]，在后面会初始化，只是为了减少 getAllRowHeights 的调用
+  const rowHeights = useRef<number[]>() as MutableRefObject<number[]>
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (rowHeights.current == null) {
+    rowHeights.current = getAllRowHeights()
+  } else if (rawData.length !== rowHeights.current.length) {
+    // 这个判断条件主要是为了处理：空数据切换为有数据时 tbody 上 padding 缺失的问题
+    rowHeights.current = getAllRowHeights()
+  }
+
   // 布局信息（也就是锚点元素需要的信息，top,bottom,height,index）
   const rowRects = useRef<RowRect[]>([])
-  const updateRowRectList = (shouldSkip = false) => {
-    if (shouldSkip && rowRects.current.length > 0) {
-      return
-    }
-    const { rects } = rowHeights.current.reduce((result, height, index) => {
+  const updateRowRects = () => {
+    const { rects } = rawData.reduce((result, rowData, index) => {
+      const key = getRowKey(rowData, rowKey)
+
+      let height = 0
+      rowHeightByRowKey.current.get(key)?.forEach((item) => {
+        height += item
+      })
+
       const nextTop = result.top + height
       result.rects.push({
         index,
@@ -94,8 +148,13 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
     rowRects.current = rects
   }
 
-  const setRowHeight = (index: number, height: number) => {
-    rowHeights.current[index] = height
+  /** 刷新布局信息，行高变化的时候调用，要重新组织布局信息(rowRects) */
+  const flushLayout = (fn?: () => void) => {
+    fn?.()
+    updateRowRects()
+    // 组件渲染后会触发 flushLayout，表示行高有更新所以需要更新一下 rowHeights
+    // 避免展开行之后记录的还是之前的行高信息，否则滚动后底部会出现空白区域
+    rowHeights.current = rowRects.current.map((x) => x.height)
   }
 
   // 锚点元素，当前虚拟列表中，最接近滚动容器顶部的元素
@@ -202,13 +261,23 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
   const topBlank = sum(0, startIndex)
   const bottomBlank = sum(endIndex)
 
+  console.log({
+    topBlank,
+    bottomBlank,
+    startIndex,
+    endIndex,
+    rowHeightByRowKey: rowHeightByRowKey.current,
+    rowHeights: rowHeights.current,
+    rowRects,
+  })
+
   return {
     startIndex,
     endIndex,
 
     rowHeightList: rowHeights,
-    updateRowRectList,
-    setRowHeight,
+    flushLayout,
+    setRowHeightByRowKey,
 
     topBlank,
     bottomBlank,

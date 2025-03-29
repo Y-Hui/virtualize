@@ -14,7 +14,7 @@ import { createMiddleware, getRowKey, isValidFixed, useShallowMemo, useStableFn 
 import { useControllableValue } from '@are-visual/virtual-table/middleware/utils/useControllableValue'
 import clsx from 'clsx'
 import { useCallback, useMemo, useRef } from 'react'
-import ExpandRow from './expand-row'
+import ExpandRow, { ExpandRowHeightKey } from './expand-row'
 
 type TriggerEventHandler<T> = (record: T, event: MouseEvent<HTMLElement>) => void
 export interface RenderExpandIconProps<T> {
@@ -46,6 +46,7 @@ export interface ExpandableConfig<T> {
   extraColumnProps?: ColumnExtra
 }
 
+export { ExpandRowHeightKey }
 export const EXPANSION_COLUMN_KEY = 'VirtualTable.EXPANSION_COLUMN'
 
 export function isExpansionColumn<T = any>(column: ColumnType<T>) {
@@ -150,11 +151,10 @@ function useTableExpandable<T = any>(
   const isFixed = isValidFixed(fixed)
 
   const renderRow: MiddlewareRenderRow = useCallback((children, args) => {
-    const { rowData, rowIndex, columnDescriptor } = args
+    const { rowData, rowIndex, rowKey: key, columnDescriptor } = args
 
     const isExpandable = rowExpandableRecord[rowIndex]
     if (isExpandable) {
-      const key = getRowKey(rowData as T, rowKey)
       const isExpanded: boolean | undefined = expansion.includes(key)
       const isRendered = expansionKeys.current.has(key)
 
@@ -171,7 +171,7 @@ function useTableExpandable<T = any>(
           {isRendered && (
             <ExpandRow
               className={className}
-              rowIndex={rowIndex}
+              rowKey={key}
               isExpanded={isExpanded}
               colSpan={columnDescriptor.length}
               fixed={isFixed}
@@ -186,7 +186,6 @@ function useTableExpandable<T = any>(
   }, [
     isFixed,
     rowExpandableRecord,
-    rowKey,
     expansion,
     expandedRowClassName,
     expandedRowRender,
@@ -287,5 +286,4 @@ function useTableExpandable<T = any>(
   }
 }
 
-/* eslint max-len: ["error", { "code": 120 }] */
 export const tableExpandable = createMiddleware(useTableExpandable)

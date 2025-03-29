@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { MiddlewareContext, MiddlewareResult } from '@are-visual/virtual-table'
+import type { CSSProperties, ReactElement } from 'react'
 import { createMiddleware, onResize } from '@are-visual/virtual-table'
-import { useEffect, useMemo, useState } from 'react'
+import { cloneElement, isValidElement, useEffect, useMemo, useState } from 'react'
 import LoadingRow from './row'
-
-const EMPTY_ARR: unknown[] = []
 
 function useTableLoading<T = any>(
   ctx: MiddlewareContext<T>,
@@ -37,7 +36,21 @@ function useTableLoading<T = any>(
 
   return {
     ...ctx,
-    dataSource: EMPTY_ARR as T[],
+    renderBodyRoot: (children) => {
+      if (isValidElement(children)) {
+        if (Object.prototype.hasOwnProperty.call(children.props, 'style')) {
+          const style = (children.props as { style: CSSProperties }).style
+          return cloneElement(children as ReactElement<{ style: CSSProperties }>, {
+            style: {
+              ...style,
+              paddingBottom: undefined,
+              paddingTop: undefined,
+            },
+          })
+        }
+      }
+      return children
+    },
     renderBodyContent: (_ignore, { columnDescriptor, startRowIndex }) => {
       return fakeDataSource.map((item, index) => {
         return (
@@ -45,7 +58,7 @@ function useTableLoading<T = any>(
             key={item.key}
             style={{ height: estimatedRowHeight }}
             descriptor={columnDescriptor}
-            rowIndex={index + startRowIndex}
+            rowKey={`__loading$-${index + startRowIndex}`}
           />
         )
       })
