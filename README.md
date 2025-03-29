@@ -137,6 +137,105 @@ function App() {
 
 > 关于 `getOffsetTop` 的默认实现是否会造成额外重排/性能影响，还有待验证。若你实在担心，可以设置 getOffsetTop 以覆盖默认实现。
 
+#### useTableInstance
+
+一个提供编程式操作 VirtualTable 的 hook。
+
+> 版本要求：>=v0.8.0
+
+##### scrollToRow 滚动到指定行
+
+```tsx
+const instance = useTableInstance()
+
+const onScroll = () => {
+  // 通过索引值，滚动到第 10 行
+  instance.scrollToRow(10)
+}
+
+<VirtualTable instance={instance} />
+```
+
+> 注意：由于是虚拟列表，行高是不确定的，若 `estimatedRowHeight` 不准确，scrollToRow 则无法准确滚动到对应的行。
+
+##### scrollToColumn 滚动到指定列
+
+```tsx
+const instance = useTableInstance()
+
+const onScroll = () => {
+  // 通过 key，滚动到指定列
+  instance.scrollToColumn('columnKey')
+}
+
+<VirtualTable instance={instance} />
+```
+
+> 注意：由于是虚拟列表，列宽是不确定的，若 `estimatedColumnWidth` 不准确，scrollToColumn 则无法准确滚动到对应的列。
+
+##### scrollTo 手动滚动
+
+```tsx
+const instance = useTableInstance()
+
+const onScroll = () => {
+  // 使用像素值进行滚动，背后其实是对原生 DOM 节点的 scrollTo 进行的封装
+  instance.scrollTo({ top: 0, left: 0 })
+}
+
+<VirtualTable instance={instance} />
+```
+
+##### getScrollValueByRowIndex
+
+```tsx
+const instance = useTableInstance()
+
+const onScroll = () => {
+  // 通过索引值，滚动到第 10 行所对应的数值
+  console.log(instance.getScrollValueByRowIndex(10))
+}
+```
+
+##### getScrollValueByColumnKey
+
+```tsx
+const instance = useTableInstance()
+
+const onScroll = () => {
+  // 通过 key，获取滚动到指定列所对应的数值
+  console.log(instance.getScrollValueByColumnKey('columnKey'))
+}
+```
+
+##### getDOM
+
+有些时候，你不得不获取 DOM 节点来进行一些操作。
+
+```tsx
+const instance = useTableInstance()
+
+const doSomething = () => {
+  const { root, headerWrapper, bodyWrapper, bodyRoot, body } = instance.getDOM()
+}
+
+<VirtualTable instance={instance} />
+```
+
+##### getCurrentProps
+
+有些时候，你可能不太方便获取到传递给 VirtualTable 的 props，那么你可以通过 `instance.getCurrentProps` 获取。
+
+```tsx
+const instance = useTableInstance()
+
+const doSomething = () => {
+  console.log(instance.getCurrentProps().stickyHeader)
+}
+
+<VirtualTable stickyHeader={120} instance={instance} />
+```
+
 #### 插件
 
 `@are-visual/virtual-table` 提供一个 `useTablePipeline` hook 用于组合各种插件，为 Table 增加各式各样的功能。
@@ -251,6 +350,7 @@ const mergedPipeline = useTablePipeline({
 | bodyRef | tbody 元素 | RefObject\<HTMLTableSectionElement\> | |
 | getScroller | 获取滚动容器 | () => ScrollElement \| undefined |  |
 | getOffsetTop | 计算顶部偏移量 | () => number | |
+| instance | 与 useTableInstance 一致 | TableInstance | >=0.8.0 |
 
 ##### 插件返回值定义
 

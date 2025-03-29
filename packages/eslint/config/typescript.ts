@@ -72,6 +72,7 @@ export default function typescript(options: OptionsTs) {
             ignoreRestSiblings: false,
           },
         ],
+        '@typescript-eslint/no-empty-function': 'off',
         ...overrides,
       },
     },

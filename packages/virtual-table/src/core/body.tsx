@@ -1,6 +1,7 @@
 import type { CSSProperties, Key, Ref } from 'react'
 import type { ScrollElement } from '../utils/dom'
 import type { TableRowManagerContextType } from './context/row-manager'
+import type { InternalInstance } from './hooks/useTableInstance'
 import type { NecessaryProps } from './internal'
 import type {
   MiddlewareRenderBody,
@@ -9,7 +10,7 @@ import type {
   MiddlewareRenderBodyWrapper,
 } from './pipeline/types'
 import type { RowProps } from './row'
-import type { InnerColumnDescriptor } from './types'
+import type { InnerColumnDescriptor, TableInstance } from './types'
 import clsx from 'clsx'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useMergedRef } from '../utils/ref'
@@ -31,6 +32,7 @@ export interface TableBodyProps<T>
   bodyWrapperRef?: Ref<HTMLDivElement>
   bodyRootRef?: Ref<HTMLTableElement>
   bodyRef?: Ref<HTMLTableSectionElement>
+  instance: TableInstance
   overscan: number
   estimateSize: number
   getOffsetTop: () => number
@@ -52,6 +54,8 @@ function TableBody<T>(props: TableBodyProps<T>) {
     dataSource: rawData,
     columns: columnDescriptor,
     rowKey,
+
+    instance,
 
     overscan,
     estimateSize,
@@ -181,6 +185,35 @@ function TableBody<T>(props: TableBodyProps<T>) {
   }, [listen, notify])
 
   const mergedRef = useMergedRef(wrapperRef, bodyWrapperRef)
+
+  const internalHook = (instance as InternalInstance).getInternalHooks()
+
+  // 滚动到指定行。注意：如果 estimatedRowHeight 不够准确时，不一定能准确滚动到目标位置
+  internalHook.implScrollValueByRowIndex((index) => {
+    const scroller = getScroller()
+    if (scroller == null) {
+      return 0
+    }
+
+    const { stickyHeader } = instance.getCurrentProps()
+    const { headerWrapper } = instance.getDOM()
+
+    let offset = 0
+    // 没有 sticky，就要计算 header 高度
+    if (stickyHeader == null || stickyHeader === false) {
+      const headerOffsetHeight = headerWrapper == null ? 0 : headerWrapper.offsetHeight
+      offset = headerOffsetHeight
+    } else {
+      offset = Number.isFinite(stickyHeader) ? (stickyHeader as number) * -1 : 0
+    }
+
+    const targetScrollTop = rowHeightList.current.slice(0, index).reduce((a, b) => a + b, 0)
+    return targetScrollTop + getOffsetTop() + offset
+  })
+
+  internalHook.implScrollToRow((index) => {
+    instance.scrollTo({ top: instance.getScrollValueByRowIndex(index) })
+  })
 
   return (
     <TableRowManager.Provider value={rowManageState}>

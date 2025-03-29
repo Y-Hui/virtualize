@@ -2,7 +2,7 @@
 import type { Key, ReactNode, RefObject } from 'react'
 import type { ScrollElement } from '../../utils/dom'
 import type { NecessaryProps } from '../internal'
-import type { ColumnDescriptor, ColumnType, OnRowType } from '../types'
+import type { ColumnDescriptor, ColumnType, OnRowType, TableInstance } from '../types'
 
 type Prettify<T> = {
   [K in keyof T]: T[K]
@@ -17,6 +17,7 @@ export interface MiddlewareContext<T> extends Readonly<NecessaryProps<T>> {
   readonly bodyRef: RefObject<HTMLTableSectionElement>
   readonly getScroller: () => ScrollElement | undefined
   readonly getOffsetTop: () => number
+  readonly instance: TableInstance
   [key: string]: unknown
 }
 

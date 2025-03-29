@@ -1,8 +1,9 @@
 import type { CSSProperties, ForwardedRef, Key, ReactElement, Ref, RefAttributes } from 'react'
 import type { TableBodyProps } from './body'
 import type { TableColumnsContextType } from './context/column-sizes'
+import type { InternalInstance } from './hooks/useTableInstance'
 import type { NecessaryProps } from './internal'
-import type { ColumnDescriptor, OnRowType } from './types'
+import type { ColumnDescriptor, OnRowType, TableInstance } from './types'
 import clsx from 'clsx'
 import {
   forwardRef,
@@ -21,6 +22,7 @@ import { HorizontalScrollContext } from './context/horizontal-scroll'
 import { StickyContext } from './context/sticky'
 import TableHeader from './header'
 import { useColumnVirtualize } from './hooks/useColumnVirtualize'
+import { useTableInstance } from './hooks/useTableInstance'
 import { pipelineRender } from './pipeline/render-pipeline'
 import { TablePipeline } from './pipeline/useTablePipeline'
 import TableRoot from './root'
@@ -31,6 +33,7 @@ export interface VirtualTableCoreProps<T>
   extends NecessaryProps<T>,
   Pick<TableBodyProps<T>, 'rowClassName' | 'onRow'> {
   bodyRootRef?: Ref<HTMLTableElement>
+  instance?: TableInstance
 
   className?: string
   style?: CSSProperties
@@ -70,6 +73,7 @@ function VirtualTableCore<T>(
 ) {
   const {
     bodyRootRef,
+    instance: rawInstance,
     className,
     style,
     tableBodyClassName,
@@ -90,8 +94,9 @@ function VirtualTableCore<T>(
     virtualHeader = true,
   } = props
 
-  const rootNode = useRef<HTMLDivElement>(null)
+  const instance = useTableInstance(rawInstance)
 
+  const rootNode = useRef<HTMLDivElement>(null)
   const headerWrapperRef = useRef<HTMLDivElement>(null)
   const bodyWrapperRef = useRef<HTMLDivElement>(null)
   const bodyRoot = useRef<HTMLTableElement>(null)
@@ -154,6 +159,7 @@ function VirtualTableCore<T>(
     rootRef: rootNode,
     getOffsetTop,
     getScroller,
+    instance,
   })
 
   const [columnWidths, setColumnWidths] = useState(() => new Map<Key, number>())
@@ -216,6 +222,58 @@ function VirtualTableCore<T>(
     return fullHeaderColumns
   }, [virtualHeader, fullHeaderColumns, columns])
 
+  const internalHook = (instance as InternalInstance).getInternalHooks()
+  internalHook.implGetCurrentProps(() => props)
+  internalHook.implGetDOM(() => {
+    return {
+      root: rootNode.current,
+      headerWrapper: headerWrapperRef.current,
+      bodyWrapper: bodyWrapperRef.current,
+      bodyRoot: bodyRoot.current,
+      body: bodyRef.current,
+    }
+  })
+  internalHook.implScrollTo((options) => {
+    const { left, top } = options
+    if (left != null) {
+      if (__DEV__) {
+        if (bodyWrapperRef.current == null) {
+          console.error('The bodyWrapper DOM is not obtained, and scrolling is not possible.')
+        }
+      }
+      bodyWrapperRef.current?.scrollTo(options)
+    }
+    if (top != null) {
+      const scroller = getScroller()
+      if (scroller == null) {
+        console.error('The scroller DOM is not obtained, and scrolling is not possible.')
+        return
+      }
+      scroller.scrollTo(options)
+    }
+  })
+  internalHook.implScrollValueByColumnKey((key) => {
+    let scrollLeft = 0
+    let leftFixedWidth = 0
+    // pipelineColumns 是一个经过中间件处理的 columns
+    // 因为中间件可能会处理 columns，比如：添加、删除、排序 columns
+    for (const element of pipelineColumns) {
+      const columnKey = getKey(element)
+      const width = columnWidths.get(columnKey) ?? 0
+      if (isValidFixedLeft(element.fixed)) {
+        leftFixedWidth += width
+      }
+      if (columnKey === key) {
+        break
+      }
+      scrollLeft += width
+    }
+    return scrollLeft - leftFixedWidth
+  })
+  internalHook.implScrollToColumn((key) => {
+    instance.scrollTo({ left: instance.getScrollValueByColumnKey(key) })
+  })
+
   const contentNode = pipelineRender(
     <>
       <TableHeader
@@ -229,6 +287,7 @@ function VirtualTableCore<T>(
         renderHeaderCell={renderHeaderCell}
       />
       <TableBody
+        instance={instance}
         bodyWrapperRef={bodyWrapperRef}
         bodyRootRef={mergedBodyRootRef}
         bodyRef={bodyRef}

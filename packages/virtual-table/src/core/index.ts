@@ -14,6 +14,7 @@ export type { StickyContextState } from './context/sticky'
 export { useTableSticky } from './context/sticky'
 export { useShallowMemo } from './hooks/useShallowMemo'
 export { useStableFn } from './hooks/useStableFn'
+export { useTableInstance } from './hooks/useTableInstance'
 export { createMiddleware } from './pipeline/create-middleware'
 export type {
   Middleware,
@@ -52,6 +53,7 @@ export type {
   ColumnType,
   FixedType,
   OnRowType,
+  TableInstance,
 } from './types'
 export { getKey, getRowKey } from './utils/get-key'
 export { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verification'

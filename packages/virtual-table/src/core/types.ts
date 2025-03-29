@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { DetailedHTMLProps, HTMLAttributes, Key, ReactNode, TdHTMLAttributes } from 'react'
+import type { VirtualTableCoreProps } from './table'
 import type { FixedType } from './utils/verification'
 
 export type AnyObject = Record<string, any>
@@ -57,4 +58,20 @@ export interface ColumnBlank {
 export interface InnerColumnDescriptor<T> {
   descriptor: ColumnDescriptor<T>[]
   columns: ColumnType<T>[]
+}
+
+export interface TableInstance<T = any> {
+  getCurrentProps: () => Readonly<VirtualTableCoreProps<T>>
+  getDOM: () => {
+    root: HTMLDivElement | null
+    headerWrapper: HTMLDivElement | null
+    bodyWrapper: HTMLDivElement | null
+    bodyRoot: HTMLTableElement | null
+    body: HTMLTableSectionElement | null
+  }
+  getScrollValueByRowIndex: (index: number) => number
+  getScrollValueByColumnKey: (key: Key) => number
+  scrollToRow: (index: number) => void
+  scrollToColumn: (key: Key) => void
+  scrollTo: (options: ScrollToOptions) => void
 }
