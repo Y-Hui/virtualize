@@ -69,9 +69,23 @@ export interface TableInstance<T = any> {
     bodyRoot: HTMLTableElement | null
     body: HTMLTableSectionElement | null
   }
+  /** 获取行虚拟化用到的数据 */
+  getRowVirtualizeState: () => { startIndex: number, endIndex: number, overscan: number, estimateSize: number }
+  /** 获取所有的行高信息。Map<rowKey, Map<key, number>> */
+  getRowHeightMap: () => Map<Key, Map<Key, number>>
+  /** 通过索引值，获取指定行所对应的滚动数值 */
   getScrollValueByRowIndex: (index: number) => number
+  /** 通过 columnKey，获取指定列所对应的滚动数值 */
   getScrollValueByColumnKey: (key: Key) => number
+  /** 通过索引值，滚动到指定行 */
   scrollToRow: (index: number) => void
+  /** 通过 columnKey，滚动到指定列 */
   scrollToColumn: (key: Key) => void
   scrollTo: (options: ScrollToOptions) => void
+  /** 通过 columnKey 获取 column 定义 */
+  getColumnByKey: (key: Key) => ColumnType<T> | undefined
+  /** 通过索引获取 column 定义 */
+  getColumnByIndex: (index: number) => ColumnType<T> | undefined
+  /** 通过索引获取 columnKey */
+  getColumnKeyByIndex: (index: number) => Key | undefined
 }

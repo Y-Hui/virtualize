@@ -3,7 +3,7 @@ import type { TableBodyProps } from './body'
 import type { TableColumnsContextType } from './context/column-sizes'
 import type { InternalInstance } from './hooks/useTableInstance'
 import type { NecessaryProps } from './internal'
-import type { ColumnDescriptor, OnRowType, TableInstance } from './types'
+import type { ColumnDescriptor, ColumnType, OnRowType, TableInstance } from './types'
 import clsx from 'clsx'
 import {
   forwardRef,
@@ -95,6 +95,9 @@ function VirtualTableCore<T>(
   } = props
 
   const instance = useTableInstance(rawInstance)
+
+  const internalHook = (instance as InternalInstance).getInternalHooks()
+  internalHook.implGetCurrentProps(() => props)
 
   const rootNode = useRef<HTMLDivElement>(null)
   const headerWrapperRef = useRef<HTMLDivElement>(null)
@@ -222,8 +225,6 @@ function VirtualTableCore<T>(
     return fullHeaderColumns
   }, [virtualHeader, fullHeaderColumns, columns])
 
-  const internalHook = (instance as InternalInstance).getInternalHooks()
-  internalHook.implGetCurrentProps(() => props)
   internalHook.implGetDOM(() => {
     return {
       root: rootNode.current,
@@ -272,6 +273,18 @@ function VirtualTableCore<T>(
   })
   internalHook.implScrollToColumn((key) => {
     instance.scrollTo({ left: instance.getScrollValueByColumnKey(key) })
+  })
+  internalHook.implGetColumnByKey((key) => {
+    return pipelineColumns.find((x) => getKey(x) === key)
+  })
+  internalHook.implGetColumnByIndex((index) => {
+    return pipelineColumns[index] as ColumnType<T> | undefined
+  })
+  internalHook.implGetColumnKeyByIndex((index) => {
+    const column = instance.getColumnByIndex(index)
+    if (column != null) {
+      return getKey(column)
+    }
   })
 
   const contentNode = pipelineRender(

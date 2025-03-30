@@ -73,9 +73,13 @@ function TableBody<T>(props: TableBodyProps<T>) {
     renderCell,
   } = props
 
+  const internalHook = (instance as InternalInstance).getInternalHooks()
+
   const {
     startIndex,
+    endIndex,
     dataSlice: dataSource,
+    rowHeightByRowKey,
     setRowHeightByRowKey,
     flushLayout,
     rowHeightList,
@@ -89,6 +93,9 @@ function TableBody<T>(props: TableBodyProps<T>) {
     estimateSize,
     overscan,
   })
+
+  internalHook.implGetRowVirtualizeState(() => ({ startIndex, endIndex, overscan, estimateSize }))
+  internalHook.implGetRowHeightMap(() => rowHeightByRowKey.current)
 
   const tbodyRef = useMergedRef(bodyRef, (elm) => {
     if (elm == null) return
@@ -175,8 +182,6 @@ function TableBody<T>(props: TableBodyProps<T>) {
 
   const mergedRef = useMergedRef(wrapperRef, bodyWrapperRef)
 
-  const internalHook = (instance as InternalInstance).getInternalHooks()
-
   // 滚动到指定行。注意：如果 estimatedRowHeight 不够准确时，不一定能准确滚动到目标位置
   internalHook.implScrollValueByRowIndex((index) => {
     const scroller = getScroller()
@@ -199,7 +204,6 @@ function TableBody<T>(props: TableBodyProps<T>) {
     const targetScrollTop = rowHeightList.current.slice(0, index).reduce((a, b) => a + b, 0)
     return targetScrollTop + getOffsetTop() + offset
   })
-
   internalHook.implScrollToRow((index) => {
     instance.scrollTo({ top: instance.getScrollValueByRowIndex(index) })
   })

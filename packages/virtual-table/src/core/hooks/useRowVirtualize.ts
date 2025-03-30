@@ -261,22 +261,13 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
   const topBlank = sum(0, startIndex)
   const bottomBlank = sum(endIndex)
 
-  console.log({
-    topBlank,
-    bottomBlank,
-    startIndex,
-    endIndex,
-    rowHeightByRowKey: rowHeightByRowKey.current,
-    rowHeights: rowHeights.current,
-    rowRects,
-  })
-
   return {
     startIndex,
     endIndex,
 
     rowHeightList: rowHeights,
     flushLayout,
+    rowHeightByRowKey,
     setRowHeightByRowKey,
 
     topBlank,

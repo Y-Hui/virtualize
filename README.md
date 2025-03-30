@@ -236,6 +236,38 @@ const doSomething = () => {
 <VirtualTable stickyHeader={120} instance={instance} />
 ```
 
+##### getRowVirtualizeState 获取行虚拟化用到的数据
+
+```tsx
+const { startIndex, endIndex, overscan, estimateSize } = instance.getRowVirtualizeState()
+```
+
+##### getRowHeightMap 获取所有的行高信息
+
+```ts
+const heightMap = instance.getRowHeightMap()
+
+heightMap.get(rowKey)
+```
+
+##### getColumnByKey 通过 columnKey 获取 column 定义
+
+```ts
+const column = instance.getColumnByKey(columnKey)
+```
+
+##### getColumnByIndex 通过索引获取 column 定义
+
+```ts
+const column = instance.getColumnByIndex(index)
+```
+
+##### getColumnKeyByIndex 通过索引获取 columnKey
+
+```ts
+const columnKey = instance.getColumnKeyByIndex(index)
+```
+
 #### 插件
 
 `@are-visual/virtual-table` 提供一个 `useTablePipeline` hook 用于组合各种插件，为 Table 增加各式各样的功能。
