@@ -268,6 +268,27 @@ const column = instance.getColumnByIndex(index)
 const columnKey = instance.getColumnKeyByIndex(index)
 ```
 
+##### getColumnWidths 获取所有的列宽
+
+所有的列宽通过 columnKey 进行记录（无序）。
+
+```ts
+const widths = instance.getColumnWidths()
+widths.get(columnKey)
+```
+
+##### getColumnWidthByKey 通过 columnKey 获取列宽
+
+```ts
+const width = instance.getColumnWidthByKey(columnKey)
+```
+
+##### getColumns 获取 middleware 处理过的 columns
+
+```ts
+const pipelineColumns = instance.getColumns()
+```
+
 #### 插件
 
 `@are-visual/virtual-table` 提供一个 `useTablePipeline` hook 用于组合各种插件，为 Table 增加各式各样的功能。

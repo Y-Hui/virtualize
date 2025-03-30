@@ -165,6 +165,8 @@ function VirtualTableCore<T>(
     instance,
   })
 
+  internalHook.implGetColumns(() => pipelineColumns)
+
   const [columnWidths, setColumnWidths] = useState(() => new Map<Key, number>())
   const columnWidthsRef = useRef(columnWidths)
   const updateColumnWidths = useCallback((value: Map<Key, number>) => {
@@ -175,6 +177,10 @@ function VirtualTableCore<T>(
     columnWidthsRef.current = result
     setColumnWidths(result)
   }, [])
+  internalHook.implGetColumnWidths(() => columnWidthsRef.current)
+  internalHook.implGetColumnWidthByKey((columnKey) => {
+    return columnWidthsRef.current.get(columnKey)
+  })
 
   const tableColumnsContext = useMemo<TableColumnsContextType>(() => {
     return {

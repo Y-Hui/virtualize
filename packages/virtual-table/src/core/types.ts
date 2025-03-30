@@ -62,6 +62,8 @@ export interface InnerColumnDescriptor<T> {
 
 export interface TableInstance<T = any> {
   getCurrentProps: () => Readonly<VirtualTableCoreProps<T>>
+  /** 获取 columns 数组（经过所有 middleware 处理过的 columns） */
+  getColumns: () => ColumnType<T>[]
   getDOM: () => {
     root: HTMLDivElement | null
     headerWrapper: HTMLDivElement | null
@@ -76,16 +78,20 @@ export interface TableInstance<T = any> {
   /** 通过索引值，获取指定行所对应的滚动数值 */
   getScrollValueByRowIndex: (index: number) => number
   /** 通过 columnKey，获取指定列所对应的滚动数值 */
-  getScrollValueByColumnKey: (key: Key) => number
+  getScrollValueByColumnKey: (columnKey: Key) => number
   /** 通过索引值，滚动到指定行 */
   scrollToRow: (index: number) => void
   /** 通过 columnKey，滚动到指定列 */
-  scrollToColumn: (key: Key) => void
+  scrollToColumn: (columnKey: Key) => void
   scrollTo: (options: ScrollToOptions) => void
   /** 通过 columnKey 获取 column 定义 */
-  getColumnByKey: (key: Key) => ColumnType<T> | undefined
+  getColumnByKey: (columnKey: Key) => ColumnType<T> | undefined
   /** 通过索引获取 column 定义 */
   getColumnByIndex: (index: number) => ColumnType<T> | undefined
   /** 通过索引获取 columnKey */
   getColumnKeyByIndex: (index: number) => Key | undefined
+  /** 获取所有的列宽 */
+  getColumnWidths: () => Map<Key, number>
+  /** 通过 columnKey 获取列宽 */
+  getColumnWidthByKey: (columnKey: Key) => number | undefined
 }

@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 
 export interface InternalHook {
   implGetCurrentProps: (fn: Instance['getCurrentProps']) => void
+  implGetColumns: (fn: Instance['getColumns']) => void
   implGetDOM: (fn: Instance['getDOM']) => void
   implGetRowHeightMap: (fn: Instance['getRowHeightMap']) => void
   implGetRowVirtualizeState: (fn: Instance['getRowVirtualizeState']) => void
@@ -14,6 +15,8 @@ export interface InternalHook {
   implGetColumnByKey: (fn: Instance['getColumnByKey']) => void
   implGetColumnByIndex: (fn: Instance['getColumnByIndex']) => void
   implGetColumnKeyByIndex: (fn: Instance['getColumnKeyByIndex']) => void
+  implGetColumnWidths: (fn: Instance['getColumnWidths']) => void
+  implGetColumnWidthByKey: (fn: Instance['getColumnWidthByKey']) => void
 }
 
 export type InternalInstance = Instance & {
@@ -29,6 +32,9 @@ class TableInstance {
   instance: Instance = {
     getCurrentProps() {
       throw new Error('getCurrentProps() has not been implemented yet')
+    },
+    getColumns() {
+      throw new Error('getColumns() has not been implemented yet')
     },
     getDOM() {
       throw new Error('getDOM() has not been implemented yet')
@@ -63,12 +69,21 @@ class TableInstance {
     getColumnKeyByIndex() {
       throw new Error('getColumnKeyByIndex() has not been implemented yet')
     },
+    getColumnWidths() {
+      throw new Error('getColumnWidths() has not been implemented yet')
+    },
+    getColumnWidthByKey() {
+      throw new Error('getColumnWidthByKey() has not been implemented yet')
+    },
   }
 
   getInternalHooks(): InternalHook {
     return {
       implGetCurrentProps: (fn) => {
         this.instance.getCurrentProps = fn
+      },
+      implGetColumns: (fn) => {
+        this.instance.getColumns = fn
       },
       implGetDOM: (fn) => {
         this.instance.getDOM = fn
@@ -102,6 +117,12 @@ class TableInstance {
       },
       implGetColumnKeyByIndex: (fn) => {
         this.instance.getColumnKeyByIndex = fn
+      },
+      implGetColumnWidths: (fn) => {
+        this.instance.getColumnWidths = fn
+      },
+      implGetColumnWidthByKey: (fn) => {
+        this.instance.getColumnWidthByKey = fn
       },
     }
   }
