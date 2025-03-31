@@ -166,6 +166,7 @@ function VirtualTableCore<T>(
   })
 
   internalHook.implGetColumns(() => pipelineColumns)
+  internalHook.implGetDataSource(() => dataSource)
 
   const [columnWidths, setColumnWidths] = useState(() => new Map<Key, number>())
   const columnWidthsRef = useRef(columnWidths)

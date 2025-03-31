@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 export interface InternalHook {
   implGetCurrentProps: (fn: Instance['getCurrentProps']) => void
   implGetColumns: (fn: Instance['getColumns']) => void
+  implGetDataSource: (fn: Instance['getDataSource']) => void
   implGetDOM: (fn: Instance['getDOM']) => void
   implGetRowHeightMap: (fn: Instance['getRowHeightMap']) => void
   implGetRowVirtualizeState: (fn: Instance['getRowVirtualizeState']) => void
@@ -35,6 +36,9 @@ class TableInstance {
     },
     getColumns() {
       throw new Error('getColumns() has not been implemented yet')
+    },
+    getDataSource() {
+      throw new Error('getDataSource() has not been implemented yet')
     },
     getDOM() {
       throw new Error('getDOM() has not been implemented yet')
@@ -84,6 +88,9 @@ class TableInstance {
       },
       implGetColumns: (fn) => {
         this.instance.getColumns = fn
+      },
+      implGetDataSource: (fn) => {
+        this.instance.getDataSource = fn
       },
       implGetDOM: (fn) => {
         this.instance.getDOM = fn

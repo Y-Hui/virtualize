@@ -289,6 +289,16 @@ const width = instance.getColumnWidthByKey(columnKey)
 const pipelineColumns = instance.getColumns()
 ```
 
+##### getDataSource 获取 middleware 处理过的 dataSource
+
+```ts
+const pipelineDataSource = instance.getDataSource()
+```
+
+通过以上的函数，你可以很方便的获取一些 VirtualTable 内部的数据，但是这些函数不能在 render 阶段中直接调用，否则会抛出 `has not been implemented yet` 错误。因为这些函数都在 VirtualTable 内部渲染阶段初始化，它们初始化完成后便能使用。建议在事件处理函数中调用。
+
+你也许会发现有些函数能够在渲染阶段直接使用，但是并不能保证在未来的版本中均是如此。
+
 #### 插件
 
 `@are-visual/virtual-table` 提供一个 `useTablePipeline` hook 用于组合各种插件，为 Table 增加各式各样的功能。

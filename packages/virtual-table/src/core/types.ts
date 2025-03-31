@@ -62,8 +62,10 @@ export interface InnerColumnDescriptor<T> {
 
 export interface TableInstance<T = any> {
   getCurrentProps: () => Readonly<VirtualTableCoreProps<T>>
-  /** 获取 columns 数组（经过所有 middleware 处理过的 columns） */
+  /** 获取所有 middleware 处理过的 columns */
   getColumns: () => ColumnType<T>[]
+  /** 获取所有 middleware 处理过的 dataSource */
+  getDataSource: () => T[]
   getDOM: () => {
     root: HTMLDivElement | null
     headerWrapper: HTMLDivElement | null
