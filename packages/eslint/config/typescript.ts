@@ -78,7 +78,11 @@ export default function typescript(options: OptionsTs) {
     '@typescript-eslint/no-unsafe-return': 'error',
     '@typescript-eslint/promise-function-async': 'off',
     '@typescript-eslint/restrict-plus-operands': 'error',
-    '@typescript-eslint/restrict-template-expressions': 'error',
+    '@typescript-eslint/restrict-template-expressions': ['error', {
+      allowAny: true,
+      allowNumber: true,
+      allowBoolean: true,
+    }],
     '@typescript-eslint/return-await': ['error', 'in-try-catch'],
     '@typescript-eslint/strict-boolean-expressions': ['error', { allowNullableBoolean: true, allowNullableObject: true, allowNullableString: true }],
     '@typescript-eslint/switch-exhaustiveness-check': 'error',
@@ -200,11 +204,6 @@ export default function typescript(options: OptionsTs) {
       name: 'ts/rules',
       files,
       rules: {
-        '@typescript-eslint/restrict-template-expressions': ['error', {
-          allowAny: true,
-          allowNumber: true,
-          allowBoolean: true,
-        }],
         '@typescript-eslint/consistent-type-imports': ['error', {
           disallowTypeAnnotations: false,
           prefer: 'type-imports',
