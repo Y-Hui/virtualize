@@ -55,13 +55,19 @@ export default function eslintConfig(options: EslintConfigOptions, ...userConfig
     stylistic.configs.customize(stylisticOptions),
   ]
 
+  const componentExts: string[] = []
+
+  if (enableVue === true || typeof enableVue === 'object') {
+    componentExts.push('vue')
+  }
+
   if (enableTypeScript) {
     if (typeof ts === 'object') {
       // @ts-expect-error ignore this error
-      configs.push(...typescript(ts))
+      configs.push(...typescript({ componentExts, ...ts }))
     } else {
       // @ts-expect-error ignore this error
-      configs.push(...typescript({}))
+      configs.push(...typescript({ componentExts }))
     }
   }
 
@@ -74,10 +80,15 @@ export default function eslintConfig(options: EslintConfigOptions, ...userConfig
       configs.push(...vue({
         indent: stylisticOptions.indent,
         ...enableVue,
+        jsx: enableJsx,
         typescript: enableTypeScript,
       }))
     } else {
-      configs.push(...vue({ typescript: enableTypeScript, indent: stylisticOptions.indent }))
+      configs.push(...vue({
+        indent: stylisticOptions.indent,
+        jsx: enableJsx,
+        typescript: enableTypeScript,
+      }))
     }
   }
 

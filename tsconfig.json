@@ -27,5 +27,5 @@
       "@are-visual/virtual-table/*": ["./packages/virtual-table/src/*"],
     }
   },
-  "include": ["packages/*/src", "scripts/**/*", "./packages/global.d.ts"]
+  "include": ["packages/*/src", "packages/*/src/**/*.vue", "scripts/**/*", "./packages/global.d.ts", "./eslint.config.ts"]
 }

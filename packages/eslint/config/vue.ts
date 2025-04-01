@@ -1,6 +1,9 @@
 import type { Linter } from 'eslint'
+import type { Options as VueBlocksOptions } from 'eslint-processor-vue-blocks'
 import type { TypedFlatConfigItem } from '../types'
+import { mergeProcessors } from 'eslint-merge-processors'
 import pluginVue from 'eslint-plugin-vue'
+import processorVueBlocks from 'eslint-processor-vue-blocks'
 import tseslint from 'typescript-eslint'
 import parserVue from 'vue-eslint-parser'
 
@@ -10,15 +13,30 @@ export interface OptionsVue {
   version?: 2 | 3
   overrides?: Linter.Config['rules']
   indent?: number | 'tab'
+  sfcBlocks?: boolean | VueBlocksOptions
 }
 
 export default function vue(options: OptionsVue) {
   const { typescript = false, version = 3, overrides, indent = 2, jsx = true } = options
 
+  const sfcBlocks = options.sfcBlocks === true
+    ? {}
+    : options.sfcBlocks ?? {}
+
+  const scriptLangs = ['js', 'ts']
+  if (jsx) {
+    scriptLangs.push('jsx')
+  }
+  if (jsx && typescript) {
+    scriptLangs.push('tsx')
+  }
+
   const config: TypedFlatConfigItem[] = [
+    { name: 'app/files-to-lint', files: ['**/*.{ts,mts,tsx,vue}'] },
     {
-      name: 'eslint-vue/base',
+      name: 'vue/setup',
       languageOptions: {
+        sourceType: 'module',
         globals: {
           computed: 'readonly',
           defineEmits: 'readonly',
@@ -36,27 +54,35 @@ export default function vue(options: OptionsVue) {
           watchEffect: 'readonly',
         },
       },
-      plugins: {
-        vue: pluginVue,
-      },
+      plugins: { vue: pluginVue },
     },
     {
       name: 'eslint-vue/rules',
-      files: ['**/*.vue'],
+      files: ['*.vue', '**/*.vue'],
       languageOptions: {
         parser: parserVue,
         parserOptions: {
-          ecmaFeatures: {
-            jsx,
-          },
+          ecmaVersion: 2024,
+          ecmaFeatures: { jsx },
           extraFileExtensions: ['.vue'],
-          parser: typescript
-            ? tseslint.parser
-            : null,
+          parser: { js: 'espree', jsx: 'espree', ts: tseslint.parser, tsx: tseslint.parser },
           sourceType: 'module',
         },
       },
-      processor: pluginVue.processors['.vue'],
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      processor: sfcBlocks === false
+        ? pluginVue.processors['.vue']
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        : mergeProcessors([
+            pluginVue.processors['.vue'],
+            processorVueBlocks({
+              ...sfcBlocks,
+              blocks: {
+                styles: true,
+                ...sfcBlocks.blocks,
+              },
+            }),
+          ]),
       rules: {
         ...pluginVue.configs.base.rules,
         ...version === 2
@@ -146,34 +172,6 @@ export default function vue(options: OptionsVue) {
         'vue/space-in-parens': ['error', 'never'],
         'vue/template-curly-spacing': 'error',
         'vue/singleline-html-element-content-newline': 'off',
-
-        ...overrides,
-      },
-    },
-  ]
-
-  if (typescript) {
-    const scriptLangs = ['ts', 'tsx']
-    config.push({
-      name: 'vue/typescript/setup',
-      files: ['*.vue', '**/*.vue'],
-      languageOptions: {
-        parser: parserVue,
-        parserOptions: {
-          parser: {
-            js: 'espree',
-            jsx: 'espree',
-            ts: tseslint.parser,
-            tsx: tseslint.parser,
-          },
-          ecmaVersion: 2024,
-          ecmaFeatures: {
-            jsx,
-          },
-          // extraFileExtensions,
-        },
-      },
-      rules: {
         'vue/block-lang': [
           'error',
           {
@@ -183,9 +181,12 @@ export default function vue(options: OptionsVue) {
             },
           },
         ],
+        'vue/comment-directive': 'error',
+        'vue/jsx-uses-vars': 'error',
+        ...overrides,
       },
-    })
-  }
+    },
+  ]
 
   return config
 }

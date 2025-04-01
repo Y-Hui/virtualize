@@ -8,17 +8,18 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 const plugins = reactPlugin.configs.all.plugins
 
 export interface OptionsReact {
+  files?: (string | string[])[]
   compilerRules?: boolean
   overrides?: Linter.Config['rules']
 }
 
 export default function react(options: OptionsReact): TypedFlatConfigItem[] {
-  const { overrides, compilerRules = true } = options
+  const { files = ['**/*.?([cm])[jt]s?(x)'], overrides, compilerRules = true } = options
 
   const config: TypedFlatConfigItem[] = [
     {
       name: 'react/rules',
-      files: ['**/*.?([cm])[jt]s?(x)'],
+      files,
       languageOptions: {
         parserOptions: {
           ecmaFeatures: {
