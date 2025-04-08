@@ -151,6 +151,7 @@ const instance = useTableInstance()
 const onScroll = () => {
   // 通过索引值，滚动到第 10 行
   instance.scrollToRow(10)
+  instance.scrollToRow(10, 'smooth') // 指定 behavior
 }
 
 <VirtualTable instance={instance} />
@@ -166,6 +167,7 @@ const instance = useTableInstance()
 const onScroll = () => {
   // 通过 key，滚动到指定列
   instance.scrollToColumn('columnKey')
+  instance.scrollToColumn('columnKey', 'smooth') // 指定 behavior
 }
 
 <VirtualTable instance={instance} />
