@@ -82,9 +82,9 @@ export interface TableInstance<T = any> {
   /** 通过 columnKey，获取指定列所对应的滚动数值 */
   getScrollValueByColumnKey: (columnKey: Key) => number
   /** 通过索引值，滚动到指定行 */
-  scrollToRow: (index: number) => void
+  scrollToRow: (index: number, behavior?: ScrollBehavior) => void
   /** 通过 columnKey，滚动到指定列 */
-  scrollToColumn: (columnKey: Key) => void
+  scrollToColumn: (columnKey: Key, behavior?: ScrollBehavior) => void
   scrollTo: (options: ScrollToOptions) => void
   /** 通过 columnKey 获取 column 定义 */
   getColumnByKey: (columnKey: Key) => ColumnType<T> | undefined

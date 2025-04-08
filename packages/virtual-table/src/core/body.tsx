@@ -204,8 +204,8 @@ function TableBody<T>(props: TableBodyProps<T>) {
     const targetScrollTop = rowHeightList.current.slice(0, index).reduce((a, b) => a + b, 0)
     return targetScrollTop + getOffsetTop() + offset
   })
-  internalHook.implScrollToRow((index) => {
-    instance.scrollTo({ top: instance.getScrollValueByRowIndex(index) })
+  internalHook.implScrollToRow((index, behavior) => {
+    instance.scrollTo({ top: instance.getScrollValueByRowIndex(index), behavior })
   })
 
   const rowManageState = useMemo<TableRowManagerContextType>(() => {

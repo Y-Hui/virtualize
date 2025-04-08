@@ -278,8 +278,8 @@ function VirtualTableCore<T>(
     }
     return scrollLeft - leftFixedWidth
   })
-  internalHook.implScrollToColumn((key) => {
-    instance.scrollTo({ left: instance.getScrollValueByColumnKey(key) })
+  internalHook.implScrollToColumn((key, behavior) => {
+    instance.scrollTo({ left: instance.getScrollValueByColumnKey(key), behavior })
   })
   internalHook.implGetColumnByKey((key) => {
     return pipelineColumns.find((x) => getKey(x) === key)
