@@ -2,6 +2,14 @@
 
 Not yet
 
+## [0.10.0](https://github.com/Y-Hui/virtualize/compare/v0.9.0...v0.10.0) (2025-04-11)
+### Refactor
+- `useTableInstance` 使用 useState 代替 useMemo 进行参数合并。
+- `TableInstance` 重构。
+
+### Features
+- instance 新增 `extend` 函数，支持扩展。
+
 ## [0.9.0](https://github.com/Y-Hui/virtualize/compare/v0.8.0...v0.9.0) (2025-04-08)
 ### Features
 - `useTableInstance` 内 scrollToColumn、scrollToRow 函数新增 `behavior` 参数。
