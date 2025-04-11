@@ -15,7 +15,7 @@ export type OnRowType<T = any> = (
 export type { FixedType }
 export type AlignType = 'left' | 'right' | 'center'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-unused-vars
 export interface ColumnExtra<T = any> { }
 
 interface ColumnTypeCommon<T> extends ColumnExtra<T> {
@@ -60,7 +60,7 @@ export interface InnerColumnDescriptor<T> {
   columns: ColumnType<T>[]
 }
 
-export interface TableInstance<T = any> {
+export interface TableInstanceBuildIn<T = any> {
   getCurrentProps: () => Readonly<VirtualTableCoreProps<T>>
   /** 获取所有 middleware 处理过的 columns */
   getColumns: () => ColumnType<T>[]
@@ -96,4 +96,11 @@ export interface TableInstance<T = any> {
   getColumnWidths: () => Map<Key, number>
   /** 通过 columnKey 获取列宽 */
   getColumnWidthByKey: (columnKey: Key) => number | undefined
+}
+
+export interface TableInstance<T = any> extends TableInstanceBuildIn<T> {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  extend: (args: Record<string, Function>) => void
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  [key: PropertyKey]: Function
 }

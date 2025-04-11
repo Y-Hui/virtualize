@@ -55,6 +55,7 @@ export type {
   FixedType,
   OnRowType,
   TableInstance,
+  TableInstanceBuildIn,
 } from './types'
 export { getKey, getRowKey } from './utils/get-key'
 export { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verification'

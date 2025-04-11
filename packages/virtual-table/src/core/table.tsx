@@ -1,9 +1,8 @@
 import type { CSSProperties, ForwardedRef, Key, ReactElement, Ref, RefAttributes } from 'react'
 import type { TableBodyProps } from './body'
 import type { TableColumnsContextType } from './context/column-sizes'
-import type { InternalInstance } from './hooks/useTableInstance'
 import type { NecessaryProps } from './internal'
-import type { ColumnDescriptor, ColumnType, OnRowType, TableInstance } from './types'
+import type { ColumnDescriptor, ColumnType, OnRowType, TableInstance, TableInstanceBuildIn } from './types'
 import clsx from 'clsx'
 import {
   forwardRef,
@@ -95,9 +94,9 @@ function VirtualTableCore<T>(
   } = props
 
   const instance = useTableInstance(rawInstance)
-
-  const internalHook = (instance as InternalInstance).getInternalHooks()
-  internalHook.implGetCurrentProps(() => props)
+  instance.extend({
+    getCurrentProps: () => props,
+  } satisfies Partial<TableInstanceBuildIn>)
 
   const rootNode = useRef<HTMLDivElement>(null)
   const headerWrapperRef = useRef<HTMLDivElement>(null)
@@ -165,8 +164,10 @@ function VirtualTableCore<T>(
     instance,
   })
 
-  internalHook.implGetColumns(() => pipelineColumns)
-  internalHook.implGetDataSource(() => dataSource)
+  instance.extend({
+    getColumns: () => pipelineColumns,
+    getDataSource: () => dataSource,
+  } satisfies Partial<TableInstanceBuildIn>)
 
   const [columnWidths, setColumnWidths] = useState(() => new Map<Key, number>())
   const columnWidthsRef = useRef(columnWidths)
@@ -178,10 +179,10 @@ function VirtualTableCore<T>(
     columnWidthsRef.current = result
     setColumnWidths(result)
   }, [])
-  internalHook.implGetColumnWidths(() => columnWidthsRef.current)
-  internalHook.implGetColumnWidthByKey((columnKey) => {
-    return columnWidthsRef.current.get(columnKey)
-  })
+  instance.extend({
+    getColumnWidths: () => columnWidthsRef.current,
+    getColumnWidthByKey: (columnKey) => columnWidthsRef.current.get(columnKey),
+  } satisfies Partial<TableInstanceBuildIn>)
 
   const tableColumnsContext = useMemo<TableColumnsContextType>(() => {
     return {
@@ -232,67 +233,69 @@ function VirtualTableCore<T>(
     return fullHeaderColumns
   }, [virtualHeader, fullHeaderColumns, columns])
 
-  internalHook.implGetDOM(() => {
-    return {
-      root: rootNode.current,
-      headerWrapper: headerWrapperRef.current,
-      bodyWrapper: bodyWrapperRef.current,
-      bodyRoot: bodyRoot.current,
-      body: bodyRef.current,
-    }
-  })
-  internalHook.implScrollTo((options) => {
-    const { left, top } = options
-    if (left != null) {
-      if (__DEV__) {
-        if (bodyWrapperRef.current == null) {
-          console.error('The bodyWrapper DOM is not obtained, and scrolling is not possible.')
+  instance.extend({
+    getDOM: () => {
+      return {
+        root: rootNode.current,
+        headerWrapper: headerWrapperRef.current,
+        bodyWrapper: bodyWrapperRef.current,
+        bodyRoot: bodyRoot.current,
+        body: bodyRef.current,
+      }
+    },
+    scrollTo: (options) => {
+      const { left, top } = options
+      if (left != null) {
+        if (__DEV__) {
+          if (bodyWrapperRef.current == null) {
+            console.error('The bodyWrapper DOM is not obtained, and scrolling is not possible.')
+          }
         }
+        bodyWrapperRef.current?.scrollTo(options)
       }
-      bodyWrapperRef.current?.scrollTo(options)
-    }
-    if (top != null) {
-      const scroller = getScroller()
-      if (scroller == null) {
-        console.error('The scroller DOM is not obtained, and scrolling is not possible.')
-        return
+      if (top != null) {
+        const scroller = getScroller()
+        if (scroller == null) {
+          console.error('The scroller DOM is not obtained, and scrolling is not possible.')
+          return
+        }
+        scroller.scrollTo(options)
       }
-      scroller.scrollTo(options)
-    }
-  })
-  internalHook.implScrollValueByColumnKey((key) => {
-    let scrollLeft = 0
-    let leftFixedWidth = 0
-    // pipelineColumns 是一个经过中间件处理的 columns
-    // 因为中间件可能会处理 columns，比如：添加、删除、排序 columns
-    for (const element of pipelineColumns) {
-      const columnKey = getKey(element)
-      const width = columnWidths.get(columnKey) ?? 0
-      if (isValidFixedLeft(element.fixed)) {
-        leftFixedWidth += width
+    },
+    getScrollValueByColumnKey: (key) => {
+      let scrollLeft = 0
+      let leftFixedWidth = 0
+      // pipelineColumns 是一个经过中间件处理的 columns
+      // 因为中间件可能会处理 columns，比如：添加、删除、排序 columns
+      for (const element of pipelineColumns) {
+        const columnKey = getKey(element)
+        const width = columnWidths.get(columnKey) ?? 0
+        if (isValidFixedLeft(element.fixed)) {
+          leftFixedWidth += width
+        }
+        if (columnKey === key) {
+          break
+        }
+        scrollLeft += width
       }
-      if (columnKey === key) {
-        break
+      return scrollLeft - leftFixedWidth
+    },
+    scrollToColumn: (key, behavior) => {
+      instance.scrollTo({ left: instance.getScrollValueByColumnKey(key), behavior })
+    },
+    getColumnByKey: (key) => {
+      return pipelineColumns.find((x) => getKey(x) === key)
+    },
+    getColumnByIndex: (index) => {
+      return pipelineColumns[index] as ColumnType<T> | undefined
+    },
+    getColumnKeyByIndex: (index) => {
+      const column = instance.getColumnByIndex(index)
+      if (column != null) {
+        return getKey(column)
       }
-      scrollLeft += width
-    }
-    return scrollLeft - leftFixedWidth
-  })
-  internalHook.implScrollToColumn((key, behavior) => {
-    instance.scrollTo({ left: instance.getScrollValueByColumnKey(key), behavior })
-  })
-  internalHook.implGetColumnByKey((key) => {
-    return pipelineColumns.find((x) => getKey(x) === key)
-  })
-  internalHook.implGetColumnByIndex((index) => {
-    return pipelineColumns[index] as ColumnType<T> | undefined
-  })
-  internalHook.implGetColumnKeyByIndex((index) => {
-    const column = instance.getColumnByIndex(index)
-    if (column != null) {
-      return getKey(column)
-    }
-  })
+    },
+  } satisfies Partial<TableInstanceBuildIn>)
 
   const contentNode = pipelineRender(
     <>

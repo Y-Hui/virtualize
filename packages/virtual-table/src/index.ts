@@ -17,6 +17,7 @@ export type {
   StickyContextState,
   TableColumnsContextType,
   TableInstance,
+  TableInstanceBuildIn,
   TablePipeline,
   TableRowManagerContextType,
   UseTablePipelineOptions,

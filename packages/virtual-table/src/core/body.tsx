@@ -1,7 +1,6 @@
 import type { CSSProperties, Ref } from 'react'
 import type { ScrollElement } from '../utils/dom'
 import type { TableRowManagerContextType } from './context/row-manager'
-import type { InternalInstance } from './hooks/useTableInstance'
 import type { NecessaryProps } from './internal'
 import type {
   MiddlewareRenderBody,
@@ -10,7 +9,7 @@ import type {
   MiddlewareRenderBodyWrapper,
 } from './pipeline/types'
 import type { OnRefCallbackArgs, RowProps } from './row'
-import type { InnerColumnDescriptor, TableInstance } from './types'
+import type { InnerColumnDescriptor, TableInstance, TableInstanceBuildIn } from './types'
 import clsx from 'clsx'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useMergedRef } from '../utils/ref'
@@ -73,8 +72,6 @@ function TableBody<T>(props: TableBodyProps<T>) {
     renderCell,
   } = props
 
-  const internalHook = (instance as InternalInstance).getInternalHooks()
-
   const {
     startIndex,
     endIndex,
@@ -94,8 +91,10 @@ function TableBody<T>(props: TableBodyProps<T>) {
     overscan,
   })
 
-  internalHook.implGetRowVirtualizeState(() => ({ startIndex, endIndex, overscan, estimateSize }))
-  internalHook.implGetRowHeightMap(() => rowHeightByRowKey.current)
+  instance.extend({
+    getRowVirtualizeState: () => ({ startIndex, endIndex, overscan, estimateSize }),
+    getRowHeightMap: () => rowHeightByRowKey.current,
+  } satisfies Partial<TableInstanceBuildIn>)
 
   const tbodyRef = useMergedRef(bodyRef, (elm) => {
     if (elm == null) return
@@ -183,30 +182,32 @@ function TableBody<T>(props: TableBodyProps<T>) {
   const mergedRef = useMergedRef(wrapperRef, bodyWrapperRef)
 
   // 滚动到指定行。注意：如果 estimatedRowHeight 不够准确时，不一定能准确滚动到目标位置
-  internalHook.implScrollValueByRowIndex((index) => {
-    const scroller = getScroller()
-    if (scroller == null) {
-      return 0
-    }
+  instance.extend({
+    getScrollValueByRowIndex(index) {
+      const scroller = getScroller()
+      if (scroller == null) {
+        return 0
+      }
 
-    const { stickyHeader } = instance.getCurrentProps()
-    const { headerWrapper } = instance.getDOM()
+      const { stickyHeader } = instance.getCurrentProps()
+      const { headerWrapper } = instance.getDOM()
 
-    let offset = 0
-    // 没有 sticky，就要计算 header 高度
-    if (stickyHeader == null || stickyHeader === false) {
-      const headerOffsetHeight = headerWrapper == null ? 0 : headerWrapper.offsetHeight
-      offset = headerOffsetHeight
-    } else {
-      offset = Number.isFinite(stickyHeader) ? (stickyHeader as number) * -1 : 0
-    }
+      let offset = 0
+      // 没有 sticky，就要计算 header 高度
+      if (stickyHeader == null || stickyHeader === false) {
+        const headerOffsetHeight = headerWrapper == null ? 0 : headerWrapper.offsetHeight
+        offset = headerOffsetHeight
+      } else {
+        offset = Number.isFinite(stickyHeader) ? (stickyHeader as number) * -1 : 0
+      }
 
-    const targetScrollTop = rowHeightList.current.slice(0, index).reduce((a, b) => a + b, 0)
-    return targetScrollTop + getOffsetTop() + offset
-  })
-  internalHook.implScrollToRow((index, behavior) => {
-    instance.scrollTo({ top: instance.getScrollValueByRowIndex(index), behavior })
-  })
+      const targetScrollTop = rowHeightList.current.slice(0, index).reduce((a, b) => a + b, 0)
+      return targetScrollTop + getOffsetTop() + offset
+    },
+    scrollToRow(index, behavior) {
+      instance.scrollTo({ top: instance.getScrollValueByRowIndex(index), behavior })
+    },
+  } satisfies Partial<TableInstanceBuildIn>)
 
   const rowManageState = useMemo<TableRowManagerContextType>(() => {
     return {

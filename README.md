@@ -297,6 +297,26 @@ const pipelineColumns = instance.getColumns()
 const pipelineDataSource = instance.getDataSource()
 ```
 
+##### extend 自定义扩展函数
+
+当你编写插件时想要提供一些函数用于手动调用，`extend` 能够帮你方便设置。
+
+```tsx
+import type { TableInstance } from '@are-visual/virtual-table'
+
+declare module '@are-visual/virtual-table' {
+  interface TableInstance {
+    foo: () => void
+  }
+}
+
+instance.extend({
+  foo() {
+    // do something...
+  },
+} satisfies Partial<TableInstance>)
+```
+
 通过以上的函数，你可以很方便的获取一些 VirtualTable 内部的数据，但是这些函数不能在 render 阶段中直接调用，否则会抛出 `has not been implemented yet` 错误。因为这些函数都在 VirtualTable 内部渲染阶段初始化，它们初始化完成后便能使用。建议在事件处理函数中调用。
 
 你也许会发现有些函数能够在渲染阶段直接使用，但是并不能保证在未来的版本中均是如此。
