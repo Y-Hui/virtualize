@@ -2,6 +2,7 @@ import type { FC, Key } from 'react'
 import type { ColumnDescriptor } from './types'
 import { memo, useLayoutEffect, useRef } from 'react'
 import { isShallowEqual } from '../utils/equal'
+import { onResize } from './utils/on-resize'
 
 export interface ColgroupProps {
   columns: ColumnDescriptor[]
@@ -15,21 +16,26 @@ const Colgroup: FC<ColgroupProps> = (props) => {
   const columnSizes = new Map<Key, () => number>()
   const prevColumnSizes = useRef(new Map<Key, number>())
 
+  const node = useRef<HTMLTableColElement>(null)
   useLayoutEffect(() => {
     if (!enableMeasure) return
-    const sizes = new Map<Key, number>()
-    columnSizes.forEach((item, key) => {
-      sizes.set(key, item())
+    const colgroupNode = node.current
+    if (colgroupNode == null) return
+    return onResize(colgroupNode, ({ width }) => {
+      if (width === 0) return
+      const sizes = new Map<Key, number>()
+      columnSizes.forEach((item, key) => {
+        sizes.set(key, item())
+      })
+      if (!isShallowEqual(sizes, prevColumnSizes.current)) {
+        onColumnSizesMeasure(sizes)
+        prevColumnSizes.current = sizes
+      }
     })
-    if (!isShallowEqual(sizes, prevColumnSizes.current)) {
-      console.log(sizes)
-      onColumnSizesMeasure(sizes)
-      prevColumnSizes.current = sizes
-    }
   })
 
   return (
-    <colgroup>
+    <colgroup ref={node}>
       {columns.map((item) => {
         const { key } = item
         if (item.type === 'blank') {
