@@ -2,6 +2,10 @@
 
 Not yet
 
+## [0.10.2](https://github.com/Y-Hui/virtualize/compare/v0.10.1...v0.10.2) (2025-05-01)
+### Bug Fixes
+- 在弹窗动画结束前，DOM 节点处于 `display: none;` 下无法正确计算列宽，总是获取到 0. Colgroup 组件中使用 onResize 函数进行处理。
+
 ## [0.10.1](https://github.com/Y-Hui/virtualize/compare/v0.10.0...v0.10.1) (2025-05-01)
 ### Bug Fixes
 - 修复列宽计算在弹窗中可能获取到 0 的 bug. Colgroup 组件中使用 useLayoutEffect 代替 ref 回调进行列宽计算。
