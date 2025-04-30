@@ -2,6 +2,10 @@
 
 Not yet
 
+## [0.10.1](https://github.com/Y-Hui/virtualize/compare/v0.10.0...v0.10.1) (2025-05-01)
+### Bug Fixes
+- 修复列宽计算在弹窗中可能获取到 0 的 bug. Colgroup 组件中使用 useLayoutEffect 代替 ref 回调进行列宽计算。
+
 ## [0.10.0](https://github.com/Y-Hui/virtualize/compare/v0.9.0...v0.10.0) (2025-04-11)
 ### Refactor
 - `useTableInstance` 使用 useState 代替 useMemo 进行参数合并。
