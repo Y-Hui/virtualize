@@ -8,12 +8,12 @@ import type {
 } from './pipeline/types'
 import type { InnerColumnDescriptor } from './types'
 import clsx from 'clsx'
-import { createElement, Fragment, memo, useEffect, useRef } from 'react'
+import { createElement, Fragment, memo } from 'react'
 import { findLastIndex } from '../utils/find-last-index'
 import { useMergedRef } from '../utils/ref'
 import Colgroup from './colgroup'
 import { useColumnSizes } from './context/column-sizes'
-import { useHorizontalScrollContext } from './context/horizontal-scroll'
+import { useScrollSynchronize } from './context/horizontal-scroll'
 import { useTableSticky } from './context/sticky'
 import { pipelineRender } from './pipeline/render-pipeline'
 import { getKey } from './utils/get-key'
@@ -73,25 +73,8 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
     }
     return isValidFixedRight(x.column.fixed)
   })
-  const { listen, notify } = useHorizontalScrollContext()
 
-  const headerWrapperRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const node = headerWrapperRef.current
-    if (node == null) return
-    const key = 'virtual-table-header'
-    const onScroll = () => {
-      notify(key, { scrollLeft: () => node.scrollLeft, node })
-    }
-    const dispose = listen(key, (scrollLeft) => {
-      node.scrollLeft = scrollLeft
-    })
-    node.addEventListener('scroll', onScroll)
-    return () => {
-      node.removeEventListener('scroll', onScroll)
-      dispose()
-    }
-  }, [listen, notify])
+  const headerWrapperRef = useScrollSynchronize('virtual-table-header')
 
   const row = pipelineRender(
     <tr>

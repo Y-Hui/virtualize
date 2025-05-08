@@ -1,9 +1,9 @@
 import type { ColumnDescriptor } from '@are-visual/virtual-table'
 import type { CSSProperties, FC, ReactNode } from 'react'
-import { Colgroup, useHorizontalScrollContext } from '@are-visual/virtual-table'
+import { Colgroup, useScrollSynchronize } from '@are-visual/virtual-table'
 import { getScrollbarSize } from '@are-visual/virtual-table/middleware/utils/getScrollbarSize'
 import clsx from 'clsx'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 
 export interface FooterProps {
   className?: string
@@ -21,26 +21,8 @@ export interface FooterProps {
 const Footer: FC<FooterProps> = (props) => {
   const { className, style, zIndex, bottom, columns, fixed, children, defaultColumnWidth } = props
 
-  const { listen, notify } = useHorizontalScrollContext()
   const [scrollbarHeight] = useState(() => getScrollbarSize().height)
-
-  const wrapperRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const node = wrapperRef.current
-    if (node == null) return
-    const key = 'virtual-table-summary'
-    const onScroll = () => {
-      notify(key, { scrollLeft: () => node.scrollLeft, node })
-    }
-    const dispose = listen(key, (scrollLeft) => {
-      node.scrollLeft = scrollLeft
-    })
-    node.addEventListener('scroll', onScroll)
-    return () => {
-      node.removeEventListener('scroll', onScroll)
-      dispose()
-    }
-  }, [listen, notify])
+  const wrapperRef = useScrollSynchronize<HTMLDivElement>('virtual-table-summary')
 
   return (
     <div

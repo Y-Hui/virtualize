@@ -38,6 +38,7 @@ export {
   useColumnSizes,
   useContainerSize,
   useHorizontalScrollContext,
+  useScrollSynchronize,
   useShallowMemo,
   useStableFn,
   useTableInstance,

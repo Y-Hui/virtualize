@@ -1,8 +1,8 @@
 import type { CSSProperties, FC, RefObject } from 'react'
-import { onResize, useHorizontalScrollContext } from '@are-visual/virtual-table'
+import { onResize, useScrollSynchronize } from '@are-visual/virtual-table'
 import { getScrollbarSize } from '@are-visual/virtual-table/middleware/utils/getScrollbarSize'
 import clsx from 'clsx'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export interface ScrollBarProps {
   className?: string
@@ -14,25 +14,8 @@ export interface ScrollBarProps {
 
 const ScrollBar: FC<ScrollBarProps> = (props) => {
   const { className, style, bottom, zIndex, bodyRef } = props
-  const { listen, notify } = useHorizontalScrollContext()
 
-  const wrapperRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const node = wrapperRef.current
-    if (node == null) return
-    const key = 'virtual-table-sticky-bottom-scroll'
-    const onScroll = () => {
-      notify(key, { scrollLeft: () => node.scrollLeft, node })
-    }
-    const dispose = listen(key, (scrollLeft) => {
-      node.scrollLeft = scrollLeft
-    })
-    node.addEventListener('scroll', onScroll)
-    return () => {
-      node.removeEventListener('scroll', onScroll)
-      dispose()
-    }
-  }, [listen, notify])
+  const wrapperRef = useScrollSynchronize<HTMLDivElement>('virtual-table-sticky-bottom-scroll')
 
   const [width, setWidth] = useState(0)
   useEffect(() => {

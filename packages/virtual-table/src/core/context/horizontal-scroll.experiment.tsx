@@ -1,7 +1,12 @@
 import type { PropsWithChildren } from 'react'
 import { createContext, useContext, useEffect, useMemo, useRef } from 'react'
+import { filterMap } from '../utils/filter'
 
-type Listener = (scrollLeft: number, node: HTMLElement) => void
+interface Listener {
+  trigger: (scrollLeft: number, node: HTMLElement) => void
+  before: () => void
+  after: () => void
+}
 
 export interface HorizontalScrollContextState {
   listen: (key: string, listener: Listener) => () => void
@@ -18,22 +23,24 @@ export function HorizontalScrollContext(props: PropsWithChildren) {
   const { children } = props
 
   const listenerMap = useRef(new Map<string, Listener>())
+  const timeoutId = useRef<number>()
+
   const context = useMemo((): HorizontalScrollContextState => {
-    const skipEvent = new Set<string>()
+    // const skipEvent = new Set<string>()
     return {
       listen(key, listener) {
-        listenerMap.current.set(key, (scrollLeft, node) => {
-          listener(scrollLeft, node)
-        })
+        listenerMap.current.set(key, listener)
         return () => {
           listenerMap.current.delete(key)
         }
       },
       notify(key, options) {
-        if (skipEvent.has(key)) {
-          skipEvent.delete(key)
-          return
-        }
+        // if (skipEvent.has(key)) {
+        //   skipEvent.delete(key)
+        //   return
+        // }
+        window.clearTimeout(timeoutId.current)
+
         const { scrollLeft, node } = options
         let rAF = window.requestAnimationFrame as ((fn: () => void) => void) | undefined
         if (rAF == null) {
@@ -41,14 +48,28 @@ export function HorizontalScrollContext(props: PropsWithChildren) {
             fn()
           }
         }
-        listenerMap.current.forEach((listener, itemKey) => {
-          if (key === itemKey) return
-          skipEvent.add(itemKey)
+
+        const needSynced = filterMap(listenerMap.current, (_v, itemKey) => key !== itemKey)
+        needSynced.forEach((f) => f.before())
+        needSynced.forEach((listener) => {
+          // rAF(() => {
+          listener.trigger(scrollLeft(), node)
+          // })
+        })
+        timeoutId.current = window.setTimeout(() => {
           rAF(() => {
-            listener(scrollLeft(), node)
+            needSynced.forEach((listener) => {
+              listener.after()
+            })
           })
         })
       },
+    }
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      window.clearTimeout(timeoutId.current)
     }
   }, [])
 
@@ -86,9 +107,19 @@ export function useScrollSynchronize<T extends HTMLElement>(key: string) {
       node.removeEventListener('scroll', onScroll)
     }
 
-    const dispose = listen(key, (scrollLeft) => {
-      node.style.willChange = 'scroll-position'
-      node.scrollLeft = scrollLeft
+    const dispose = listen(key, {
+      trigger: (scrollLeft) => {
+        node.style.willChange = 'scroll-position'
+        node.scrollLeft = scrollLeft
+      },
+      before: () => {
+        removeEvent()
+      },
+      after: () => {
+        removeEvent()
+        addEvent()
+        node.style.willChange = ''
+      },
     })
 
     addEvent()

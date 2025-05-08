@@ -11,10 +11,10 @@ import type {
 import type { OnRefCallbackArgs, RowProps } from './row'
 import type { InnerColumnDescriptor, TableInstance, TableInstanceBuildIn } from './types'
 import clsx from 'clsx'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useMergedRef } from '../utils/ref'
 import Colgroup from './colgroup'
-import { useHorizontalScrollContext } from './context/horizontal-scroll'
+import { useScrollSynchronize } from './context/horizontal-scroll'
 import { TableRowManager } from './context/row-manager'
 import { NormalRowHeightKey, useRowVirtualize } from './hooks/useRowVirtualize'
 import { pipelineRender } from './pipeline/render-pipeline'
@@ -158,26 +158,7 @@ function TableBody<T>(props: TableBodyProps<T>) {
     { columns, columnDescriptor: descriptor, startRowIndex: startIndex },
   )
 
-  const { listen, notify } = useHorizontalScrollContext()
-  const wrapperRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const node = wrapperRef.current
-    if (node == null) return
-
-    const key = 'virtual-table-body'
-    const onScroll = () => {
-      notify(key, { scrollLeft: () => node.scrollLeft, node })
-    }
-    const dispose = listen(key, (scrollLeft) => {
-      node.scrollLeft = scrollLeft
-    })
-    node.addEventListener('scroll', onScroll)
-    return () => {
-      node.removeEventListener('scroll', onScroll)
-      dispose()
-    }
-  }, [listen, notify])
-
+  const wrapperRef = useScrollSynchronize('virtual-table-body')
   const mergedRef = useMergedRef(wrapperRef, bodyWrapperRef)
 
   // 滚动到指定行。注意：如果 estimatedRowHeight 不够准确时，不一定能准确滚动到目标位置
