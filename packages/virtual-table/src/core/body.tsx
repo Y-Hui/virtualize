@@ -14,7 +14,6 @@ import clsx from 'clsx'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useMergedRef } from '../utils/ref'
 import Colgroup from './colgroup'
-import { useColumnSizes } from './context/column-sizes'
 import { useHorizontalScrollContext } from './context/horizontal-scroll'
 import { TableRowManager } from './context/row-manager'
 import { NormalRowHeightKey, useRowVirtualize } from './hooks/useRowVirtualize'
@@ -27,6 +26,7 @@ export interface TableBodyProps<T>
   Pick<RowProps<T>, 'onRow' | 'renderRow' | 'renderCell'> {
   className?: string
   style?: CSSProperties
+  defaultColumnWidth: number
   columns: InnerColumnDescriptor<T>
   bodyWrapperRef?: Ref<HTMLDivElement>
   bodyRootRef?: Ref<HTMLTableElement>
@@ -50,6 +50,7 @@ function TableBody<T>(props: TableBodyProps<T>) {
     bodyRef,
     className,
     style,
+    defaultColumnWidth,
     dataSource: rawData,
     columns: columnDescriptor,
     rowKey,
@@ -141,8 +142,6 @@ function TableBody<T>(props: TableBodyProps<T>) {
     { columns, columnDescriptor: descriptor, startRowIndex: startIndex },
   )
 
-  const { setWidthList } = useColumnSizes()
-
   const tableNode = pipelineRender(
     <table
       className={clsx(className, 'virtual-table-body')}
@@ -151,7 +150,7 @@ function TableBody<T>(props: TableBodyProps<T>) {
     >
       <Colgroup
         columns={descriptor}
-        onColumnSizesMeasure={setWidthList}
+        defaultColumnWidth={defaultColumnWidth}
       />
       {bodyNode}
     </table>,

@@ -1,4 +1,4 @@
-import type { CSSProperties, ForwardedRef, Key, ReactElement, Ref, RefAttributes } from 'react'
+import type { CSSProperties, ForwardedRef, ReactElement, Ref, RefAttributes } from 'react'
 import type { TableBodyProps } from './body'
 import type { TableColumnsContextType } from './context/column-sizes'
 import type { NecessaryProps } from './internal'
@@ -10,22 +10,24 @@ import {
   useCallback,
   useMemo,
   useRef,
-  useState,
 } from 'react'
 import { getRelativeOffsetTop, getScrollParent, isRoot, isWindow } from '../utils/dom'
 import { useMergedRef } from '../utils/ref'
 import TableBody from './body'
 import { ColumnSizes } from './context/column-sizes'
-import { ContainerSizeContext } from './context/container-size'
+import { ContainerSize } from './context/container-size'
 import { HorizontalScrollContext } from './context/horizontal-scroll'
 import { StickyContext } from './context/sticky'
 import TableHeader from './header'
+import { useCalcSize } from './hooks/useCalcSize'
+import { useCollectColumnWidth } from './hooks/useCollectColumnWidths'
 import { useColumnVirtualize } from './hooks/useColumnVirtualize'
 import { useTableInstance } from './hooks/useTableInstance'
 import { pipelineRender } from './pipeline/render-pipeline'
 import { TablePipeline } from './pipeline/useTablePipeline'
 import TableRoot from './root'
 import { getKey } from './utils/get-key'
+import { getColumnWidth } from './utils/get-width'
 import { isValidFixedLeft, isValidFixedRight } from './utils/verification'
 
 export interface VirtualTableCoreProps<T>
@@ -95,7 +97,13 @@ function VirtualTableCore<T>(
 
   const instance = useTableInstance(rawInstance)
   instance.extend({
-    getCurrentProps: () => props,
+    getCurrentProps: () => ({
+      estimatedRowHeight,
+      overscanRows,
+      overscanColumns,
+      defaultColumnWidth,
+      ...props,
+    }),
   } satisfies Partial<TableInstanceBuildIn>)
 
   const rootNode = useRef<HTMLDivElement>(null)
@@ -126,6 +134,8 @@ function VirtualTableCore<T>(
     }
     return getRelativeOffsetTop(root, scrollContainer)
   }, [getOffsetTopImpl, getScroller])
+
+  const containerSize = useCalcSize({ getScroller, root: rootNode })
 
   const {
     dataSource,
@@ -169,35 +179,25 @@ function VirtualTableCore<T>(
     getDataSource: () => dataSource,
   } satisfies Partial<TableInstanceBuildIn>)
 
-  const [columnWidths, setColumnWidths] = useState(() => new Map<Key, number>())
-  const columnWidthsRef = useRef(columnWidths)
-  const updateColumnWidths = useCallback((value: Map<Key, number>) => {
-    const result = new Map(columnWidthsRef.current)
-    value.forEach((width, key) => {
-      result.set(key, width)
-    })
-    columnWidthsRef.current = result
-    setColumnWidths(result)
-  }, [])
+  const columnWidths = useCollectColumnWidth(pipelineColumns, defaultColumnWidth)
   instance.extend({
-    getColumnWidths: () => columnWidthsRef.current,
-    getColumnWidthByKey: (columnKey) => columnWidthsRef.current.get(columnKey),
+    getColumnWidths: () => columnWidths,
+    getColumnWidthByKey: (columnKey) => columnWidths.get(columnKey),
   } satisfies Partial<TableInstanceBuildIn>)
 
   const tableColumnsContext = useMemo<TableColumnsContextType>(() => {
     return {
       widthList: columnWidths,
-      setWidthList: updateColumnWidths,
     }
-  }, [columnWidths, updateColumnWidths])
+  }, [columnWidths])
 
   const { columns } = useColumnVirtualize<T>({
     estimateSize: estimatedColumnWidth ?? defaultColumnWidth,
     defaultColumnWidth,
     overscan: overscanColumns,
     columns: pipelineColumns,
+    containerWidth: containerSize.tableWidth,
     bodyWrapper: bodyWrapperRef,
-    columnWidths,
     disabled: estimatedColumnWidth == null,
   })
 
@@ -267,10 +267,10 @@ function VirtualTableCore<T>(
       let leftFixedWidth = 0
       // pipelineColumns 是一个经过中间件处理的 columns
       // 因为中间件可能会处理 columns，比如：添加、删除、排序 columns
-      for (const element of pipelineColumns) {
-        const columnKey = getKey(element)
-        const width = columnWidths.get(columnKey) || +(element?.width || 0) || 0
-        if (isValidFixedLeft(element.fixed)) {
+      for (const column of pipelineColumns) {
+        const columnKey = getKey(column)
+        const width = getColumnWidth(column, defaultColumnWidth)
+        if (isValidFixedLeft(column.fixed)) {
           leftFixedWidth += width
         }
         if (columnKey === key) {
@@ -301,6 +301,7 @@ function VirtualTableCore<T>(
     <>
       <TableHeader
         wrapperRef={headerWrapperRef}
+        defaultColumnWidth={defaultColumnWidth}
         columns={headerColumns}
         stickyHeader={stickyHeader}
         renderHeaderWrapper={renderHeaderWrapper}
@@ -316,6 +317,7 @@ function VirtualTableCore<T>(
         bodyRef={bodyRef}
         className={tableBodyClassName}
         style={tableBodyStyle}
+        defaultColumnWidth={defaultColumnWidth}
         columns={columns}
         rowKey={rowKey}
         dataSource={dataSource}
@@ -357,9 +359,9 @@ function VirtualTableCore<T>(
   return (
     <ColumnSizes.Provider value={tableColumnsContext}>
       <StickyContext columns={pipelineColumns}>
-        <ContainerSizeContext getScroller={getScroller} root={rootNode}>
+        <ContainerSize.Provider value={containerSize}>
           <HorizontalScrollContext>{table}</HorizontalScrollContext>
-        </ContainerSizeContext>
+        </ContainerSize.Provider>
       </StickyContext>
     </ColumnSizes.Provider>
   )

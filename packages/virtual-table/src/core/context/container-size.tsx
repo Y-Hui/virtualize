@@ -1,7 +1,4 @@
-import type { PropsWithChildren } from 'react'
-import type { CalcSizeOptions } from '../hooks/useCalcSize'
-import { createContext, useContext, useMemo } from 'react'
-import { useCalcSize } from '../hooks/useCalcSize'
+import { createContext, useContext } from 'react'
 
 export interface ContainerSizeState {
   scrollContainerWidth: number
@@ -10,33 +7,7 @@ export interface ContainerSizeState {
   tableHeight: number
 }
 
-const ContainerSize = createContext<ContainerSizeState | null>(null)
-
-export function ContainerSizeContext(props: PropsWithChildren<CalcSizeOptions>) {
-  const { getScroller, root, children } = props
-
-  const {
-    scrollContainerHeight,
-    scrollContainerWidth,
-    tableHeight,
-    tableWidth,
-  } = useCalcSize({ getScroller, root })
-
-  const state = useMemo((): ContainerSizeState => {
-    return {
-      scrollContainerWidth,
-      scrollContainerHeight,
-      tableWidth,
-      tableHeight,
-    }
-  }, [scrollContainerWidth, scrollContainerHeight, tableWidth, tableHeight])
-
-  return (
-    <ContainerSize.Provider value={state}>
-      {children}
-    </ContainerSize.Provider>
-  )
-}
+export const ContainerSize = createContext<ContainerSizeState | null>(null)
 
 export function useContainerSize() {
   const context = useContext(ContainerSize)

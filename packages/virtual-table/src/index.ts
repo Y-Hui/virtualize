@@ -28,6 +28,7 @@ export type {
 export {
   Colgroup,
   createMiddleware,
+  getColumnWidth,
   getKey,
   getRowKey,
   isValidFixed,

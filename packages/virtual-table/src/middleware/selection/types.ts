@@ -27,7 +27,7 @@ export interface TableRowSelection<T = any> {
   onSelect?: SelectionSelectFn<T>
   hideSelectAll?: boolean
   fixed?: boolean
-  columnWidth?: string | number
+  columnWidth?: number
   columnTitle?: ReactNode | ((checkboxNode: ReactNode, props: SelectionColumnTitleProps) => ReactNode)
   renderCell?: (value: boolean, record: T, index: number, originNode: ReactNode) => ReactNode
   onCell?: GetComponentProps<T>

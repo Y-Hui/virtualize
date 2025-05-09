@@ -3,7 +3,6 @@ import { createContext, useContext } from 'react'
 
 export interface TableColumnsContextType {
   widthList: Map<Key, number>
-  setWidthList: (value: Map<Key, number>) => void
 }
 
 export const ColumnSizes = createContext<TableColumnsContextType | null>(null)

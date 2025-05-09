@@ -1,13 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ColumnType, MiddlewareContext, MiddlewareRenderHeaderCell, MiddlewareResult } from '@are-visual/virtual-table'
 import type { Key } from 'react'
-import { createMiddleware, getKey } from '@are-visual/virtual-table'
+import { createMiddleware, getColumnWidth, getKey } from '@are-visual/virtual-table'
 import { isValidElement, useCallback, useMemo, useState } from 'react'
 import { Resizable } from 'react-resizable'
 
 declare module '@are-visual/virtual-table' {
   interface ColumnExtra {
     disableResize?: boolean
+    /** Resize 时限制最小列宽 */
+    minWidth?: number
     /** Resize 时限制最大列宽 */
     maxWidth?: number
   }
@@ -51,7 +53,7 @@ const resizeStorage = {
   get(storageKey: string): Record<string, number> {
     try {
       const raw = window.localStorage.getItem(resizeStorage.key(storageKey)) ?? '{}'
-      const result = JSON.parse(raw)
+      const result: unknown = JSON.parse(raw)
       if (isObject(result)) {
         Object.entries(result).forEach(([k, v]) => {
           if (!Number.isFinite(v)) {
@@ -75,7 +77,7 @@ function useColumnResize<T = any>(
   args?: ResizeOptions<T>,
 ): MiddlewareResult<T> {
   const { storageKey, min, max } = args ?? {}
-  const { columns: rawColumns } = ctx
+  const { columns: rawColumns, instance } = ctx
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>(() => {
     if (storageKey == null) {
       return {}
@@ -97,15 +99,14 @@ function useColumnResize<T = any>(
   }, [storageKey])
 
   const renderHeaderCell: MiddlewareRenderHeaderCell<T> = useCallback((children, options) => {
-    const { column, columnWidths } = options
+    const { column } = options
 
     if (column.disableResize) {
       return children
     }
 
     const key = getKey(column)
-
-    const width = Number.isFinite(column.width) ? (column.width as number) : (columnWidths.get(key) ?? 0)
+    const width = getColumnWidth(column, instance.getCurrentProps().defaultColumnWidth)
 
     if (__DEV__) {
       if (isValidElement(children) && children.type === Resizable) {
@@ -129,7 +130,7 @@ function useColumnResize<T = any>(
         {children}
       </Resizable>
     )
-  }, [handleResize, max, min])
+  }, [handleResize, instance, max, min])
 
   const columns = useMemo(() => {
     return rawColumns.map((column) => {
