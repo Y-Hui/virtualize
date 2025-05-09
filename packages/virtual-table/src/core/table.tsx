@@ -269,7 +269,7 @@ function VirtualTableCore<T>(
       // 因为中间件可能会处理 columns，比如：添加、删除、排序 columns
       for (const element of pipelineColumns) {
         const columnKey = getKey(element)
-        const width = columnWidths.get(columnKey) ?? 0
+        const width = columnWidths.get(columnKey) || +(element?.width || 0) || 0
         if (isValidFixedLeft(element.fixed)) {
           leftFixedWidth += width
         }
