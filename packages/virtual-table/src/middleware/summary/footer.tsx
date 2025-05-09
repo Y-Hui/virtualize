@@ -15,10 +15,11 @@ export interface FooterProps {
   columns: ColumnDescriptor[]
   fixed?: boolean
   children?: ReactNode
+  defaultColumnWidth: number
 }
 
 const Footer: FC<FooterProps> = (props) => {
-  const { className, style, zIndex, bottom, columns, fixed, children } = props
+  const { className, style, zIndex, bottom, columns, fixed, children, defaultColumnWidth } = props
 
   const { listen, notify } = useHorizontalScrollContext()
   const [scrollbarHeight] = useState(() => getScrollbarSize().height)
@@ -62,7 +63,7 @@ const Footer: FC<FooterProps> = (props) => {
       ref={wrapperRef}
     >
       <table className="virtual-table-summary">
-        <Colgroup columns={columns} />
+        <Colgroup columns={columns} defaultColumnWidth={defaultColumnWidth} />
         <tfoot className="virtual-table-summary-tfoot">{children}</tfoot>
       </table>
     </div>

@@ -743,7 +743,6 @@ interface TableRowManagerContextType {
 ```ts
 interface TableColumnsContextType {
   widthList: Map<Key, number>
-  setWidthList: (value: Map<Key, number>) => void
 }
 ```
 

@@ -23,6 +23,8 @@ export interface TableHeaderProps {
   className?: string
   style?: CSSProperties
 
+  defaultColumnWidth: number
+
   wrapperRef?: RefObject<HTMLDivElement>
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,6 +44,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
   const {
     className,
     style,
+    defaultColumnWidth,
     wrapperRef,
     columns: columnDescriptor,
     stickyHeader,
@@ -161,7 +164,7 @@ const TableHeader: FC<TableHeaderProps> = (props) => {
     <table
       style={style}
     >
-      <Colgroup columns={descriptor} />
+      <Colgroup columns={descriptor} defaultColumnWidth={defaultColumnWidth} />
       {theadNode}
     </table>,
     renderHeaderRoot,
