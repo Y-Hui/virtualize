@@ -30,7 +30,7 @@ function useTableSummary<T = any>(
   options?: TableSummaryOptions<T>,
 ): MiddlewareResult<T> {
   const { className, style, zIndex, bottom, summary } = options ?? {}
-  const { dataSource } = ctx
+  const { dataSource, instance } = ctx
 
   let hasFixedTop = false
   let hasFixedBottom = false
@@ -102,6 +102,7 @@ function useTableSummary<T = any>(
     ...(hasFixedBottom as boolean
       ? {
           renderContent(children, { columnDescriptor }) {
+            const { defaultColumnWidth } = instance.getCurrentProps()
             return (
               <>
                 {children}
@@ -112,6 +113,7 @@ function useTableSummary<T = any>(
                   bottom={bottom}
                   fixed={hasFixedBottom}
                   columns={columnDescriptor}
+                  defaultColumnWidth={defaultColumnWidth}
                 >
                   <SummaryContext.Provider value={columnDescriptor}>
                     {bottomNode}

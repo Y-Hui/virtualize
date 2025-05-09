@@ -24,8 +24,8 @@ interface ColumnTypeCommon<T> extends ColumnExtra<T> {
   colSpan?: number
   title?: ReactNode
   align?: AlignType
-  minWidth?: number
-  width?: string | number
+  /** @default 100 */
+  width?: number
   fixed?: FixedType
   render?: (value: any, record: T, index: number) => ReactNode
   onHeaderCell?: (column: ColumnType<any>, index: number) => HTMLAttributes<any> & TdHTMLAttributes<any>
@@ -60,8 +60,12 @@ export interface InnerColumnDescriptor<T> {
   columns: ColumnType<T>[]
 }
 
+type Prettify<T> = {
+  [K in keyof T]: T[K]
+} & {}
+
 export interface TableInstanceBuildIn<T = any> {
-  getCurrentProps: () => Readonly<VirtualTableCoreProps<T>>
+  getCurrentProps: () => Prettify<Readonly<Omit<VirtualTableCoreProps<T>, 'defaultColumnWidth'> & Required<Pick<VirtualTableCoreProps<T>, 'estimatedRowHeight' | 'overscanRows' | 'overscanColumns' | 'defaultColumnWidth'>>>>
   /** 获取所有 middleware 处理过的 columns */
   getColumns: () => ColumnType<T>[]
   /** 获取所有 middleware 处理过的 dataSource */

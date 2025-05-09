@@ -58,4 +58,5 @@ export type {
   TableInstanceBuildIn,
 } from './types'
 export { getKey, getRowKey } from './utils/get-key'
+export { getColumnWidth } from './utils/get-width'
 export { isValidFixed, isValidFixedLeft, isValidFixedRight } from './utils/verification'

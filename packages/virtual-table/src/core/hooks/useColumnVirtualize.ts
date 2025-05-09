@@ -3,6 +3,7 @@ import type { ColumnDescriptor, ColumnType } from '../types'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { findLastIndex } from '../../utils/find-last-index'
 import { getKey } from '../utils/get-key'
+import { getColumnWidth } from '../utils/get-width'
 import { onResize } from '../utils/on-resize'
 import { isValidFixedLeft, isValidFixedRight } from '../utils/verification'
 import { useStableFn } from './useStableFn'
@@ -12,8 +13,8 @@ interface UseColumnVirtualizeOptions<T> {
   defaultColumnWidth: number
   overscan: number
   columns: ColumnType<T>[]
+  containerWidth: number
   bodyWrapper: RefObject<HTMLDivElement>
-  columnWidths: Map<Key, number>
   disabled?: boolean
 }
 
@@ -70,8 +71,8 @@ export function useColumnVirtualize<T>(options: UseColumnVirtualizeOptions<T>) {
     defaultColumnWidth,
     overscan,
     columns: rawColumns,
+    containerWidth,
     bodyWrapper,
-    columnWidths,
     disabled = false,
   } = options
 
@@ -90,8 +91,7 @@ export function useColumnVirtualize<T>(options: UseColumnVirtualizeOptions<T>) {
     }
     let left = 0
     return rawColumns.map((column, index): Rect => {
-      const key = getKey(column)
-      const width = columnWidths.get(key) ?? estimateSize
+      const width = getColumnWidth(column, defaultColumnWidth)
       const right = left + width
       const rect: Rect = {
         index,
@@ -103,7 +103,7 @@ export function useColumnVirtualize<T>(options: UseColumnVirtualizeOptions<T>) {
       left = right
       return rect
     })
-  }, [rawColumns, columnWidths, estimateSize, disabled])
+  }, [disabled, rawColumns, defaultColumnWidth])
 
   // 锚点元素
   const anchorRef = useRef<Rect>({
@@ -134,7 +134,6 @@ export function useColumnVirtualize<T>(options: UseColumnVirtualizeOptions<T>) {
     const scrollContainer = bodyWrapper.current
     if (scrollContainer == null) return
 
-    const containerWidth = scrollContainer.offsetWidth
     let count = Math.ceil(containerWidth / estimateSize)
 
     const onScroll = () => {
@@ -170,7 +169,7 @@ export function useColumnVirtualize<T>(options: UseColumnVirtualizeOptions<T>) {
       scrollContainer.removeEventListener('scroll', onScroll)
       stop()
     }
-  }, [bodyWrapper, estimateSize, updateBoundary, overscan, findAnchorRef, disabled])
+  }, [containerWidth, bodyWrapper, estimateSize, updateBoundary, overscan, findAnchorRef, disabled])
 
   const sum = (startIndex: number, endIndex?: number) => {
     return rects.slice(startIndex, endIndex).reduce((a, b) => a + b.width, 0)

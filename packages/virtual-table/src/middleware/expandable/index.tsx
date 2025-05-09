@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {
   AnyObject,
@@ -41,7 +42,7 @@ export interface ExpandableConfig<T> {
   showExpandColumn?: boolean
   expandedRowClassName?: string | RowClassName<T>
   rowExpandable?: (record: T) => boolean
-  columnWidth?: number | string
+  columnWidth?: number
   fixed?: FixedType
   extraColumnProps?: ColumnExtra
 }
