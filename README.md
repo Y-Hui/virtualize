@@ -86,8 +86,8 @@ function App() {
 | colSpan      | **表头**列合并，设置为 0 时，不渲染                          | number |        |      |
 | title        | 表头内容                                                     | ReactNode |        |      |
 | align        | 单元格对齐方式                                               | `left` \|`right` \|`center` |        |      |
-| minWidth     | 列最小宽度                                                   | number                                    |        |      |
-| width        | 列宽度                                                       | number \| string                          |        |      |
+| ~~minWidth~~ | ~~列最小宽度~~                                               | ~~number~~                                |        | `v0.11`废弃 |
+| width        | 列宽度                                                       | number \| ~~string~~                      |        | `v0.11`废弃 `string`类型 |
 | fixed        | 固定列                                                       | `left` \| `right` |                           |        |
 | render       | 自定义单元格渲染内容                                         | (*value*, *record*, *index*) => ReactNode |        |      |
 | onHeaderCell | 设置表头单元格属性 | (column,  index) => TdHTMLAttributes                          |        |      |

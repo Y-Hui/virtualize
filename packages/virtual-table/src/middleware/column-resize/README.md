@@ -44,8 +44,7 @@ const pipeline = useTablePipeline({
 | ------------- | ----------------- | ------- | ------ | ---- |
 | disableResize | 指定列禁用 resize | boolean | -      |      |
 | maxWidth | Resize 时限制最大列宽 | number | -      |      |
-
-> Column 默认包含 minWidth，设置后将限制最小列宽
+| minWidth | Resize 时限制最小列宽 | number | - | `v0.11` |
 
 ```tsx
 const columns = [
