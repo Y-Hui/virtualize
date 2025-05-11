@@ -2,6 +2,16 @@
 
 Not yet
 
+## [0.11.0](https://github.com/Y-Hui/virtualize/compare/v0.10.2...v0.11.0) (2025-05-11)
+### Bug Fixes
+- `instance.getScrollValueByColumnKey` 在初次渲染后无法跳转到最后一个单元格 ([PR](https://github.com/Y-Hui/virtualize/pull/1))
+
+### Refactor
+- ColumnType `width` 类型约束为 `number`，不再支持 `string` 类型，去除使用 DOM 计算列宽逻辑 ([PR](https://github.com/Y-Hui/virtualize/pull/1))
+
+### Features
+- 新增 `useScrollSynchronize` Hook，用于快速实现水平滚动同步。
+
 ## [0.10.2](https://github.com/Y-Hui/virtualize/compare/v0.10.1...v0.10.2) (2025-05-01)
 ### Bug Fixes
 - 在弹窗动画结束前，DOM 节点处于 `display: none;` 下无法正确计算列宽，总是获取到 0. Colgroup 组件中使用 onResize 函数进行处理。
