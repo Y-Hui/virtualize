@@ -2,6 +2,10 @@
 
 Not yet
 
+## [0.11.1](https://github.com/Y-Hui/virtualize/compare/v0.11.0...v0.11.1) (2025-05-17)
+### Bug Fixes
+- `horizontal-scroll-bar` 在 Safari 中不显示滚动条 ([PR](https://github.com/Y-Hui/virtualize/pull/2))
+
 ## [0.11.0](https://github.com/Y-Hui/virtualize/compare/v0.10.2...v0.11.0) (2025-05-11)
 ### Bug Fixes
 - `instance.getScrollValueByColumnKey` 在初次渲染后无法跳转到最后一个单元格 ([PR](https://github.com/Y-Hui/virtualize/pull/1))
