@@ -10,7 +10,7 @@ $virtual-table-sticky-scroll-bottom: var(--virtual-table-sticky-scroll-bottom, 0
   &-bar {
     // 必须有高度才能出现滚动条
     // height: 1px;
+    height: 1px;
     visibility: hidden;
-    height: 100%;
   }
 }
