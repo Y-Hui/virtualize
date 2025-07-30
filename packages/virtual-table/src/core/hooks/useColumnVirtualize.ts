@@ -209,24 +209,28 @@ export function useColumnVirtualize<T>(options: UseColumnVirtualizeOptions<T>) {
       if (column.width == null && column.minWidth == null) {
         column = { ...column, width: defaultColumnWidth }
       }
-      if (key === leftKey) {
+      if (disabled) {
         result.push({ type: 'normal', key, column })
-        result.push({ type: 'blank', key: '_blank_left', width: leftBlank })
-      } else if (leftKey == null && index === 0) {
-        result.push({ type: 'blank', key: '_blank_left', width: leftBlank })
-        result.push({ type: 'normal', key, column })
-      } else if (key === rightKey) {
-        result.push({ type: 'blank', key: '_blank_right', width: rightBlank })
-        result.push({ type: 'normal', key, column })
-      } else if (rightKey == null && index === columnSlice.length - 1) {
-        result.push({ type: 'normal', key, column })
-        result.push({ type: 'blank', key: '_blank_right', width: rightBlank })
       } else {
-        result.push({ type: 'normal', key, column })
+        if (key === leftKey) {
+          result.push({ type: 'normal', key, column })
+          result.push({ type: 'blank', key: '_blank_left', width: leftBlank })
+        } else if (leftKey == null && index === 0) {
+          result.push({ type: 'blank', key: '_blank_left', width: leftBlank })
+          result.push({ type: 'normal', key, column })
+        } else if (key === rightKey) {
+          result.push({ type: 'blank', key: '_blank_right', width: rightBlank })
+          result.push({ type: 'normal', key, column })
+        } else if (rightKey == null && index === columnSlice.length - 1) {
+          result.push({ type: 'normal', key, column })
+          result.push({ type: 'blank', key: '_blank_right', width: rightBlank })
+        } else {
+          result.push({ type: 'normal', key, column })
+        }
       }
       return result
     }, [])
-  }, [columnSlice, leftKey, rightKey, leftBlank, rightBlank, defaultColumnWidth])
+  }, [columnSlice, disabled, defaultColumnWidth, leftKey, rightKey, leftBlank, rightBlank])
 
   const columns = useMemo(() => {
     return { columns: columnSlice, descriptor }
