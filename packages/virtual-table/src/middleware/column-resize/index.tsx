@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ColumnType, MiddlewareContext, MiddlewareRenderHeaderCell, MiddlewareResult } from '@are-visual/virtual-table'
 import type { Key } from 'react'
-import { createMiddleware, getColumnWidth, getKey } from '@are-visual/virtual-table'
+import { createMiddleware, getColumnWidth, getKey, isValidFixedRight } from '@are-visual/virtual-table'
 import { isValidElement, useCallback, useMemo, useState } from 'react'
 import { Resizable } from 'react-resizable'
 
@@ -18,6 +18,8 @@ declare module '@are-visual/virtual-table' {
 type Constraint<T> = number | ((column: ColumnType<T>) => (number | undefined | null))
 
 export interface ResizeOptions<T = any> {
+  /** 当column 设置的width小于容器width的时候， 是否使用空白列作为占位 */
+  usePlaceholderWhenWidthLTContainerWidth?: boolean
   storageKey: string
   min?: Constraint<T>
   max?: Constraint<T>
@@ -76,7 +78,7 @@ function useColumnResize<T = any>(
   ctx: MiddlewareContext<T>,
   args?: ResizeOptions<T>,
 ): MiddlewareResult<T> {
-  const { storageKey, min, max } = args ?? {}
+  const { storageKey, min, max, usePlaceholderWhenWidthLTContainerWidth = true } = args ?? {}
   const { columns: rawColumns, instance } = ctx
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>(() => {
     if (storageKey == null) {
@@ -134,14 +136,14 @@ function useColumnResize<T = any>(
   const columns = useMemo(() => {
     let totalWidth = rawColumns.reduce((total, column) => {
       const key = getKey(column).toString()
-      const width = columnWidths[key] || +column.width! || 0
+      const width = columnWidths[key] || (column.width ?? 0) || 0
       total += width
       return total
     }, 0)
     const rect = ctx.headerWrapperRef.current?.getBoundingClientRect()
     let result = rawColumns
-    if (((rect?.width) != null) && totalWidth < rect.width) {
-      const rightFixedIndex = rawColumns.findIndex((column) => column.fixed === 'right')
+    if (usePlaceholderWhenWidthLTContainerWidth && ((rect?.width) != null) && totalWidth < rect.width) {
+      const rightFixedIndex = rawColumns.findIndex((column) => isValidFixedRight(column.fixed))
       const placeholder = { key: '__placeholder__', dataIndex: '__placeholder__', disableResize: true, width: rect.width - totalWidth }
       if (rightFixedIndex === -1) {
         result = [...rawColumns, placeholder]
@@ -162,7 +164,7 @@ function useColumnResize<T = any>(
       }
       return column
     })
-  }, [columnWidths, rawColumns])
+  }, [columnWidths, rawColumns, ctx, usePlaceholderWhenWidthLTContainerWidth])
 
   return { ...ctx, columns, renderHeaderCell }
 }
