@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ColumnType, MiddlewareContext, MiddlewareRenderHeaderCell, MiddlewareResult } from '@are-visual/virtual-table'
 import type { Key } from 'react'
-import { createMiddleware, getColumnWidth, getKey } from '@are-visual/virtual-table'
+import { createMiddleware, getColumnWidth, getKey, isValidFixedRight } from '@are-visual/virtual-table'
 import { isValidElement, useCallback, useMemo, useState } from 'react'
 import { Resizable } from 'react-resizable'
 
@@ -18,6 +18,8 @@ declare module '@are-visual/virtual-table' {
 type Constraint<T> = number | ((column: ColumnType<T>) => (number | undefined | null))
 
 export interface ResizeOptions<T = any> {
+  /** 当column 设置的width小于容器width的时候， 是否使用空白列作为占位 */
+  usePlaceholderWhenWidthLTContainerWidth?: boolean
   storageKey: string
   min?: Constraint<T>
   max?: Constraint<T>
@@ -76,8 +78,8 @@ function useColumnResize<T = any>(
   ctx: MiddlewareContext<T>,
   args?: ResizeOptions<T>,
 ): MiddlewareResult<T> {
-  const { storageKey, min, max } = args ?? {}
-  const { columns: rawColumns, instance } = ctx
+  const { storageKey, min, max, usePlaceholderWhenWidthLTContainerWidth = true } = args ?? {}
+  const { columns: rawColumns, instance, headerWrapperRef } = ctx
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>(() => {
     if (storageKey == null) {
       return {}
@@ -100,7 +102,6 @@ function useColumnResize<T = any>(
 
   const renderHeaderCell: MiddlewareRenderHeaderCell<T> = useCallback((children, options) => {
     const { column } = options
-
     if (column.disableResize) {
       return children
     }
@@ -133,15 +134,37 @@ function useColumnResize<T = any>(
   }, [handleResize, instance, max, min])
 
   const columns = useMemo(() => {
-    return rawColumns.map((column) => {
+    let totalWidth = rawColumns.reduce((total, column) => {
+      const key = getKey(column).toString()
+      const width = columnWidths[key] || (column.width ?? 0) || 0
+      total += width
+      return total
+    }, 0)
+    const rect = headerWrapperRef.current?.getBoundingClientRect()
+    let result = rawColumns
+    if (usePlaceholderWhenWidthLTContainerWidth && ((rect?.width) != null) && totalWidth < rect.width) {
+      const rightFixedIndex = rawColumns.findIndex((column) => isValidFixedRight(column.fixed))
+      const placeholder = { key: '__placeholder__', dataIndex: '__placeholder__', disableResize: true, width: rect.width - totalWidth }
+      if (rightFixedIndex === -1) {
+        result = [...rawColumns, placeholder]
+      } else {
+        result = [
+          ...rawColumns.slice(0, rightFixedIndex),
+          placeholder,
+          ...rawColumns.slice(rightFixedIndex),
+        ]
+      }
+    }
+
+    return result.map((column) => {
       const key = getKey(column).toString()
       const width = columnWidths[key] as number | undefined
-      if (width != null && width !== column.width) {
+      if (width != null && width !== column.width && column.key !== '__placeholder__') {
         return { ...column, width }
       }
       return column
     })
-  }, [columnWidths, rawColumns])
+  }, [columnWidths, rawColumns, headerWrapperRef, usePlaceholderWhenWidthLTContainerWidth])
 
   return { ...ctx, columns, renderHeaderCell }
 }
