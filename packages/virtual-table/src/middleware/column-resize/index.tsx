@@ -100,7 +100,6 @@ function useColumnResize<T = any>(
 
   const renderHeaderCell: MiddlewareRenderHeaderCell<T> = useCallback((children, options) => {
     const { column } = options
-
     if (column.disableResize) {
       return children
     }
@@ -133,10 +132,32 @@ function useColumnResize<T = any>(
   }, [handleResize, instance, max, min])
 
   const columns = useMemo(() => {
-    return rawColumns.map((column) => {
+    let totalWidth = rawColumns.reduce((total, column) => {
+      const key = getKey(column).toString()
+      const width = columnWidths[key] || +column.width! || 0
+      total += width
+      return total
+    }, 0)
+    const rect = ctx.headerWrapperRef.current?.getBoundingClientRect()
+    let result = rawColumns
+    if (((rect?.width) != null) && totalWidth < rect.width) {
+      const rightFixedIndex = rawColumns.findIndex((column) => column.fixed === 'right')
+      const placeholder = { key: '__placeholder__', dataIndex: '__placeholder__', disableResize: true, width: rect.width - totalWidth }
+      if (rightFixedIndex === -1) {
+        result = [...rawColumns, placeholder]
+      } else {
+        result = [
+          ...rawColumns.slice(0, rightFixedIndex),
+          placeholder,
+          ...rawColumns.slice(rightFixedIndex),
+        ]
+      }
+    }
+
+    return result.map((column) => {
       const key = getKey(column).toString()
       const width = columnWidths[key] as number | undefined
-      if (width != null && width !== column.width) {
+      if (width != null && width !== column.width && column.key !== '__placeholder__') {
         return { ...column, width }
       }
       return column
