@@ -79,7 +79,7 @@ function useColumnResize<T = any>(
   args?: ResizeOptions<T>,
 ): MiddlewareResult<T> {
   const { storageKey, min, max, usePlaceholderWhenWidthLTContainerWidth = true } = args ?? {}
-  const { columns: rawColumns, instance } = ctx
+  const { columns: rawColumns, instance, headerWrapperRef } = ctx
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>(() => {
     if (storageKey == null) {
       return {}
@@ -140,7 +140,7 @@ function useColumnResize<T = any>(
       total += width
       return total
     }, 0)
-    const rect = ctx.headerWrapperRef.current?.getBoundingClientRect()
+    const rect = headerWrapperRef.current?.getBoundingClientRect()
     let result = rawColumns
     if (usePlaceholderWhenWidthLTContainerWidth && ((rect?.width) != null) && totalWidth < rect.width) {
       const rightFixedIndex = rawColumns.findIndex((column) => isValidFixedRight(column.fixed))
@@ -164,7 +164,7 @@ function useColumnResize<T = any>(
       }
       return column
     })
-  }, [columnWidths, rawColumns, ctx, usePlaceholderWhenWidthLTContainerWidth])
+  }, [columnWidths, rawColumns, headerWrapperRef, usePlaceholderWhenWidthLTContainerWidth])
 
   return { ...ctx, columns, renderHeaderCell }
 }
