@@ -2,6 +2,13 @@
 
 Not yet
 
+## [0.11.2](https://github.com/Y-Hui/virtualize/compare/v0.11.0...v0.11.1) (2025-07-30)
+### Features
+- `column-resize` 当列数宽度总和不足以撑满 Table 时，添加一个空白列自动撑开，提升 resize 的使用体验 ([PR](https://github.com/Y-Hui/virtualize/pull/3))
+
+### Bug Fixes
+- 未开启列虚拟化时，不追加添加空列
+
 ## [0.11.1](https://github.com/Y-Hui/virtualize/compare/v0.11.0...v0.11.1) (2025-05-17)
 ### Bug Fixes
 - `horizontal-scroll-bar` 在 Safari 中不显示滚动条 ([PR](https://github.com/Y-Hui/virtualize/pull/2))
