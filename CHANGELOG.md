@@ -2,7 +2,11 @@
 
 Not yet
 
-## [0.11.2](https://github.com/Y-Hui/virtualize/compare/v0.11.0...v0.11.1) (2025-07-30)
+## [0.11.3](https://github.com/Y-Hui/virtualize/compare/v0.11.2...v0.11.3) (2025-09-22)
+### Bug Fixes
+- 修复分页请求数据场景下，切换页码重置 dataSource 时导致白屏。场景：分页请求 Table 数据，滚动到底部，查看下一页，dataSource 重置为空数组，网络请求结束后再 setDataSource，此时渲染出现空白。
+
+## [0.11.2](https://github.com/Y-Hui/virtualize/compare/v0.11.1...v0.11.2) (2025-07-30)
 ### Features
 - `column-resize` 当列数宽度总和不足以撑满 Table 时，添加一个空白列自动撑开，提升 resize 的使用体验 ([PR](https://github.com/Y-Hui/virtualize/pull/3))
 
