@@ -70,3 +70,15 @@ body,
 .w-full {
   width: 100%;
 }
+
+.footer {
+  position: sticky;
+  z-index: 3;
+  bottom: 0;
+  left: 0 !important;
+  width: 100% !important;
+  background-color: #fff;
+  padding: 8px;
+  border-top: 1px solid #eee;
+  margin: 0 !important;
+}

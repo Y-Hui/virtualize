@@ -65,18 +65,18 @@ const texts = [
   'The standard Lorem Ipsum passage, used since the 1500s',
 ]
 
-function createMockData(): MockData[] {
+export function createMockData(str?: string): MockData[] {
   return Array.from({ length: 500 }, (__, index) => {
     return {
-      key: `key:${index}`,
-      name: `Name${index}`,
+      key: `${str}-key:${index}`,
+      name: `${str}-Name${index}`,
       data1: index,
       text: texts[Math.ceil(Math.random() * texts.length - 1)],
     } satisfies MockData
   })
 }
 
-function createMockStringData(): MockStringData[] {
+export function createMockStringData(): MockStringData[] {
   return Array.from({ length: 500 }, (__, index) => {
     return {
       key: `key:${index}`,
@@ -116,7 +116,7 @@ export function useAsyncData() {
 
   useEffect(() => {
     setTimeout(() => {
-      setData(createMockData)
+      setData(createMockData())
     }, 300)
   }, [])
 

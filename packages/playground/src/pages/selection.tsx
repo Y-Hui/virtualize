@@ -2,13 +2,21 @@ import type { ColumnType } from '@/components/table'
 import type { MockData } from '@/utils/mock'
 import type { FC } from 'react'
 import VirtualTable from '@/components/table'
-import { useAsyncData } from '@/utils/mock'
+import { createMockData } from '@/utils/mock'
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons'
 import { Button, Input, InputNumber, Space, Switch } from 'antd'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 const SelectionDemo: FC = () => {
-  const [data, setData] = useAsyncData()
+  const [data, setData] = useState<MockData[]>([])
+  const [current, setCurrent] = useState(1)
+
+  useEffect(() => {
+    setTimeout(() => {
+      setData(createMockData('scroll'))
+    }, 300)
+  }, [])
+
   const [isRadio, setIsRadio] = useState(false)
 
   const isOnlyOneData = data.length === 1
@@ -71,7 +79,7 @@ const SelectionDemo: FC = () => {
         dataIndex: 'name',
         key: 'name',
         width: 200,
-        render: (value, _row, index) => {
+        render: (value: string, _row, index) => {
           return (
             <Input
               value={value}
@@ -90,14 +98,14 @@ const SelectionDemo: FC = () => {
         title: 'Data1',
         dataIndex: 'data1',
         width: 200,
-        render: (value, _row, index) => (
+        render: (_, row, index) => (
           <InputNumber
             className="w-full"
-            value={value}
+            value={row.data1}
             onChange={(e) => {
               setData((prevState) => {
                 const result = prevState.slice()
-                result[index] = { ...result[index], data1: e }
+                result[index] = { ...result[index], data1: e ?? 0 }
                 return result
               })
             }}
@@ -108,14 +116,14 @@ const SelectionDemo: FC = () => {
         title: 'Data2',
         dataIndex: 'data2',
         width: 200,
-        render: (value, _row, index) => (
+        render: (value: number, _row, index) => (
           <InputNumber
             className="w-full"
             value={value}
             onChange={(e) => {
               setData((prevState) => {
                 const result = prevState.slice()
-                result[index] = { ...result[index], data2: e }
+                result[index] = { ...result[index], data2: e ?? 0 }
                 return result
               })
             }}
@@ -126,14 +134,14 @@ const SelectionDemo: FC = () => {
         title: 'Data3',
         dataIndex: 'data3',
         width: 200,
-        render: (value, _row, index) => (
+        render: (value: number, _row, index) => (
           <InputNumber
             className="w-full"
             value={value}
             onChange={(e) => {
               setData((prevState) => {
                 const result = prevState.slice()
-                result[index] = { ...result[index], data3: e }
+                result[index] = { ...result[index], data3: e ?? 0 }
                 return result
               })
             }}
@@ -144,7 +152,7 @@ const SelectionDemo: FC = () => {
         title: 'Data4',
         dataIndex: 'data4',
         width: 200,
-        render: (value, _row, index) => (
+        render: (value: string, _row, index) => (
           <Input
             value={value}
             onChange={(e) => {
@@ -162,7 +170,7 @@ const SelectionDemo: FC = () => {
         dataIndex: 'data5',
         width: 200,
         // fixed: 'right',
-        render: (value, _row, index) => (
+        render: (value: string, _row, index) => (
           <Input
             value={value}
             onChange={(e) => {
@@ -202,6 +210,19 @@ const SelectionDemo: FC = () => {
         }}
         onChange={(e) => {
           console.log(e)
+        }}
+        pagination={{
+          className: 'footer',
+          current,
+          total: 2000,
+          pageSize: 500,
+          onChange(page) {
+            setData([])
+            setCurrent(page)
+            setTimeout(() => {
+              setData(createMockData(current.toString()))
+            }, 0)
+          },
         }}
       />
     </div>
