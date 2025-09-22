@@ -165,6 +165,13 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
     bottom: estimateSize,
   })
 
+  // 场景：分页请求 Table 数据，滚动到底部，查看下一页
+  // dataSource重置为空数组
+  // 网络请求结束后再 setDataSource
+  // 此时的 startIndex 和 endIndex 还是上一页的结果，导致渲染出现空白
+  // 所以 dataSource.length 发生改变，重新计算 startIndex、endIndex
+  const updateBoundaryFlagDep = rawData.length
+
   // 用来判断滚动方向
   const scrollTopRef = useRef(0)
   const initial = useRef(false)
@@ -252,7 +259,7 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
       stopListen()
       container.removeEventListener('scroll', onScroll)
     }
-  }, [estimateSize, getOffsetTop, getScroller, overscan])
+  }, [estimateSize, getOffsetTop, getScroller, overscan, updateBoundaryFlagDep])
 
   const sum = (startIndex: number, endIndex?: number) => {
     return rowHeights.current.slice(startIndex, endIndex).reduce((a, b) => a + b, 0)
