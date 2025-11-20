@@ -106,7 +106,14 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
       const key = getRowKey(item, rowKey)
       const row = rowHeightByRowKey.current.get(key) ?? new Map<Key, number>()
       const target = row.get(NormalRowHeightKey)
-      if (target == null) {
+
+      /**
+       * target = 0 是因为一开始从有滚动条，切换tab 然后变成了没滚动条，
+       * 然后触发render 但是这个row 是已经挂载了的，没触发ref的计算，但是却重新触发了fillrowheight
+       * 那么他应该重新给个默认值吧
+       * 如果这里没有默认值，会导致后面计算startIndex 计算错误
+       */
+      if (target == null || target === 0) {
         row.set(NormalRowHeightKey, estimateSize)
       }
       rowHeightByRowKey.current.set(key, row)
@@ -129,7 +136,6 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
   const updateRowRects = () => {
     const { rects } = rawData.reduce((result, rowData, index) => {
       const key = getRowKey(rowData, rowKey)
-
       let height = 0
       rowHeightByRowKey.current.get(key)?.forEach((item) => {
         height += item
