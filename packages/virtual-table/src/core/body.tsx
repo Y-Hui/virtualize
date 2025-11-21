@@ -16,6 +16,7 @@ import { useMergedRef } from '../utils/ref'
 import Colgroup from './colgroup'
 import { useScrollSynchronize } from './context/horizontal-scroll'
 import { TableRowManager } from './context/row-manager'
+import { useNodeHeight } from './hooks/useNodeHeight'
 import { NormalRowHeightKey, useRowVirtualize } from './hooks/useRowVirtualize'
 import { pipelineRender } from './pipeline/render-pipeline'
 import Row from './row'
@@ -73,6 +74,8 @@ function TableBody<T>(props: TableBodyProps<T>) {
     renderCell,
   } = props
 
+  const [tbodyNode, nodeHeightValid] = useNodeHeight()
+
   const {
     startIndex,
     endIndex,
@@ -84,6 +87,7 @@ function TableBody<T>(props: TableBodyProps<T>) {
     topBlank,
     bottomBlank,
   } = useRowVirtualize({
+    nodeHeightValid,
     getOffsetTop,
     rowKey,
     dataSource: rawData,
@@ -97,7 +101,7 @@ function TableBody<T>(props: TableBodyProps<T>) {
     getRowHeightMap: () => rowHeightByRowKey.current,
   } satisfies Partial<TableInstanceBuildIn>)
 
-  const tbodyRef = useMergedRef(bodyRef, (elm) => {
+  const tbodyRef = useMergedRef(bodyRef, tbodyNode, (elm) => {
     if (elm == null) return
 
     const bodyHeight = elm.offsetHeight

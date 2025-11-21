@@ -3,7 +3,7 @@
 import type { Key, MutableRefObject } from 'react'
 import type { ScrollElement } from '../../utils/dom'
 import type { NecessaryProps } from '../internal'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { getScrollElement, isRoot, isWindow } from '../../utils/dom'
 import { getRowKey } from '../utils/get-key'
 import { onResize } from '../utils/on-resize'
@@ -16,6 +16,7 @@ export interface RowRect {
 }
 
 interface UseRowVirtualizeOptions<T = any> {
+  nodeHeightValid: () => boolean
   getOffsetTop: () => number
   dataSource: T[]
   rowKey: NecessaryProps<T>['rowKey']
@@ -51,6 +52,7 @@ export const NormalRowHeightKey = 'NormalRow'
 
 export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
   const {
+    nodeHeightValid,
     getOffsetTop,
     rowKey,
     dataSource: rawData,
@@ -61,6 +63,20 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
 
   const [startIndex, setStartIndex] = useState(0)
   const [endIndex, setEndIndex] = useState(0)
+
+  // 解决 PR #5 的问题
+  // 在 scroll 事件中获取到当前的 node 高度为 0 就认为节点不可见，
+  // 就不需要触发 updateBoundary
+  // 把它推迟到下一次渲染检测 node 高度不为 0 的时候
+  const reUpdateBoundary = useRef<() => void>()
+  useLayoutEffect(() => {
+    const reUpdate = reUpdateBoundary.current
+    if (reUpdate == null) return
+    if (nodeHeightValid()) {
+      reUpdate()
+      reUpdateBoundary.current = undefined
+    }
+  })
 
   const dataSlice = useMemo(() => {
     return rawData.slice(startIndex, endIndex)
@@ -129,7 +145,6 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
   const updateRowRects = () => {
     const { rects } = rawData.reduce((result, rowData, index) => {
       const key = getRowKey(rowData, rowKey)
-
       let height = 0
       rowHeightByRowKey.current.get(key)?.forEach((item) => {
         height += item
@@ -219,20 +234,30 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
       if (isScrollDown) {
         // 如果滚动距离比较小，没有超出锚点元素的边界，就不需要计算 startIndex、endIndex 了
         if (scrollTop > anchorRef.current.bottom) {
-          updateBoundary(scrollTop)
+          if (!nodeHeightValid()) {
+            reUpdateBoundary.current = () => updateBoundary(scrollTop)
+          } else {
+            updateBoundary(scrollTop)
+          }
         }
       } else {
         if (scrollTop < anchorRef.current.top) {
-          updateBoundary(scrollTop)
+          if (!nodeHeightValid()) {
+            reUpdateBoundary.current = () => updateBoundary(scrollTop)
+          } else {
+            updateBoundary(scrollTop)
+          }
         }
       }
-
       scrollTopRef.current = scrollTop
     }
 
     let prevHeight = 0
     const stopListen = onResize(container, (rect) => {
-      // 处理父元素 display:none 容器高度丢失，导致显示 row 不准确
+      // 使用 div 作为滚动容器时，并且放置在 <Tabs> 组件内，当前 tab 切换到非激活状态时，
+      // 父元素会被设置 display:none，导致容器高度变为 0，导致调用 updateBoundary
+      // 来回切换会发现每一次都会往下移动几个 row
+      // 这里加一个判断，rect.height 为0时，不处理本次的 resize 事件（这就是 display:none）
       if (rect.height === prevHeight || rect.height === 0) {
         return
       }
@@ -259,7 +284,7 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
       stopListen()
       container.removeEventListener('scroll', onScroll)
     }
-  }, [estimateSize, getOffsetTop, getScroller, overscan, updateBoundaryFlagDep])
+  }, [estimateSize, getOffsetTop, getScroller, overscan, updateBoundaryFlagDep, nodeHeightValid])
 
   const sum = (startIndex: number, endIndex?: number) => {
     return rowHeights.current.slice(startIndex, endIndex).reduce((a, b) => a + b, 0)
