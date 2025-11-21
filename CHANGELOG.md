@@ -2,6 +2,26 @@
 
 Not yet
 
+## [0.11.4](https://github.com/Y-Hui/virtualize/compare/v0.11.3...v0.11.4) (2025-11-21)
+### Bug Fixes
+([PR](https://github.com/Y-Hui/virtualize/pull/3)) 修复切换 tab 导致 startIndex 不从 0 开始的 bug
+
+使用 antd 的 Tabs 组件，并准备两个 tab，tab1为 window 滚动的虚拟列表，tab2 展示几个纯文本。
+
+默认激活 tab1，向下滚动几页后，现在渲染索引范围是 100-120
+
+切换到 tab2，因为元素高度不足，不需要显示滚动条，滚动条重置，触发了 scroll 事件，重新计算了 startIndex、endIndex，变成了 0-20
+
+虽然已经切换到了tab2，但是此时 tab1 也从 100-120 变成 0-20，渲染了前20条，并且tab1的dom不可见，所以前面20条的高度就被设置为了0
+
+Row组件使用了 memo 包裹
+再次切换tab1，因为startIndex、endIndex没有变化，而且Row也没有变化，所以就没有触发渲染，导致错误的行高信息被保留下来。
+
+稍微滚动几页，让startIndex变化，再切换到tab2，又触发了滚动条重置，重新计算渲染范围，这一次，拿到了上一次的错误0行高，程序就一直累加Row的高度，直到满足填充容器，所以会看到从 21 开始渲染
+
+解决方案：
+在 scroll 事件中获取到当前的 node 高度为 0 就认为节点不可见，就不需要触发 updateBoundary，把它推迟到下一次渲染检测 node 高度不为 0 的时候
+
 ## [0.11.3](https://github.com/Y-Hui/virtualize/compare/v0.11.2...v0.11.3) (2025-09-22)
 ### Bug Fixes
 - 修复分页请求数据场景下，切换页码重置 dataSource 时导致白屏。场景：分页请求 Table 数据，滚动到底部，查看下一页，dataSource 重置为空数组，网络请求结束后再 setDataSource，此时渲染出现空白。
