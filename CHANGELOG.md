@@ -1,6 +1,37 @@
 ## [Unreleased]
 
 Not yet
+## [0.11.5-beta.0](https://github.com/Y-Hui/virtualize/compare/v0.11.4...v0.11.5-beta.0) (2025-12-29)
+### Bug Fixes
+#### 重新修改行虚拟化的高度计算逻辑
+
+关键问题场景（与 0.11.4 版本几乎一致）：
+1. `<Tabs />` 组件嵌套，内部包含两个 tab。
+2. tabs 数组定义在组件内部，不使用 useMemo。
+3. `<Tabs />` 组件 onChange 函数中需要触发重新渲染。
+4. 滚动容器为最外层 Tabs 组件，两个 tab 共享这一个滚动容器。
+5. columns定义在组件内部，不使用 useMemo。
+6. tab1 滚动并让 startIndex 修改，切换到 tab2，再回到 tab1 进行滚动，最后切换到 tab2 查看渲染的数据是否正确。
+
+现有逻辑：
+
+在 Row 组件的 DOM ref 回调中测量行高，并调用 `setRowHeightByRowKey` 保存到 useRef 内。
+
+所有的高度都是在 render 阶段进行收集、计算（可以强行理解为同步计算）。
+
+修改为：
+
+`setRowHeightByRowKey` 函数签名修改
+
+原：`(rowKey: Key, key: Key, height: number) => void`
+
+现：`(rowKey: Key, key: Key, getHeight: () => number | undefined) => void`
+
+因为在 ref 回调中存在 body 处于 `display: none` 的情况，导致高度测量数值为 0。
+
+把高度测量逻辑移动到 `useLayoutEffect` 中，同时判断 body 高度是否有效，再批量调用 `getHeight` 函数得到最新的高度。
+
+所有的高度都是在 `useLayoutEffect` 中进行收集、计算（可以强行理解为异步处理）。
 
 ## [0.11.4](https://github.com/Y-Hui/virtualize/compare/v0.11.3...v0.11.4) (2025-11-21)
 ### Bug Fixes
