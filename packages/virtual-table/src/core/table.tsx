@@ -33,6 +33,7 @@ import { isValidFixedLeft, isValidFixedRight } from './utils/verification'
 export interface VirtualTableCoreProps<T>
   extends NecessaryProps<T>,
   Pick<TableBodyProps<T>, 'rowClassName' | 'onRow'> {
+  debugKey?: string
   bodyRootRef?: Ref<HTMLTableElement>
   instance?: TableInstance
 
@@ -73,6 +74,7 @@ function VirtualTableCore<T>(
   ref: ForwardedRef<HTMLDivElement>,
 ) {
   const {
+    debugKey,
     bodyRootRef,
     instance: rawInstance,
     className,
@@ -311,6 +313,7 @@ function VirtualTableCore<T>(
         renderHeaderCell={renderHeaderCell}
       />
       <TableBody
+        debugKey={debugKey}
         instance={instance}
         bodyWrapperRef={bodyWrapperRef}
         bodyRootRef={mergedBodyRootRef}

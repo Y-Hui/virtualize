@@ -1,21 +1,14 @@
-/* eslint-disable react-compiler/react-compiler */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { Key, MutableRefObject } from 'react'
 import type { ScrollElement } from '../../utils/dom'
 import type { NecessaryProps } from '../internal'
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import type { RowRect } from './useRowHeight'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { getScrollElement, isRoot, isWindow } from '../../utils/dom'
-import { getRowKey } from '../utils/get-key'
 import { onResize } from '../utils/on-resize'
-
-export interface RowRect {
-  index: number
-  height: number
-  top: number
-  bottom: number
-}
+import { NormalRowHeightKey, useRowHeight } from './useRowHeight'
 
 interface UseRowVirtualizeOptions<T = any> {
+  debugKey?: string
   nodeHeightValid: () => boolean
   getOffsetTop: () => number
   dataSource: T[]
@@ -48,10 +41,9 @@ function anchorQuery(rects: RowRect[], scrollTop: number) {
   return rects[index]
 }
 
-export const NormalRowHeightKey = 'NormalRow'
-
 export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
   const {
+    debugKey,
     nodeHeightValid,
     getOffsetTop,
     rowKey,
@@ -61,6 +53,19 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
     overscan,
   } = options
 
+  const {
+    rowHeightByRowKeyRef,
+    setRowHeightByRowKey,
+    rowRectsRef,
+    rowHeights,
+  } = useRowHeight({
+    dataSource: rawData,
+    rowKey,
+    debugKey,
+    estimateSize,
+    nodeHeightValid,
+  })
+
   const [startIndex, setStartIndex] = useState(0)
   const [endIndex, setEndIndex] = useState(0)
 
@@ -68,6 +73,13 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
   // 在 scroll 事件中获取到当前的 node 高度为 0 就认为节点不可见，
   // 就不需要触发 updateBoundary
   // 把它推迟到下一次渲染检测 node 高度不为 0 的时候
+  // 场景：
+  // <Tabs /> 组件展示两个 Tab
+  // tab1 是以 window 为滚动容器的 table
+  // tab2 仅展示一行文字
+  // 滚动 tab1 让 startIndex 变化（假设是100），再切换到 tab2，此时由于内容变了
+  // 滚动条被重置为 0，再切换回 tab1 的时候，需要重新计算 startIndex，
+  // 否则 startIndex 还停留在上一次的 100，造成白屏
   const reUpdateBoundary = useRef<() => void>()
   useLayoutEffect(() => {
     const reUpdate = reUpdateBoundary.current
@@ -81,96 +93,6 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
   const dataSlice = useMemo(() => {
     return rawData.slice(startIndex, endIndex)
   }, [rawData, startIndex, endIndex])
-
-  /**
-   * 记录的所有行高信息
-   * 一个 Row 可能有多个行高。例如：默认情况下，只有一个行高，展开后，展开面板的高度也被认为是同一个 Row 的
-   * 所以可展开时，行高有多个，所有行高之和，则为 Row 的高度
-   * 行高之间使用唯一的 key 作为区分
-   * Record<rowKey, Map<key, height>>
-   */
-  const rowHeightByRowKey = useRef(new Map<Key, Map<Key, number>>())
-  const setRowHeightByRowKey = useCallback((rowKey: Key, key: Key, height: number) => {
-    const target = rowHeightByRowKey.current.get(rowKey) ?? new Map<Key, number>()
-    target.set(key, height)
-    rowHeightByRowKey.current.set(rowKey, target)
-  }, [])
-
-  const getAllRowHeights = () => {
-    const heights: number[] = []
-    rawData.forEach((item) => {
-      const key = getRowKey(item, rowKey)
-      const row = rowHeightByRowKey.current.get(key)
-      if (row == null) {
-        heights.push(estimateSize)
-      } else {
-        let height = 0
-        row.forEach((x) => height += x)
-        heights.push(height)
-      }
-    })
-    return heights
-  }
-
-  // 行高信息（先填充预估高度，DOM渲染后再更新成实际高度）
-  const fillRowHeights = () => {
-    if (rawData.length === 0) {
-      rowHeightByRowKey.current.clear()
-      return
-    }
-    rawData.forEach((item) => {
-      const key = getRowKey(item, rowKey)
-      const row = rowHeightByRowKey.current.get(key) ?? new Map<Key, number>()
-      const target = row.get(NormalRowHeightKey)
-      if (target == null) {
-        row.set(NormalRowHeightKey, estimateSize)
-      }
-      rowHeightByRowKey.current.set(key, row)
-    })
-  }
-  fillRowHeights()
-
-  // 强制设置类型为 number[]，在后面会初始化，只是为了减少 getAllRowHeights 的调用
-  const rowHeights = useRef<number[]>() as MutableRefObject<number[]>
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (rowHeights.current == null) {
-    rowHeights.current = getAllRowHeights()
-  } else if (rawData.length !== rowHeights.current.length) {
-    // 这个判断条件主要是为了处理：空数据切换为有数据时 tbody 上 padding 缺失的问题
-    rowHeights.current = getAllRowHeights()
-  }
-
-  // 布局信息（也就是锚点元素需要的信息，top,bottom,height,index）
-  const rowRects = useRef<RowRect[]>([])
-  const updateRowRects = () => {
-    const { rects } = rawData.reduce((result, rowData, index) => {
-      const key = getRowKey(rowData, rowKey)
-      let height = 0
-      rowHeightByRowKey.current.get(key)?.forEach((item) => {
-        height += item
-      })
-
-      const nextTop = result.top + height
-      result.rects.push({
-        index,
-        top: result.top,
-        height,
-        bottom: nextTop,
-      })
-      result.top = nextTop
-      return result
-    }, { top: 0, rects: [] as RowRect[] })
-    rowRects.current = rects
-  }
-
-  /** 刷新布局信息，行高变化的时候调用，要重新组织布局信息(rowRects) */
-  const flushLayout = (fn?: () => void) => {
-    fn?.()
-    updateRowRects()
-    // 组件渲染后会触发 flushLayout，表示行高有更新所以需要更新一下 rowHeights
-    // 避免展开行之后记录的还是之前的行高信息，否则滚动后底部会出现空白区域
-    rowHeights.current = rowRects.current.map((x) => x.height)
-  }
 
   // 锚点元素，当前虚拟列表中，最接近滚动容器顶部的元素
   const anchorRef = useRef<RowRect>({
@@ -215,7 +137,7 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
     }
 
     const updateBoundary = (scrollTop: number) => {
-      const anchor = anchorQuery(rowRects.current, scrollTop)
+      const anchor = anchorQuery(rowRectsRef.current, scrollTop)
       if (anchor != null) {
         anchorRef.current = anchor
         setStartIndex(Math.max(0, anchor.index - overscan))
@@ -284,11 +206,12 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
       stopListen()
       container.removeEventListener('scroll', onScroll)
     }
-  }, [estimateSize, getOffsetTop, getScroller, overscan, updateBoundaryFlagDep, nodeHeightValid])
+  }, [estimateSize, getOffsetTop, getScroller, overscan, updateBoundaryFlagDep, nodeHeightValid, rowRectsRef])
 
   const sum = (startIndex: number, endIndex?: number) => {
-    return rowHeights.current.slice(startIndex, endIndex).reduce((a, b) => a + b, 0)
+    return rowHeights.slice(startIndex, endIndex).reduce((a, b) => a + b, 0)
   }
+
   // TODO: React Compiler 测试 topBlank 和 bottomBlank
   const topBlank = sum(0, startIndex)
   const bottomBlank = sum(endIndex)
@@ -298,8 +221,7 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
     endIndex,
 
     rowHeightList: rowHeights,
-    flushLayout,
-    rowHeightByRowKey,
+    rowHeightByRowKeyRef,
     setRowHeightByRowKey,
 
     topBlank,
@@ -308,3 +230,5 @@ export function useRowVirtualize<T = any>(options: UseRowVirtualizeOptions<T>) {
     dataSlice,
   }
 }
+
+export { NormalRowHeightKey }

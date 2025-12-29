@@ -6,9 +6,9 @@ export interface TableRowManagerContextType {
   /**
    * @param rowKey
    * @param key 唯一的 key，用于去重
-   * @param height 行高
+   * @param getHeight 行高
    */
-  setRowHeightByRowKey: (rowKey: Key, key: Key, height: number) => void
+  setRowHeightByRowKey: (rowKey: Key, key: Key, getHeight: () => number | undefined) => void
 }
 
 export const TableRowManager = createContext<TableRowManagerContextType | null>(null)

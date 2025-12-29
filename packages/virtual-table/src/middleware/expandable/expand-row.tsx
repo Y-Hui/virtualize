@@ -33,8 +33,10 @@ const ExpandRow: FC<ExpandRowProps> = (props) => {
       className={clsx('virtual-table-expanded-row', className)}
       style={{ ...style, display: isExpanded ? undefined : 'none' }}
       ref={(node) => {
-        if (node == null) return
-        setRowHeightByRowKey(rowKey, ExpandRowHeightKey, node.offsetHeight)
+        setRowHeightByRowKey(rowKey, ExpandRowHeightKey, () => {
+          if (node == null) return
+          return node.offsetHeight
+        })
       }}
     >
       <td colSpan={colSpan}>

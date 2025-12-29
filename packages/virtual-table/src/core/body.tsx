@@ -25,6 +25,7 @@ import { getRowKey } from './utils/get-key'
 export interface TableBodyProps<T>
   extends Omit<NecessaryProps<T>, 'columns'>,
   Pick<RowProps<T>, 'onRow' | 'renderRow' | 'renderCell'> {
+  debugKey?: string
   className?: string
   style?: CSSProperties
   defaultColumnWidth: number
@@ -46,6 +47,7 @@ export interface TableBodyProps<T>
 
 function TableBody<T>(props: TableBodyProps<T>) {
   const {
+    debugKey,
     bodyWrapperRef,
     bodyRootRef,
     bodyRef,
@@ -80,13 +82,13 @@ function TableBody<T>(props: TableBodyProps<T>) {
     startIndex,
     endIndex,
     dataSlice: dataSource,
-    rowHeightByRowKey,
+    rowHeightByRowKeyRef,
     setRowHeightByRowKey,
-    flushLayout,
     rowHeightList,
     topBlank,
     bottomBlank,
   } = useRowVirtualize({
+    debugKey,
     nodeHeightValid,
     getOffsetTop,
     rowKey,
@@ -98,26 +100,18 @@ function TableBody<T>(props: TableBodyProps<T>) {
 
   instance.extend({
     getRowVirtualizeState: () => ({ startIndex, endIndex, overscan, estimateSize }),
-    getRowHeightMap: () => rowHeightByRowKey.current,
+    getRowHeightMap: () => rowHeightByRowKeyRef.current,
   } satisfies Partial<TableInstanceBuildIn>)
 
-  const tbodyRef = useMergedRef(bodyRef, tbodyNode, (elm) => {
-    if (elm == null) return
-
-    const bodyHeight = elm.offsetHeight
-    if (bodyHeight === 0) return
-
-    // body 的 ref 回调函数中，说明 body 渲染完成，也就意味着所有的 tr 也已经渲染完成，
-    // 现在可以记录所有 tr 的高度
-    flushLayout()
-  })
+  const tbodyRef = useMergedRef(bodyRef, tbodyNode)
 
   // 测量行高
   const onMeasureRowHeight = useCallback((args: OnRefCallbackArgs<T>) => {
     const { node, rowKey } = args
-    if (node == null) return
-    // 小心陷阱：当 table 父元素为 display: none 时，依然会触发，并设置高度为 0
-    setRowHeightByRowKey(rowKey, NormalRowHeightKey, node.offsetHeight)
+    setRowHeightByRowKey(rowKey, NormalRowHeightKey, () => {
+      if (node == null) return
+      return node.offsetHeight
+    })
   }, [setRowHeightByRowKey])
 
   const { columns, descriptor } = columnDescriptor
@@ -185,7 +179,7 @@ function TableBody<T>(props: TableBodyProps<T>) {
         offset = Number.isFinite(stickyHeader) ? (stickyHeader as number) * -1 : 0
       }
 
-      const targetScrollTop = rowHeightList.current.slice(0, index).reduce((a, b) => a + b, 0)
+      const targetScrollTop = rowHeightList.slice(0, index).reduce((a, b) => a + b, 0)
       return targetScrollTop + getOffsetTop() + offset
     },
     scrollToRow(index, behavior) {
@@ -195,8 +189,8 @@ function TableBody<T>(props: TableBodyProps<T>) {
 
   const rowManageState = useMemo<TableRowManagerContextType>(() => {
     return {
+      getRowHeightList: () => rowHeightList,
       setRowHeightByRowKey,
-      getRowHeightList: () => rowHeightList.current,
     }
   }, [rowHeightList, setRowHeightByRowKey])
 
