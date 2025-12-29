@@ -45,6 +45,7 @@ const DefaultDemo: FC = () => {
         columns={columns}
         estimatedRowHeight={100}
         estimatedColumnWidth={100}
+        loading={data.length === 0}
       />
     </div>
   )

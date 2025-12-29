@@ -133,7 +133,7 @@ const FullDemo: FC = () => {
       columnResize({
         storageKey: 'full-demo',
       }),
-      { priority: 200, hook: tableLoading({ loading }) },
+      { priority: 200, hook: tableLoading({ loading: loading || data.length === 0 }) },
       { priority: 200, hook: tableEmpty({ visible: !loading, children: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> }) },
       { priority: 200, hook: summary },
       { priority: 200, hook: horizontalScrollBar() },

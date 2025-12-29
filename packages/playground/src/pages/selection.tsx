@@ -211,6 +211,7 @@ const SelectionDemo: FC = () => {
         onChange={(e) => {
           console.log(e)
         }}
+        loading={data.length === 0}
         pagination={{
           className: 'footer',
           current,

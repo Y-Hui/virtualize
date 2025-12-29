@@ -2,6 +2,7 @@ import '@are-visual/virtual-table/styles/table.scss'
 import '@are-visual/virtual-table/middleware/column-resize/styles.scss'
 import '@are-visual/virtual-table/middleware/selection/styles.scss'
 import '@are-visual/virtual-table/middleware/horizontal-scroll-bar/styles.scss'
+
 import type { ColumnType } from '@are-visual/virtual-table'
 import type { FC } from 'react'
 import { useTablePipeline, VirtualTable } from '@are-visual/virtual-table'

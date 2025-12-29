@@ -68,8 +68,8 @@ const texts = [
 export function createMockData(str?: string): MockData[] {
   return Array.from({ length: 500 }, (__, index) => {
     return {
-      key: `${str}-key:${index}`,
-      name: `${str}-Name${index}`,
+      key: `${str ?? ''}-key:${index}`,
+      name: `${str ?? ''}-Name${index}`,
       data1: index,
       text: texts[Math.ceil(Math.random() * texts.length - 1)],
     } satisfies MockData
@@ -117,7 +117,7 @@ export function useAsyncData() {
   useEffect(() => {
     setTimeout(() => {
       setData(createMockData())
-    }, 300)
+    }, 500)
   }, [])
 
   return [data, setData] as const

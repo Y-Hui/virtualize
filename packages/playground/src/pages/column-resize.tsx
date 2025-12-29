@@ -189,6 +189,7 @@ const ColumnResizeDemo: FC = () => {
         estimatedColumnWidth={200}
         storageKey="resize-page"
         sticky
+        loading={data.length === 0}
       />
     </div>
   )

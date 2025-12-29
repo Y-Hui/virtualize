@@ -1,23 +1,26 @@
 import type { TabsProps } from 'antd'
 import type { FC } from 'react'
 import { Tabs } from 'antd'
+import { useState } from 'react'
 import Tab1 from './tab1'
 import Tab2 from './tab2'
 
-const items: TabsProps['items'] = [
-  {
-    key: '1',
-    label: 'Tab1',
-    children: <Tab1 />,
-  },
-  {
-    key: '2',
-    label: 'Tab2',
-    children: <Tab2 />,
-  },
-]
-
 const Normal: FC = () => {
+  const [activeKey, setActiveKey] = useState('1')
+
+  const items: TabsProps['items'] = [
+    {
+      key: '1',
+      label: 'Tab1',
+      children: <Tab1 />,
+    },
+    {
+      key: '2',
+      label: 'Tab2',
+      children: <Tab2 />,
+    },
+  ]
+
   return (
     <div className="normal">
       <div style={{ padding: 16 }}>
@@ -44,7 +47,8 @@ const Normal: FC = () => {
           }}
         >
           <Tabs
-            defaultActiveKey="1"
+            activeKey={activeKey}
+            onChange={setActiveKey}
             items={items}
           />
         </div>

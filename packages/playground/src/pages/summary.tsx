@@ -263,6 +263,7 @@ const SummaryDemo: FC = () => {
         estimatedColumnWidth={200}
         summary={summary}
         sticky
+        loading={data.length === 0}
       />
     </div>
   )

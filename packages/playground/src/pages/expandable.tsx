@@ -296,6 +296,7 @@ const ExpandableDemo: FC = () => {
         estimatedColumnWidth={200}
         expandable={expandable}
         sticky
+        loading={data.length === 0}
       />
     </div>
   )
